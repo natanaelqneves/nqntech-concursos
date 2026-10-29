@@ -10,67 +10,126 @@
       "url": "https://conhecimento.fgv.br/concursos",
       "status": 200,
       "tipo": "text/html; charset=UTF-8",
-      "bytes": 52397
+      "bytes": 52374
     },
     {
       "url": "https://conhecimento.fgv.br/concursos?page=1",
       "status": 200,
       "tipo": "text/html; charset=UTF-8",
-      "bytes": 53287
+      "bytes": 53329
     },
     {
       "url": "https://conhecimento.fgv.br/concursos?page=2",
       "status": 200,
       "tipo": "text/html; charset=UTF-8",
-      "bytes": 53538
+      "bytes": 53526
     },
     {
       "url": "https://conhecimento.fgv.br/concursos/pcpr26",
       "status": 200,
       "tipo": "text/html; charset=UTF-8",
-      "bytes": 60778
+      "bytes": 60780
+    },
+    {
+      "url": "https://conhecimento.fgv.br/sites/default/files/concursos/copia-1-de-edital-01-2026-pcpr-publicacao.docx.pdf",
+      "status": 200,
+      "tipo": "application/pdf",
+      "bytes": 3529692
     },
     {
       "url": "https://conhecimento.fgv.br/concursos/sesto26",
       "status": 200,
       "tipo": "text/html; charset=UTF-8",
-      "bytes": 64182
+      "bytes": 64184
+    },
+    {
+      "url": "https://conhecimento.fgv.br/sites/default/files/concursos/edital-consolidado-18.09.pdf",
+      "status": 200,
+      "tipo": "application/pdf",
+      "bytes": 1393884
     },
     {
       "url": "https://conhecimento.fgv.br/concursos/seducpa26",
       "status": 200,
       "tipo": "text/html; charset=UTF-8",
-      "bytes": 53673
+      "bytes": 53675
+    },
+    {
+      "url": "https://conhecimento.fgv.br/sites/default/files/concursos/edital-consolidado-01.10-minuta.pdf",
+      "status": 200,
+      "tipo": "application/pdf",
+      "bytes": 2447614
     },
     {
       "url": "https://conhecimento.fgv.br/concursos/dataprev26",
       "status": 200,
       "tipo": "text/html; charset=UTF-8",
-      "bytes": 72160
+      "bytes": 72162
+    },
+    {
+      "url": "https://conhecimento.fgv.br/sites/default/files/concursos/edital-retificado-dataprev.pdf",
+      "status": 200,
+      "tipo": "application/pdf",
+      "bytes": 1216397
     },
     {
       "url": "https://conhecimento.fgv.br/concursos/pms2026",
       "status": 200,
       "tipo": "text/html; charset=UTF-8",
-      "bytes": 66141
+      "bytes": 66143
+    },
+    {
+      "url": "https://conhecimento.fgv.br/sites/default/files/concursos/edital-preliminar-pref-salvador-prof-e-coordenador-academico-01.2026-ret3.pdf",
+      "status": 200,
+      "tipo": "application/pdf",
+      "bytes": 1209878
     },
     {
       "url": "https://conhecimento.fgv.br/cpnu2",
       "status": 200,
       "tipo": "text/html; charset=UTF-8",
-      "bytes": 160007
+      "bytes": 160009
     }
   ],
   "mantidos": [
     "robots.txt",
     "listagem_p0.html",
-    "listagem_p1.html"
+    "listagem_p1.html",
+    "listagem_p2.html",
+    "concurso_pcpr26.html",
+    "concurso_sesto26.html",
+    "concurso_seducpa26.html",
+    "concurso_dataprev26.html",
+    "concurso_pms2026.html",
+    "concurso_cpnu2.html"
   ],
   "editais_escolhidos": {
-    "pcpr26": null,
-    "sesto26": null,
-    "seducpa26": null,
-    "dataprev26": null,
-    "pms2026": null
-  }
+    "pcpr26": "https://conhecimento.fgv.br/sites/default/files/concursos/copia-1-de-edital-01-2026-pcpr-publicacao.docx.pdf",
+    "sesto26": "https://conhecimento.fgv.br/sites/default/files/concursos/edital-consolidado-18.09.pdf",
+    "seducpa26": "https://conhecimento.fgv.br/sites/default/files/concursos/edital-consolidado-01.10-minuta.pdf",
+    "dataprev26": "https://conhecimento.fgv.br/sites/default/files/concursos/edital-retificado-dataprev.pdf",
+    "pms2026": "https://conhecimento.fgv.br/sites/default/files/concursos/edital-preliminar-pref-salvador-prof-e-coordenador-academico-01.2026-ret3.pdf"
+  },
+  "editais": [
+    {
+      "url": "https://conhecimento.fgv.br/sites/default/files/concursos/copia-1-de-edital-01-2026-pcpr-publicacao.docx.pdf",
+      "paginas": 107
+    },
+    {
+      "url": "https://conhecimento.fgv.br/sites/default/files/concursos/edital-consolidado-18.09.pdf",
+      "paginas": 139
+    },
+    {
+      "url": "https://conhecimento.fgv.br/sites/default/files/concursos/edital-consolidado-01.10-minuta.pdf",
+      "paginas": 151
+    },
+    {
+      "url": "https://conhecimento.fgv.br/sites/default/files/concursos/edital-retificado-dataprev.pdf",
+      "paginas": 64
+    },
+    {
+      "url": "https://conhecimento.fgv.br/sites/default/files/concursos/edital-preliminar-pref-salvador-prof-e-coordenador-academico-01.2026-ret3.pdf",
+      "paginas": 73
+    }
+  ]
 }

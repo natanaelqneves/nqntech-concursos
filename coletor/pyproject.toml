@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nqntech-coletor"
+version = "0.1.0"
+description = "Coletor do NqnTech Concursos: descobre concursos públicos, lê editais e grava no PostgreSQL"
+requires-python = ">=3.13"
+dependencies = [
+    "httpx>=0.28,<1",
+    "beautifulsoup4>=4.13,<5",
+    "lxml>=5.3",
+    "pdfplumber>=0.11.5,<0.12",
+    "psycopg[binary]>=3.2,<4",
+    "python-dotenv>=1.0,<2",
+    "PyYAML>=6.0.2,<7",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3", "ruff>=0.9"]
+
+[project.scripts]
+nqntech-coletor = "coletor.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = ["db: integração com PostgreSQL migrado (precisa de TESTE_DB_* no ambiente)"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+ignore = ["RUF001", "RUF002", "RUF003"]  # textos em português usam travessão e aspas tipográficas de propósito

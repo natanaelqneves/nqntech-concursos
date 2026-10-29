@@ -1,0 +1,20 @@
+# Atualizações automáticas de dependências (abre PRs; o ci.yml testa cada uma).
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /coletor
+    schedule: {interval: weekly, day: monday}
+    open-pull-requests-limit: 5
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: {interval: weekly, day: monday}
+  - package-ecosystem: docker-compose
+    directory: /
+    schedule: {interval: monthly}
+    ignore:
+      # Postgres acompanha a versão do Neon (17) e o Flyway a linha usada pelo Spring Boot (12): mudar de versão
+      # principal é decisão manual, nos dois lugares ao mesmo tempo.
+      - dependency-name: postgres
+        update-types: ["version-update:semver-major"]
+      - dependency-name: flyway/flyway
+        update-types: ["version-update:semver-major"]

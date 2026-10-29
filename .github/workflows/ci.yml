@@ -1,0 +1,107 @@
+# Testes a cada push: banco (Flyway real + regras de permissão), coletor (Python) e scripts de apoio.
+# O repositório é público: o passo de segredos impede que credenciais entrem por engano.
+name: ci
+
+on:
+  push:
+    branches-ignore: [captura/**]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLYWAY_IMAGE: flyway/flyway:12
+
+jobs:
+  banco-e-coletor:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: admin-ci
+          POSTGRES_DB: concursos
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U admin -d concursos"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      PGHOST: localhost
+      PGUSER: admin
+      PGPASSWORD: admin-ci
+      PGDATABASE: concursos
+      # Senhas descartáveis do banco efêmero da CI (não são segredos).
+      COLETOR_SENHA_CI: senha-coletor-ci
+      SITE_SENHA_CI: senha-site-ci
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      # Varredura de segredos em todo o histórico (repositório público). Roda o binário oficial do gitleaks,
+      # sem a action, que exige licença para organizações.
+      - name: Segredos (gitleaks)
+        run: |
+          versao=8.30.1
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${versao}/gitleaks_${versao}_linux_x64.tar.gz" \
+            | tar -xz -C /usr/local/bin gitleaks
+          gitleaks git --redact --no-banner --exit-code 1 .
+
+      - name: Migrations com Flyway (+ seeds de dev)
+        run: |
+          migrar() {
+            docker run --rm --network host -v "$PWD/db:/db:ro" "$FLYWAY_IMAGE" \
+              -url=jdbc:postgresql://localhost:5432/concursos -user=admin -password=admin-ci \
+              -schemas=concursos -defaultSchema=concursos -validateMigrationNaming=true \
+              -locations=filesystem:/db/migrations,filesystem:/db/seeds \
+              -placeholders.coletor_senha="$COLETOR_SENHA_CI" \
+              -placeholders.site_senha="$SITE_SENHA_CI" migrate
+          }
+          migrar
+          echo "--- segunda execução: não pode haver nada a aplicar"
+          migrar | tee segunda.log
+          grep -qiE "up to date|no migration necessary" segunda.log
+
+      - name: Testes de permissão e RLS
+        run: psql -X -v ON_ERROR_STOP=1 -f db/tests/test_permissoes.sql
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: coletor/pyproject.toml
+
+      - name: Instalar coletor
+        run: pip install -e "coletor[dev]"
+
+      - name: Lint (ruff)
+        working-directory: coletor
+        run: |
+          ruff check src tests
+          ruff format --check src tests
+
+      - name: Testes do coletor (unitários + integração com o banco)
+        working-directory: coletor
+        env:
+          TESTE_DB_HOST: localhost
+          TESTE_DB_NAME: concursos
+          TESTE_COLETOR_USER: coletor_app
+          TESTE_COLETOR_PASSWORD: ${{ env.COLETOR_SENHA_CI }}
+          TESTE_ADMIN_USER: admin
+          TESTE_ADMIN_PASSWORD: admin-ci
+        run: pytest -q --junitxml=junit.xml
+
+      - name: Testes dos scripts de apoio
+        run: python -m pytest -q scripts/tests
+
+      - name: Anotar falhas
+        if: failure()
+        run: python scripts/ci/anotar_falhas.py coletor/junit.xml

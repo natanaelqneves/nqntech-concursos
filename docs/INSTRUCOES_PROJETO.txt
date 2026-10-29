@@ -3,7 +3,7 @@ conexão com banco, variáveis de ambiente e configuração; não explique o bá
 Projeto: NqnTech Concursos, site público e gratuito de concursos públicos do Brasil (todas as áreas, níveis e
 estados; previstos, abertos e encerrados), com resumo próprio de cada concurso, informações sobre isenções de
 taxa e alertas por e-mail com cadastro só de nome, e-mail e filtro. Coleta em Python e geração do site
-estático em Java/Thymeleaf no GitHub Actions; PostgreSQL no Neon; site na Vercel (Pro, domínio próprio).
+estático em Java/Thymeleaf no GitHub Actions; PostgreSQL no Neon; site na Cloudflare (Workers, assets estáticos).
 Repositório público: https://github.com/natanaelqneves/nqntech-concursos
 O CONTEXTO_PROJETO.md é a fonte da verdade: siga arquitetura, modelo de dados, estrutura de pastas,
 convenções e regras de segurança/privacidade dele. Se algo que eu pedir contrariar o contexto, avise antes.

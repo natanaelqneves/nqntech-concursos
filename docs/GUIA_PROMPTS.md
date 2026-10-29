@@ -22,7 +22,7 @@
    - Em **Instruções do projeto**, cole o conteúdo de `docs/INSTRUCOES_PROJETO.txt`.
 3. Abra uma conversa nova no Projeto e cole o prompt da **Fase 0**.
 
-O Neon (projeto novo) e a Vercel são configurados quando a fase pedir; o Claude avisa e explica.
+O Neon (projeto novo) e a Cloudflare são configurados quando a fase pedir; o Claude avisa e explica.
 
 ---
 
@@ -97,8 +97,8 @@ Fase 5 — Site estático (seções 2 e 7 do contexto).
   por nível, isenções (índice e por tipo), sobre, privacidade (rascunho).
 - SEO: title/description por página, JSON-LD, sitemap.xml, robots.txt, URLs canônicas.
 - Acessibilidade WCAG AA, mobile first, CSS próprio leve, sem framework JS pesado.
-- Workflow que, depois da coleta diária, gera o site (só o que mudou) e publica na Vercel (plano Pro, com
-  domínio próprio); me diga o que preciso criar/configurar na Vercel e no registro do domínio.
+- Workflow que, depois da coleta diária, gera o site (só o que mudou) e publica na Cloudflare (Workers com
+  assets estáticos, domínio próprio); me diga o que preciso criar/configurar na Cloudflare e no domínio.
 - Testes: geração com os seeds, links internos sem quebra, HTML escapado (dado coletado é não confiável).
 ```
 

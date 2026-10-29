@@ -1,0 +1,8 @@
+# Normaliza finais de linha: scripts de shell PRECISAM de LF, mesmo clonados no Windows.
+* text=auto eol=lf
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.pdf binary
+*.png binary
+*.jar binary

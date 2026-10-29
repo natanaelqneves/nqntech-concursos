@@ -1,0 +1,51 @@
+# --- Segredos ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# --- Java / Maven ---
+target/
+*.class
+*.log
+hs_err_pid*
+.mvn/wrapper/maven-wrapper.jar
+
+# --- IDEs / SO ---
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Dados temporários do coletor (PDFs baixados nunca são versionados) ---
+tmp/
+temp/
+*.pdf
+!coletor/tests/fixtures/**/*.pdf
+pdfs_temp/
+downloads/
+
+# --- Dumps de banco ---
+*.dump
+*.sql.gz
+backup/

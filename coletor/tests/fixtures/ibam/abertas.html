@@ -1,0 +1,2325 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="windows-1252" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,600,600i,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <title>IBAM &raquo; INSTITUTO BRASILEIRO DE ADMINISTRAÇÃO MUNICIPAL</title>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="js/jquery.mask.min.js"></script>
+	<link type="text/css" href="css/estilo_novo.css?r=6651651" rel="stylesheet" media="screen" />
+</head>
+<body>
+
+<nav id="top-nav" class="navbar navbar-expand-sm bg-dark" data-bs-theme="dark">
+	<div class="container">
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTopNav" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarTopNav">
+			<ul class="navbar-nav ms-auto">
+				<li class="nav-item">
+					<a target="_blank" class="nav-link" href="https://lam.ibam.org.br/">LAM</a>
+				</li>
+				<li class="nav-item">
+					<a target="_blank" class="nav-link" href="https://livrariaonlinedoibam.commercesuite.com.br/">Livraria</a>
+				</li>
+				<li class="nav-item">
+					<a href="https://www.ibam.org.br/" class="nav-link">IBAM</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+</nav>
+
+<div id="header_top" style="position: relative">
+	<div class="d-none d-xl-block" style="position: absolute; right: 20px; top: 0px;"><a href="https://t.me/ibamconcursos" target="_blank"><img src="img/telegram.png"></a></div>
+	<div>IBAM CONCURSOS</div>
+</div>
+
+<nav id="main-nav" class="navbar navbar-expand-lg" data-bs-theme="light">
+	<div class="container">
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMainNav" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarMainNav">
+			<ul class="navbar-nav mx-auto">
+				<li class="nav-item">
+					<a class="nav-link" href="https://www.ibam.org.br/info/como-contratar">Sobre os concursos</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link  active" href="https://www.ibam-concursos.org.br/default.asp">Concursos outros estados</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="https://novo.ibamsp-concursos.org.br/">Concursos São Paulo</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="https://www.ibam.org.br/concursos-encerrados">Concursos Encerrados</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link " href="https://www.ibam-concursos.org.br/contato.asp">Contato</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link " href="https://www.ibam-concursos.org.br/candidato.asp">Área do candidato</a>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+</nav>
+
+<div class="container">
+	<div class="row">
+		<div class="col s12 right-align">
+			
+		</div>
+	</div>
+</div>
+
+
+
+<!-- ### CORPO ## -->
+
+<div class="modal fade" id="alerta" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-xl">
+		<div class="modal-content border-0 shadow-lg">
+			<div class="modal-header text-bg-danger border-0 justify-content-center">
+				<h5 class="modal-title fs-2 d-flex align-items-center gap-2" id="modalLabel">
+					<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>  ATENÇÃO
+				</h5>
+			</div>
+			<div class="modal-body text-center">
+				<p>Circulam na internet páginas falsas utilizando indevidamente o domínio do IBAM.
+				<br>Reforçamos que este é o único site oficial dos concursos promovidos pelo IBAM.</p>
+				<p class="fs-4"><strong>www.ibam-concursos.org.br</strong></p>
+				<p>Somente por este canal são divulgadas informações, inscrições e comunicados oficiais sobre os nossos concursos.
+				<br>Não forneça dados pessoais, nem realize pagamentos, fora do endereço acima.</p>
+			</div>
+			<div class="modal-content-footer p-3 text-end">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="container alertas my-5">
+	<div class="row">
+		<div class="col-12 col-lg-6 col-xl-4 offset-xl-2 mb-3 mb-lg-0">
+			<a href="#modelAtendimento" data-bs-toggle="modal">
+				<div class="card card-atendimento text-center">
+					<div class="card-body">
+						<h5 class="card-title">ATENDIMENTO AO CANDIDATO</h5>
+						<i class="fa fa-envelope-o" aria-hidden="true"></i>
+					</div>
+				</div>
+			</a>
+		</div>
+		<div class="col-12 col-lg-6 col-xl-4">
+			<a href="https://www.ibam.org.br/duvidas-frequentes/" target="_blank">
+				<div class="card card-faq text-center">
+					<div class="card-body">
+						<h5 class="card-title">FAQ</h5>
+						<i class="fa fa-question-circle-o" aria-hidden="true"></i>
+					</div>
+				</div>
+			</a>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="modelAtendimento" tabindex="-1" aria-labelledby="modelAtendimentoLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="modelAtendimentoLabel">ATENDIMENTO AO CANDIDATO</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<a href="mailto:concurso@ibam.org.br" class="atendimento_strip d-flex align-items-center mb-2">
+					<i class="fa fa-envelope fs-22"></i>
+					<div class="ps-3">
+						<h4>SEDE IBAM</h4>
+						concurso@ibam.org.br
+					</div>
+				</a>
+				<a href="mailto:candidato-sc@ibam.org.br" class="atendimento_strip d-flex align-items-center mb-2">
+					<i class="fa fa-envelope fs-22"></i>
+					<div class="ps-3">
+						<h4>ESTADO DE SANTA CATARINA</h4>
+						candidato-sc@ibam.org.br
+					</div>
+				</a>
+				<a href="mailto:atendimento@ibamsp-concursos.org.br" class="atendimento_strip d-flex align-items-center mb-2">
+					<i class="fa fa-envelope fs-22"></i>
+					<div class="ps-3">
+						<h4>ESTADO DE SÃO PAULO</h4>
+						atendimento@ibamsp-concursos.org.br
+					</div>
+				</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div class="container">
+	<div class="btn-group mb-3" role="group" aria-label="Status">
+		<a type="button w-100" href="?status=1" class="btn btn-lg btn-on">Edital disponível / Inscrições abertas</a>
+		<a type="button w-100" href="?status=2" class="btn btn-lg btn-off">Concursos em andamento</a>
+		<a type="button w-100" href="?status=3" class="btn btn-lg btn-off">Concursos encerrados</a>
+	</div>
+	<form id="form_filtro" class="row g-3 align-items-center mb-4" onsubmit="return false;">
+		<div class="col">
+			<input type="text" class="form-control form-control-lg" id="search_field" placeholder="Buscar...">
+		</div>
+	</form>
+</div>
+
+
+			<div class="container concurso-card">
+				<div class="col">
+					<div class="card mb-4 card-status-0">
+						<div class="card-body">
+							<div class="d-md-flex mb-3">
+								<div class="flex-grow-1 mb-3">
+									<div class="mb-2">
+										<h4>Prefeitura de Lages/SC - Ed. 03/2026 - PS</h4>
+										
+									</div>
+									<div class="fs-16">Processo Seletivo para vagas temporárias do quadro da Secretaria Municipal de Saúde de Lages/SC.</div>
+									
+										<span class="text-danger">Inscrições: das 06h do dia 21/10 às 18h do dia 16/11/2026.<br>Provas: 06 de dezembro de 2026, às 09h.</span>
+										<!--
+										<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">
+											<div class="fs-22 pe-3">
+												<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+											</div>
+											<div>
+												Inscrições: das 06h do dia 21/10 às 18h do dia 16/11/2026.<br>Provas: 06 de dezembro de 2026, às 09h.
+											</div>
+										</div>
+										-->
+									
+										<div class="my-2"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Data prevista da prova: 06/12/2026 09:00h</strong></div>
+									
+								</div>
+								<div class="text-center mx-4 ms-md-5 me-md-0">
+									
+										<div class="event-cal">
+											<div class="fs-12 text-center event-tit">INSCRIÇÕES ATÉ</div>
+											<div class="event-date">
+												<span>16</span>
+												<div>Novembro</div>
+											</div>
+										</div>
+									
+								</div>
+							</div>
+						</div>
+						<div class="card-footer">
+							<div class="d-md-flex flex-row align-items-center">
+								<div class="flex-grow-1">
+									<strong class="status">Edital dispon&iacute;vel</strong>
+								</div>
+								<div class="card-hover-show">
+									
+										<a class="btn btn-sm btn-inscricao" data-bs-toggle="collapse" data-bs-target="#cargos-382">INSCRIÇÕES</a>
+									<a class="btn btn-sm btn-outline-dark" data-bs-toggle="collapse" data-bs-target="#docs-382">DOCUMENTOS</a>
+								</div>
+							</div>
+
+							<div id="collapse-382">
+								<div class="collapse cargos_list flex-row mt-3" data-bs-parent="#collapse-382" id="cargos-382">
+									
+											<h5>Escolaridade: FUNDAMENTAL COMPLETO</h5>
+											<div class="table-responsive">
+												<table class="table table-striped">
+													<thead>
+														<tr>
+															<th scope="col">Nome<br>do cargo</th>
+															
+																<th scope="col">Data<br>prevista<br>da prova</th>
+															
+															<th scope="col">Vagas</th>
+															<th scope="col">Vagas<br>deficientes</th>
+															
+															<th scope="col">Valor da<br>inscrição</th>
+															<th scope="col">Inscrições</th>
+														</tr>
+													</thead>
+													<tbody>
+											
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=382&car=1939">014 | MOTORISTA SOCORRISTA PROG SAUD</a>
+												
+											</td>
+											
+												<td>06/12/26<br>09:00</td>
+											
+											<td>CR</td>
+											<td>0</td>
+											
+											<td>R$ 90,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=382&car=1939">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+												</tbody>
+												</table>
+												</div>
+											
+											<h5>Escolaridade: MÉDIO</h5>
+											<div class="table-responsive">
+												<table class="table table-striped">
+													<thead>
+														<tr>
+															<th scope="col">Nome<br>do cargo</th>
+															
+																<th scope="col">Data<br>prevista<br>da prova</th>
+															
+															<th scope="col">Vagas</th>
+															<th scope="col">Vagas<br>deficientes</th>
+															
+															<th scope="col">Valor da<br>inscrição</th>
+															<th scope="col">Inscrições</th>
+														</tr>
+													</thead>
+													<tbody>
+											
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=382&car=1936">011 | ARTESAO DE PROG. SAUDE</a>
+												
+											</td>
+											
+												<td>06/12/26<br>09:00</td>
+											
+											<td>CR</td>
+											<td>0</td>
+											
+											<td>R$ 110,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=382&car=1936">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=382&car=1937">012 | TECNICO ENFERMAGEM PROG SAUDE</a>
+												
+											</td>
+											
+												<td>06/12/26<br>09:00</td>
+											
+											<td>2</td>
+											<td>0</td>
+											
+											<td>R$ 110,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=382&car=1937">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=382&car=1938">013 | TECNICO ENFERMAGEM SOCORRISTA</a>
+												
+											</td>
+											
+												<td>06/12/26<br>09:00</td>
+											
+											<td>4</td>
+											<td>0</td>
+											
+											<td>R$ 110,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=382&car=1938">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+												</tbody>
+												</table>
+												</div>
+											
+											<h5>Escolaridade: SUPERIOR</h5>
+											<div class="table-responsive">
+												<table class="table table-striped">
+													<thead>
+														<tr>
+															<th scope="col">Nome<br>do cargo</th>
+															
+																<th scope="col">Data<br>prevista<br>da prova</th>
+															
+															<th scope="col">Vagas</th>
+															<th scope="col">Vagas<br>deficientes</th>
+															
+															<th scope="col">Valor da<br>inscrição</th>
+															<th scope="col">Inscrições</th>
+														</tr>
+													</thead>
+													<tbody>
+											
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=382&car=1926">001 | ADMINISTRADOR DE PROG. SAUDE</a>
+												
+											</td>
+											
+												<td>06/12/26<br>09:00</td>
+											
+											<td>CR</td>
+											<td>0</td>
+											
+											<td>R$ 120,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=382&car=1926">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=382&car=1927">002 | ASSISTENTE SOCIAL PROG SAUDE</a>
+												
+											</td>
+											
+												<td>06/12/26<br>09:00</td>
+											
+											<td>CR</td>
+											<td>0</td>
+											
+											<td>R$ 120,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=382&car=1927">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=382&car=1928">003 | CIRURGIAO DENTISTA PROG SAUDE</a>
+												
+											</td>
+											
+												<td>06/12/26<br>09:00</td>
+											
+											<td>CR</td>
+											<td>0</td>
+											
+											<td>R$ 120,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=382&car=1928">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=382&car=1929">004 | EDUCADOR FISICO DE PROG SAUDE</a>
+												
+											</td>
+											
+												<td>06/12/26<br>09:00</td>
+											
+											<td>2</td>
+											<td>0</td>
+											
+											<td>R$ 120,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=382&car=1929">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=382&car=1930">005 | ENFERMEIRO DE PROG SAUDE</a>
+												
+											</td>
+											
+												<td>06/12/26<br>09:00</td>
+											
+											<td>2</td>
+											<td>0</td>
+											
+											<td>R$ 120,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=382&car=1930">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=382&car=1931">006 | ENFERMEIRO ESP EM SAUDE MENTAL</a>
+												
+											</td>
+											
+												<td>06/12/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 120,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=382&car=1931">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=382&car=1932">007 | FISIOTERAPEUTA DE PROG SAUDE</a>
+												
+											</td>
+											
+												<td>06/12/26<br>09:00</td>
+											
+											<td>CR</td>
+											<td>0</td>
+											
+											<td>R$ 120,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=382&car=1932">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=382&car=1933">008 | NUTRICIONISTA DE PROG SAUDE</a>
+												
+											</td>
+											
+												<td>06/12/26<br>09:00</td>
+											
+											<td>2</td>
+											<td>0</td>
+											
+											<td>R$ 120,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=382&car=1933">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=382&car=1934">009 | PSICOLOGO DE PROG. SAUDE</a>
+												
+											</td>
+											
+												<td>06/12/26<br>09:00</td>
+											
+											<td>CR</td>
+											<td>0</td>
+											
+											<td>R$ 120,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=382&car=1934">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=382&car=1935">010 | TERAP. OCUPACIONAL PROG SAUDE</a>
+												
+											</td>
+											
+												<td>06/12/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 120,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=382&car=1935">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										</tbody>
+										</table>
+										</div>
+									
+								</div>
+								
+									<div class="collapse flex-row mt-3" data-bs-parent="#collapse-382" id="docs-382">
+										<div class="list-group list-group-flush">
+										<a href="documento/an1.2spslag26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Anexo I - Funções, Vagas e Vencimentos</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/an2.2spslag26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Anexo II - Demonstrativo das Provas</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/an3.2spslag26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Anexo III - Conteúdos para as provas</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/an4.2spslag26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Anexo IV - Documento para Clínica de Medicina Ocupacional (apresentar no momento da contratação)</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/edit.2spslag.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Edital de Abertura</span> <i class="fa fa-download" aria-hidden="true"></i></a>
+										</div>
+									</div>
+								
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+
+			<div class="container concurso-card">
+				<div class="col">
+					<div class="card mb-4 card-status-0">
+						<div class="card-body">
+							<div class="d-md-flex mb-3">
+								<div class="flex-grow-1 mb-3">
+									<div class="mb-2">
+										<h4>Camara de Fraiburgo/SC - Ed.01/2026 - CP</h4>
+										
+									</div>
+									<div class="fs-16">CONCURSO PÚBLÍCO para vagas permanentes do quadro de pessoal da Câmara Municipal de Fraiburgo/SC</div>
+									
+										<span class="text-danger">Inscrições: das 6h do dia 07/10 às 18h do dia 05/11/2026.<br>Provas: 29/11/2026 às 14 horas</span>
+										<!--
+										<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">
+											<div class="fs-22 pe-3">
+												<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+											</div>
+											<div>
+												Inscrições: das 6h do dia 07/10 às 18h do dia 05/11/2026.<br>Provas: 29/11/2026 às 14 horas
+											</div>
+										</div>
+										-->
+									
+										<div class="my-2"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Data prevista da prova: 29/11/2026 14:00h</strong></div>
+									
+								</div>
+								<div class="text-center mx-4 ms-md-5 me-md-0">
+									
+										<div class="event-cal">
+											<div class="fs-12 text-center event-tit">INSCRIÇÕES ATÉ</div>
+											<div class="event-date">
+												<span>05</span>
+												<div>Novembro</div>
+											</div>
+										</div>
+									
+								</div>
+							</div>
+						</div>
+						<div class="card-footer">
+							<div class="d-md-flex flex-row align-items-center">
+								<div class="flex-grow-1">
+									<strong class="status">Edital dispon&iacute;vel</strong>
+								</div>
+								<div class="card-hover-show">
+									
+										<a class="btn btn-sm btn-inscricao" data-bs-toggle="collapse" data-bs-target="#cargos-380">INSCRIÇÕES</a>
+									<a class="btn btn-sm btn-outline-dark" data-bs-toggle="collapse" data-bs-target="#docs-380">DOCUMENTOS</a>
+								</div>
+							</div>
+
+							<div id="collapse-380">
+								<div class="collapse cargos_list flex-row mt-3" data-bs-parent="#collapse-380" id="cargos-380">
+									
+											<h5>Escolaridade: FUNDAMENTAL COMPLETO</h5>
+											<div class="table-responsive">
+												<table class="table table-striped">
+													<thead>
+														<tr>
+															<th scope="col">Nome<br>do cargo</th>
+															
+																<th scope="col">Data<br>prevista<br>da prova</th>
+															
+															<th scope="col">Vagas</th>
+															<th scope="col">Vagas<br>deficientes</th>
+															
+															<th scope="col">Valor da<br>inscrição</th>
+															<th scope="col">Inscrições</th>
+														</tr>
+													</thead>
+													<tbody>
+											
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=380&car=1925">007 | AGENTE OPERACIONAL</a>
+												
+											</td>
+											
+												<td>29/11/26<br>14:00</td>
+											
+											<td>CR</td>
+											<td>0</td>
+											
+											<td>R$ 80,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=380&car=1925">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+												</tbody>
+												</table>
+												</div>
+											
+											<h5>Escolaridade: MÉDIO</h5>
+											<div class="table-responsive">
+												<table class="table table-striped">
+													<thead>
+														<tr>
+															<th scope="col">Nome<br>do cargo</th>
+															
+																<th scope="col">Data<br>prevista<br>da prova</th>
+															
+															<th scope="col">Vagas</th>
+															<th scope="col">Vagas<br>deficientes</th>
+															
+															<th scope="col">Valor da<br>inscrição</th>
+															<th scope="col">Inscrições</th>
+														</tr>
+													</thead>
+													<tbody>
+											
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=380&car=1923">005 | ASSISTENTE ADMINISTRATIVO</a>
+												
+											</td>
+											
+												<td>29/11/26<br>14:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 100,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=380&car=1923">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=380&car=1924">006 | TECNICO LEGISLATIVO</a>
+												
+											</td>
+											
+												<td>29/11/26<br>14:00</td>
+											
+											<td>CR</td>
+											<td>0</td>
+											
+											<td>R$ 100,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=380&car=1924">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+												</tbody>
+												</table>
+												</div>
+											
+											<h5>Escolaridade: SUPERIOR</h5>
+											<div class="table-responsive">
+												<table class="table table-striped">
+													<thead>
+														<tr>
+															<th scope="col">Nome<br>do cargo</th>
+															
+																<th scope="col">Data<br>prevista<br>da prova</th>
+															
+															<th scope="col">Vagas</th>
+															<th scope="col">Vagas<br>deficientes</th>
+															
+															<th scope="col">Valor da<br>inscrição</th>
+															<th scope="col">Inscrições</th>
+														</tr>
+													</thead>
+													<tbody>
+											
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=380&car=1919">001 | ANALISTA ADMINIST/FINANCEIRO</a>
+												
+											</td>
+											
+												<td>29/11/26<br>14:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 130,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=380&car=1919">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=380&car=1920">002 | ASSESSOR JURIDICO</a>
+												
+											</td>
+											
+												<td>29/11/26<br>14:00</td>
+											
+											<td>CR</td>
+											<td>0</td>
+											
+											<td>R$ 130,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=380&car=1920">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=380&car=1921">003 | CONTADOR</a>
+												
+											</td>
+											
+												<td>29/11/26<br>14:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 130,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=380&car=1921">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=380&car=1922">004 | CONTROLADOR INTERNO</a>
+												
+											</td>
+											
+												<td>29/11/26<br>14:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 130,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=380&car=1922">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										</tbody>
+										</table>
+										</div>
+									
+								</div>
+								
+									<div class="collapse flex-row mt-3" data-bs-parent="#collapse-380" id="docs-380">
+										<div class="list-group list-group-flush">
+										<a href="documento/an1.cpcfr26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Anexo I - Cargos, Vagas e Vencimentos</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/an2.cpcfr26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Anexo II - Demonstrativo das Provas</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/an3.cpcfr26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Anexo III - Conteúdos para as provas</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/edit.cpcfr26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Edital de Abertura</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/ISENCFRCP0126.PDF" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Resultado dos pedidos de isenção</span> <i class="fa fa-download" aria-hidden="true"></i></a>
+										</div>
+									</div>
+								
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+
+			<div class="container concurso-card">
+				<div class="col">
+					<div class="card mb-4 card-status-0">
+						<div class="card-body">
+							<div class="d-md-flex mb-3">
+								<div class="flex-grow-1 mb-3">
+									<div class="mb-2">
+										<h4>Prefeitura de Fraiburgo/SC - Ed. 025/2026 -PS</h4>
+										
+									</div>
+									<div class="fs-16">PROCESSO SELETIVO para vagas temporárias e formação de Cadastro de Reserva da Secretaria Municipal de Educação de Fraiburgo/SC.</div>
+									
+										<span class="text-danger">Inscrições: das 06h do dia 07/10 às 18h do dia 05/11/2026.<br>Provas Escrita: 29/11/2026 às 09 horas.</span>
+										<!--
+										<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">
+											<div class="fs-22 pe-3">
+												<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+											</div>
+											<div>
+												Inscrições: das 06h do dia 07/10 às 18h do dia 05/11/2026.<br>Provas Escrita: 29/11/2026 às 09 horas.
+											</div>
+										</div>
+										-->
+									
+										<div class="my-2"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Data prevista da prova: 29/11/2026 09:00h</strong></div>
+									
+								</div>
+								<div class="text-center mx-4 ms-md-5 me-md-0">
+									
+										<div class="event-cal">
+											<div class="fs-12 text-center event-tit">INSCRIÇÕES ATÉ</div>
+											<div class="event-date">
+												<span>05</span>
+												<div>Novembro</div>
+											</div>
+										</div>
+									
+								</div>
+							</div>
+						</div>
+						<div class="card-footer">
+							<div class="d-md-flex flex-row align-items-center">
+								<div class="flex-grow-1">
+									<strong class="status">Edital dispon&iacute;vel</strong>
+								</div>
+								<div class="card-hover-show">
+									
+										<a class="btn btn-sm btn-inscricao" data-bs-toggle="collapse" data-bs-target="#cargos-381">INSCRIÇÕES</a>
+									<a class="btn btn-sm btn-outline-dark" data-bs-toggle="collapse" data-bs-target="#docs-381">DOCUMENTOS</a>
+								</div>
+							</div>
+
+							<div id="collapse-381">
+								<div class="collapse cargos_list flex-row mt-3" data-bs-parent="#collapse-381" id="cargos-381">
+									
+											<h5>Escolaridade: FUNDAMENTAL COMPLETO</h5>
+											<div class="table-responsive">
+												<table class="table table-striped">
+													<thead>
+														<tr>
+															<th scope="col">Nome<br>do cargo</th>
+															
+																<th scope="col">Data<br>prevista<br>da prova</th>
+															
+															<th scope="col">Vagas</th>
+															<th scope="col">Vagas<br>deficientes</th>
+															
+															<th scope="col">Valor da<br>inscrição</th>
+															<th scope="col">Inscrições</th>
+														</tr>
+													</thead>
+													<tbody>
+											
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1915">023 | AGENTE DE SERVICOS GERAIS</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>CR</td>
+											<td>0</td>
+											
+											<td>R$ 60,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1915">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1916">024 | AG SERVICOS GERAIS- X NOVEMBRO</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>CR</td>
+											<td>0</td>
+											
+											<td>R$ 60,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1916">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1917">025 | AUX. DE ALIMENTACAO E NUTRICAO</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>CR</td>
+											<td>0</td>
+											
+											<td>R$ 60,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1917">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1918">026 | AUX ALIMENTACAO/NUT X NOVEMBRO</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>CR</td>
+											<td>0</td>
+											
+											<td>R$ 60,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1918">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+												</tbody>
+												</table>
+												</div>
+											
+											<h5>Escolaridade: MÉDIO</h5>
+											<div class="table-responsive">
+												<table class="table table-striped">
+													<thead>
+														<tr>
+															<th scope="col">Nome<br>do cargo</th>
+															
+																<th scope="col">Data<br>prevista<br>da prova</th>
+															
+															<th scope="col">Vagas</th>
+															<th scope="col">Vagas<br>deficientes</th>
+															
+															<th scope="col">Valor da<br>inscrição</th>
+															<th scope="col">Inscrições</th>
+														</tr>
+													</thead>
+													<tbody>
+											
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1912">020 | AUXILIAR EDUCACIONAL</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 80,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1912">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1913">021 | AUX. EDUCACIONAL - LAU MELLO</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 80,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1913">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1914">022 | AUX. EDUCACIONAL - X NOVEMBRO</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 80,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1914">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+												</tbody>
+												</table>
+												</div>
+											
+											<h5>Escolaridade: SUPERIOR</h5>
+											<div class="table-responsive">
+												<table class="table table-striped">
+													<thead>
+														<tr>
+															<th scope="col">Nome<br>do cargo</th>
+															
+																<th scope="col">Data<br>prevista<br>da prova</th>
+															
+															<th scope="col">Vagas</th>
+															<th scope="col">Vagas<br>deficientes</th>
+															
+															<th scope="col">Valor da<br>inscrição</th>
+															<th scope="col">Inscrições</th>
+														</tr>
+													</thead>
+													<tbody>
+											
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1894">001 | BIBLIOTECARIO</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 100,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1894">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1895">002 | COORDENADOR PEDAGOGICO</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 100,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1895">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1896">003 | FONOAUDIOLOGO</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 100,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1896">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1897">004 | PROF. DE ANOS INICIAIS</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 100,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1897">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1898">005 | PROF. DE EDUCACAO INFANTIL</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 100,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1898">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1899">006 | PROF. DE ARTE </a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 100,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1899">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1900">007 | PROF CIENCIAS E PROG DA SAUDE</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 100,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1900">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1901">008 | PROF. DE EDUCACAO FISICA </a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 100,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1901">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1902">009 | PROF. DE ENSINO RELIGIOSO</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 100,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1902">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1903">010 | PROF. DE GEOGRAFIA</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 100,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1903">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1904">011 | PROF. DE HISTORIA</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 100,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1904">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1905">012 | PROF. INTERPRETE DE LIBRAS</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 100,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1905">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1906">013 | PROF. DE LINGUA INGLESA</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 100,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1906">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1907">014 | PROF. DE LINGUA PORTUGUESA</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 100,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1907">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1908">015 | PROF. DE MATEMATICA</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 100,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1908">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1909">016 | PROF. DE MUSICALIZACAO</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 100,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1909">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1910">018 | PSICOPEDAGOGO</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>CR</td>
+											<td>0</td>
+											
+											<td>R$ 100,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1910">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=381&car=1911">019 | TERAPEUTA OCUPACIONAL</a>
+												
+											</td>
+											
+												<td>29/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 100,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=381&car=1911">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										</tbody>
+										</table>
+										</div>
+									
+								</div>
+								
+									<div class="collapse flex-row mt-3" data-bs-parent="#collapse-381" id="docs-381">
+										<div class="list-group list-group-flush">
+										<a href="documento/an1e.psfrai26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Anexo I - Funções, Vagas e Vencimentos</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/an2e.psfrai26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Anexo II - Demonstrativo das Provas</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/an3e.1psfrai26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Anexo III - Conteúdos para as provas</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/edit2.psfrai26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Edital de Abertura</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/er2.psfrai26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Errata 02 - Conteúdo Prof. de Arte</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/ISEFRPS2526.PDF" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Resultado dos pedidos de isenção</span> <i class="fa fa-download" aria-hidden="true"></i></a>
+										</div>
+									</div>
+								
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+
+			<div class="container concurso-card">
+				<div class="col">
+					<div class="card mb-4 card-status-0">
+						<div class="card-body">
+							<div class="d-md-flex mb-3">
+								<div class="flex-grow-1 mb-3">
+									<div class="mb-2">
+										<h4>Municipio de Serra Alta/SC - CP 01</h4>
+										
+									</div>
+									<div class="fs-16">CONCURSO PÚBLICO para o quadro permanente de pessoal da prefeitura do Município de Serra Alta/SC</div>
+									
+										<span class="text-danger">Inscrições: das 06h do dia 02 às 18h do dia 30 de outubro de 2026.<br>Provas: dia 15/11/2026 no horário estabelecido no item 5.2 do Edital de abertura</span>
+										<!--
+										<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">
+											<div class="fs-22 pe-3">
+												<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+											</div>
+											<div>
+												Inscrições: das 06h do dia 02 às 18h do dia 30 de outubro de 2026.<br>Provas: dia 15/11/2026 no horário estabelecido no item 5.2 do Edital de abertura
+											</div>
+										</div>
+										-->
+									
+										<div class="my-2"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Data prevista da prova: Verifique em INSCRIÇÕES a data da prova do seu cargo</strong></div>
+									
+								</div>
+								<div class="text-center mx-4 ms-md-5 me-md-0">
+									
+										<div class="event-cal">
+											<div class="fs-12 text-center event-tit">INSCRIÇÕES ATÉ</div>
+											<div class="event-date">
+												<span>30</span>
+												<div>Outubro</div>
+											</div>
+										</div>
+									
+								</div>
+							</div>
+						</div>
+						<div class="card-footer">
+							<div class="d-md-flex flex-row align-items-center">
+								<div class="flex-grow-1">
+									<strong class="status">Edital dispon&iacute;vel</strong>
+								</div>
+								<div class="card-hover-show">
+									
+										<a class="btn btn-sm btn-inscricao" data-bs-toggle="collapse" data-bs-target="#cargos-378">INSCRIÇÕES</a>
+									<a class="btn btn-sm btn-outline-dark" data-bs-toggle="collapse" data-bs-target="#docs-378">DOCUMENTOS</a>
+								</div>
+							</div>
+
+							<div id="collapse-378">
+								<div class="collapse cargos_list flex-row mt-3" data-bs-parent="#collapse-378" id="cargos-378">
+									
+											<h5>Escolaridade: FUNDAMENTAL - ANOS INICIAIS</h5>
+											<div class="table-responsive">
+												<table class="table table-striped">
+													<thead>
+														<tr>
+															<th scope="col">Nome<br>do cargo</th>
+															
+																<th scope="col">Data<br>prevista<br>da prova</th>
+															
+															<th scope="col">Vagas</th>
+															<th scope="col">Vagas<br>deficientes</th>
+															
+															<th scope="col">Valor da<br>inscrição</th>
+															<th scope="col">Inscrições</th>
+														</tr>
+													</thead>
+													<tbody>
+											
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1889">021 | AUX. MANUTENCAO E CONSERVACAO</a>
+												
+											</td>
+											
+												<td>15/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 80,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1889">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1890">022 | MOTORISTA</a>
+												
+											</td>
+											
+												<td>15/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 80,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1890">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1891">023 | OPERADOR DE MAQUINAS </a>
+												
+											</td>
+											
+												<td>15/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 80,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1891">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1892">024 | SERVENTE</a>
+												
+											</td>
+											
+												<td>15/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 80,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1892">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+												</tbody>
+												</table>
+												</div>
+											
+											<h5>Escolaridade: MÉDIO</h5>
+											<div class="table-responsive">
+												<table class="table table-striped">
+													<thead>
+														<tr>
+															<th scope="col">Nome<br>do cargo</th>
+															
+																<th scope="col">Data<br>prevista<br>da prova</th>
+															
+															<th scope="col">Vagas</th>
+															<th scope="col">Vagas<br>deficientes</th>
+															
+															<th scope="col">Valor da<br>inscrição</th>
+															<th scope="col">Inscrições</th>
+														</tr>
+													</thead>
+													<tbody>
+											
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1882">014 | AG. COM. SAUDE - MICROAREA 03</a>
+												
+											</td>
+											
+												<td>15/11/26<br>14:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 120,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1882">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1883">015 | AG. COM. SAUDE - MICROAREA 04</a>
+												
+											</td>
+											
+												<td>15/11/26<br>14:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 120,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1883">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1884">016 | AG. COM. SAUDE - MICROAREA 07</a>
+												
+											</td>
+											
+												<td>15/11/26<br>14:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 120,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1884">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1885">017 | AGENTE DE COMBATE AS ENDEMIAS</a>
+												
+											</td>
+											
+												<td>15/11/26<br>14:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 120,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1885">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1886">018 | AGENTE EDUCATIVO</a>
+												
+											</td>
+											
+												<td>15/11/26<br>14:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 120,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1886">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1887">019 | ASSISTENTE ADMINISTRATIVO</a>
+												
+											</td>
+											
+												<td>15/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 120,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1887">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1888">020 | FISCAL SANITARIO E AMBIENTAL</a>
+												
+											</td>
+											
+												<td>15/11/26<br>14:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 120,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1888">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+												</tbody>
+												</table>
+												</div>
+											
+											<h5>Escolaridade: SUPERIOR</h5>
+											<div class="table-responsive">
+												<table class="table table-striped">
+													<thead>
+														<tr>
+															<th scope="col">Nome<br>do cargo</th>
+															
+																<th scope="col">Data<br>prevista<br>da prova</th>
+															
+															<th scope="col">Vagas</th>
+															<th scope="col">Vagas<br>deficientes</th>
+															
+															<th scope="col">Valor da<br>inscrição</th>
+															<th scope="col">Inscrições</th>
+														</tr>
+													</thead>
+													<tbody>
+											
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1869">001 | ASSISTENTE SOCIAL</a>
+												
+											</td>
+											
+												<td>15/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 180,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1869">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1870">002 | AUDITOR FISCAL DE TRIBUTOS</a>
+												
+											</td>
+											
+												<td>15/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 180,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1870">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1871">003 | CONTADOR</a>
+												
+											</td>
+											
+												<td>15/11/26<br>14:00</td>
+											
+											<td>CR</td>
+											<td>0</td>
+											
+											<td>R$ 180,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1871">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1873">005 | FARMACEUTICO</a>
+												
+											</td>
+											
+												<td>15/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 180,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1873">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1874">006 | FISIOTERAPEUTA</a>
+												
+											</td>
+											
+												<td>15/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 180,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1874">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1875">007 | ENFERMEIRO</a>
+												
+											</td>
+											
+												<td>15/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 180,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1875">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1876">008 | ODONTOLOGO</a>
+												
+											</td>
+											
+												<td>15/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 180,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1876">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+												</tbody>
+												</table>
+												</div>
+											
+											<h5>Escolaridade: SUPERIOR - LICENCIATURA</h5>
+											<div class="table-responsive">
+												<table class="table table-striped">
+													<thead>
+														<tr>
+															<th scope="col">Nome<br>do cargo</th>
+															
+																<th scope="col">Data<br>prevista<br>da prova</th>
+															
+															<th scope="col">Vagas</th>
+															<th scope="col">Vagas<br>deficientes</th>
+															
+															<th scope="col">Valor da<br>inscrição</th>
+															<th scope="col">Inscrições</th>
+														</tr>
+													</thead>
+													<tbody>
+											
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1872">004 | COORDENADOR PEDAGOGICO</a>
+												
+											</td>
+											
+												<td>15/11/26<br>14:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 180,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1872">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1877">009 | PROFESSOR I - EDUCAC. INFANTIL</a>
+												
+											</td>
+											
+												<td>15/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 180,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1877">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1878">010 | PROFESSOR II - ANOS INICIAIS</a>
+												
+											</td>
+											
+												<td>15/11/26<br>14:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 180,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1878">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1879">011 | PROFESSOR III - ARTE </a>
+												
+											</td>
+											
+												<td>15/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 180,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1879">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1880">012 | PROFESSOR III - EDUCAC. FISICA</a>
+												
+											</td>
+											
+												<td>15/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 180,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1880">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												
+													<a href="inscricao.asp?task=novo&cod=378&car=1881">013 | PROFESSOR III - INGLES</a>
+												
+											</td>
+											
+												<td>15/11/26<br>09:00</td>
+											
+											<td>1</td>
+											<td>0</td>
+											
+											<td>R$ 180,00</td>
+											<td class="text-nowrap">
+												
+														<a class="btn btn-sm btn-inscricao" href="inscricao.asp?task=novo&cod=378&car=1881">INSCREVA-SE</a>
+													
+											</td>
+										</tr>
+										
+										</tbody>
+										</table>
+										</div>
+									
+								</div>
+								
+									<div class="collapse flex-row mt-3" data-bs-parent="#collapse-378" id="docs-378">
+										<div class="list-group list-group-flush">
+										<a href="documento/an1.cpsa26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Anexo I - Cargos, Vagas e Vencimentos</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/an2.cpsa26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Anexo II - Demonstrativo das Provas</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/an3.2cpsa26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Anexo III - Conteúdos para as provas</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/an4.cpsa26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Anexo IV - Relação de documentos para posse</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/edit4.cpsa26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Edital de Abertura</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/er1.cpsa26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Errata 01 - Conteúdos para Auditor Fiscal de Tributos e Fiscal Sanitário e Ambiental</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/er2.cpsa26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Errata 02 - Inclusão de serviço eleitoral para isenção e alteração de conteúdos</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/er3.cpsa26.pdf" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Errata 03 - inclusão de doadores de medula para isenção</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/ISNSERALCP01261.PDF" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Resultado dos pedidos de isenção</span> <i class="fa fa-download" aria-hidden="true"></i></a><a href="documento/SINRSERALCP0126.PDF" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><span><i class="fa fa-file-text-o" aria-hidden="true"></i> Síntese de resposta aos recursos contra pedidos de isenção</span> <i class="fa fa-download" aria-hidden="true"></i></a>
+										</div>
+									</div>
+								
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+
+</table>
+<BR><BR>
+
+<!-- ### FIM DO CORPO ## -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+	const modalId = '#alerta';
+	const storageKey = 'alert_modal_expiry';
+	const lockoutDuration = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+	const now = Date.now();
+	const expiryTime = localStorage.getItem(storageKey);
+
+	// If there is no saved expiry time, or the current time is past the expiry time
+	if (!expiryTime || now > parseInt(expiryTime, 10)) {
+
+		// Initialize and show the Bootstrap 5 modal
+		const alerta = new bootstrap.Modal(modalId);
+		alerta.show();
+
+		// Set a new expiry timestamp for 5 minutes from now
+		localStorage.setItem(storageKey, now + lockoutDuration);
+	}
+});
+$(document).ready(function(){
+	function filtrar_concursos() {
+		$sch = $('#search_field').val();
+		if ($sch.length < 2) {
+			$sch = '';
+		} else {
+			$sch = $sch.toLowerCase();
+		}
+		$lst = $('#search_list').val();
+		$('h4').each(function(index) {
+			$tgl = false;
+			if ($lst == 0) {
+				$tgl = true;
+			} else if ($lst == 1 && $(this).parents('.card').hasClass('card-status-1')) {
+				$tgl = true;
+			} else if ($lst == 2 && $(this).parents('.card').hasClass('card-status-1')) {
+				$tgl = true;
+			}
+			if ($sch != '' && $(this).text().toLowerCase().indexOf($sch) == -1) {
+				$tgl = false;
+			}
+			$(this).parents('.concurso-card').toggle($tgl);
+		});
+	}
+	$('#search_field').on('input',function(){
+		$sch = $('#search_field').val();
+		if ($sch.length < 2) {
+			$sch = '';
+		} else {
+			$sch = $sch.toLowerCase();
+		}
+		$('h4').each(function(index) {
+			$tgl = true;
+			if ($sch != '' && $(this).text().toLowerCase().indexOf($sch) == -1) {
+				$tgl = false;
+			}
+			$(this).parents('.concurso-card').toggle($tgl);
+		});
+	});
+});
+
+$('#selBanco').on('change', function () {
+	$('#banco_v1').text('-');
+	$('#banco_v2').text('-');
+	$('#banco_v3').text('-');
+	$('#banco_v4').text('-');
+	$('#banco_v5').text('-');
+	$('#banco_v6').text('-');
+
+	switch (this.value) {
+		case '14':
+			$('#banco_v1').text('nome_certificado');
+			$('#banco_v2').text('api_key');
+		break;
+		case '15':
+			$('#banco_v1').text('accessKey');
+			$('#banco_v2').text('secretKey');
+			$('#banco_v3').text('apiKey');
+		break;
+		case '13':
+			$('#banco_v1').text('application_key');
+			$('#banco_v2').text('client_id');
+			$('#banco_v3').text('client_secret');
+			$('#banco_v4').text('basic (incluir o texto Basic)');
+		break;
+		case '12':
+			$('#banco_v1').text('nome_certificado');
+			$('#banco_v2').text('client_id');
+			$('#banco_v3').text('client_secret');
+			$('#banco_v4').text('x-itau-correlationID');
+			$('#banco_v5').text('x-itau-flowID');
+			$('#banco_v6').text('x-itau-apikey');
+		break;
+		case '11':
+			$('#banco_v1').text('nome_certificado');
+			$('#banco_v2').text('client_id');
+			$('#banco_v3').text('sslkeypasswd');
+		break;
+	};
+});
+$('#selBanco').trigger('change');
+</script>
+<footer>
+	<div class="container">
+		<div class="row justify-content-between">
+			<div class="col-12 col-md-4 mb-4">
+				<ul class="list-unstyled">
+					<li class="tit">CONTATO</li>
+					<li><i class="fa fa-home" aria-hidden="true"></i> Rua Buenos Aires, 19 - Centro</li>
+					<li><i class="fa fa-paper-plane" aria-hidden="true"></i> Rio de Janeiro / RJ</li>
+					<li><i class="fa fa-map-marker" aria-hidden="true"></i> CEP 20070-021<br></li>
+					<li><i class="fa fa-phone" aria-hidden="true"></i> Tel.: (21) 2142-9797<br></li>
+					<li><a href="https://www.ibam.org.br/contato/">Entre em contato conosco</a></li>
+				</ul>
+			</div>
+			<div class="col-12 col-md-4 mb-4">
+				<ul class="list-unstyled">
+					<li class="tit">LINHAS DE AÇÃO</li>
+					<li><a href="https://www.ibam.org.br/desenvolvimento-e-ambiente-urbano/">Desenvolvimento e Ambiente Urbano</a></li>
+					<li><a href="https://www.ibam.org.br/territorio-e-sustentabilidade/">Território e Sustentabilidade</a></li>
+					<li><a href="https://www.ibam.org.br/politicas-de-direito-e-cidadania/">Políticas de Direitos e Cidadania</a></li>
+					<li><a href="https://www.ibam.org.br/organizacao-e-gestao/">Organização e Gestão</a></li>
+				</ul>
+			</div>
+			<div class="col-12 col-md-4 mb-4">
+				<ul class="list-unstyled">
+					<li class="tit">MAPA DO SITE</li>
+					<li><a href="https://www.ibam.org.br/sobre-os-cursos/">Sobre os Cursos</a></li>
+					<li><a href="https://www.ibam.org.br/info/como-contratar/">Como contratar</a></li>
+					<li><a href="http://www.ibam-concursos.org.br/">Concursos em Andamento</a></li>
+					<li><a href="https://www.ibam.org.br/concursos-encerrados/">Concursos Encerrados</a></li>
+					<li><a href="https://www.ibam.org.br/laboratorio-de-administracao-municipal/">Laboratório de Administração Municipal</a></li>
+					<li><a href="https://www.ibam.org.br/associe-sua-entidade/">Associe sua Entidade</a></li>
+					<li><a href="https://www.ibam.org.br/projetos/">Projetos</a></li>
+					<li><a href="https://www.ibam.org.br/noticias/">Notícias</a></li>
+					<li><a href="http://netuno.ibam.org.br/ensignia/src/login.php" target="_blank">Webmail</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</footer>
+<!-- GetButton.io widget -->
+<script type="text/javascript">
+(function () {
+var options = {
+contactform: false, // Show Contact Form Button
+whatsapp: "+55 21 21429715", // WhatsApp number
+call_to_action: "Olá, como podemos ajudar", // Call to action
+button_color: "#FF6550", // Color of button
+position: "right", // Position may be 'right' or 'left'
+order: "whatsapp,contactform", // Order of buttons
+};
+var proto = 'https:', host = "getbutton.io", url = proto + '//static.' + host;
+var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = url + '/widget-send-button/js/init.js';
+s.onload = function () { WhWidgetSendButton.init(host, proto, options); };
+var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x);
+})();
+</script>
+<!-- /GetButton.io widget -->
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-19329979-1']);
+  _gaq.push(['_setDomainName', '.ibam-concursos.org.br']);
+  _gaq.push(['_setAllowLinker', true]);
+  _gaq.push(['_setAllowHash', false]);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+</body>
+</html>

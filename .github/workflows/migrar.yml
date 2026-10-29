@@ -1,0 +1,68 @@
+# Aplica as migrations no Neon (produção) com a credencial de administrador — o ÚNICO lugar que a usa.
+# Roda sozinho quando db/migrations muda na main, ou manualmente (aba Actions → migrar → Run workflow).
+name: migrar
+
+on:
+  push:
+    branches: [main]
+    paths: [db/migrations/**]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: migrar
+  cancel-in-progress: false
+
+jobs:
+  migrar:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Conferir secrets dos usuários das aplicações
+        env:
+          COLETOR_DB_PASSWORD: ${{ secrets.COLETOR_DB_PASSWORD }}
+          SITE_DB_PASSWORD: ${{ secrets.SITE_DB_PASSWORD }}
+        run: |
+          falhou=0
+          for nome in COLETOR_DB_PASSWORD SITE_DB_PASSWORD; do
+            valor="${!nome}"
+            if [ "${#valor}" -lt 24 ]; then
+              echo "::error title=Secret $nome::ausente ou com menos de 24 caracteres (veja docs/PENDENCIAS.md)"
+              falhou=1
+            fi
+          done
+          exit "$falhou"
+
+      - name: Ler a string de conexão do Neon
+        env:
+          NEON_ADMIN_URL: ${{ secrets.NEON_ADMIN_URL }}
+        run: python3 scripts/ci/neon_url.py --admin
+
+      - name: Aplicar migrations (só db/migrations; seeds de dev nunca vão para produção)
+        env:
+          FLYWAY_PLACEHOLDERS_COLETOR_SENHA: ${{ secrets.COLETOR_DB_PASSWORD }}
+          FLYWAY_PLACEHOLDERS_SITE_SENHA: ${{ secrets.SITE_DB_PASSWORD }}
+        run: |
+          docker run --rm -v "$PWD/db/migrations:/flyway/sql:ro" \
+            -e FLYWAY_URL -e FLYWAY_USER -e FLYWAY_PASSWORD \
+            -e FLYWAY_PLACEHOLDERS_COLETOR_SENHA -e FLYWAY_PLACEHOLDERS_SITE_SENHA \
+            flyway/flyway:12 -schemas=concursos -defaultSchema=concursos -locations=filesystem:/flyway/sql \
+            -connectRetries=6 -validateMigrationNaming=true migrate
+
+      - name: Sincronizar senhas dos usuários com os secrets
+        # A migration só define a senha na criação; isto permite trocar a senha só mudando o secret.
+        env:
+          COLETOR_DB_PASSWORD: ${{ secrets.COLETOR_DB_PASSWORD }}
+          SITE_DB_PASSWORD: ${{ secrets.SITE_DB_PASSWORD }}
+        run: |
+          docker run --rm -i -e PGHOST -e PGPORT -e PGDATABASE -e PGUSER -e PGPASSWORD -e PGSSLMODE \
+            -e COLETOR_DB_PASSWORD -e SITE_DB_PASSWORD postgres:17-alpine \
+            sh -c 'psql -X -q -v ON_ERROR_STOP=1 -v coletor="$COLETOR_DB_PASSWORD" -v site="$SITE_DB_PASSWORD"' <<'SQL'
+          ALTER ROLE coletor_app PASSWORD :'coletor';
+          ALTER ROLE site_app PASSWORD :'site';
+          SELECT 'tabelas no schema concursos: ' || count(*) FROM pg_tables WHERE schemaname = 'concursos';
+          SQL

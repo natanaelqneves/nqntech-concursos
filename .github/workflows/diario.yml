@@ -1,0 +1,61 @@
+# Execução diária do serviço: coleta (Python). Nas próximas fases entram, em sequência no mesmo workflow,
+# a geração do site estático (fase 5) e os alertas por e-mail (fase 7).
+# Também pode ser disparado à mão: aba Actions → diario → Run workflow.
+name: diario
+
+on:
+  schedule:
+    # 09:17 UTC = 06:17 em Brasília (UTC-3). O GitHub pode atrasar alguns minutos em horário cheio.
+    - cron: "17 9 * * *"
+  workflow_dispatch:
+    inputs:
+      limite:
+        description: "Máximo de documentos nesta execução (vazio = padrão do coletor)"
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: diario
+  cancel-in-progress: false
+
+jobs:
+  config:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    outputs:
+      db_host: ${{ steps.neon.outputs.db_host }}
+      db_name: ${{ steps.neon.outputs.db_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Só o endereço do banco sai daqui; a credencial de administrador não chega aos jobs da aplicação.
+      - id: neon
+        env:
+          NEON_ADMIN_URL: ${{ secrets.NEON_ADMIN_URL }}
+        run: python3 scripts/ci/neon_url.py --host
+
+  coletar:
+    needs: config
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      DB_HOST: ${{ needs.config.outputs.db_host }}
+      DB_NAME: ${{ needs.config.outputs.db_name }}
+      DB_SSLMODE: require
+      COLETOR_DB_USER: coletor_app
+      COLETOR_DB_PASSWORD: ${{ secrets.COLETOR_DB_PASSWORD }}
+      COLETOR_CONTATO_EMAIL: ${{ secrets.COLETOR_CONTATO_EMAIL }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: coletor/pyproject.toml
+      - name: Instalar coletor
+        run: pip install ./coletor
+      - name: Coletar (descobrir → vincular → documentos → estruturar)
+        env:
+          LIMITE: ${{ inputs.limite }}
+        run: python -m coletor executar ${LIMITE:+--limite "$LIMITE"}

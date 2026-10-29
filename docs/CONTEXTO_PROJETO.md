@@ -38,7 +38,7 @@ aplicativo móvel.
  (bancas,    descobrir, vincular,      ▲   │              páginas + sitemap.xml + busca.json       │
   diários)   baixar (temporário),      │   │                                                        ▼
              extrair, classificar,     │   └──► ALERTAS (Java) ──► serviço de e-mail ──► assinantes  site público
-             estruturar, resumir       │                                                          (Vercel)
+             estruturar, resumir       │                                                          (Cloudflare)
                                        │
                       API DE CADASTRO (Spring Boot, fase 7) ◄── formulário do site (nome, e-mail, filtro)
 ```
@@ -47,8 +47,12 @@ aplicativo móvel.
 - **Site estático gerado após cada coleta**: os dados mudam no máximo uma vez por dia; só as páginas que
   mudaram são regeradas. HTML pronto dá velocidade, custo baixo, nenhuma superfície de ataque e **ótima
   indexação no Google** (SEO). (Decisão de 29/10/2026: avaliado e descartado site renderizado a cada acesso.)
-- **Hospedagem na Vercel (plano Pro, pago)**: permite uso comercial (anúncios/afiliados), domínio próprio e CDN.
-  O plano Hobby proíbe anúncios e afiliados. O Pro é cobrado por time; outros projetos podem ficar no mesmo time.
+- **Hospedagem na Cloudflare (Workers com assets estáticos, plano grátis)**: requisições a assets estáticos são
+  grátis e ilimitadas, uso comercial permitido (anúncios/afiliados), CDN, domínio próprio e deploy pelo GitHub
+  Actions com um token. Limite do plano grátis: **20.000 arquivos por versão**; o plano pago (US$ 5/mês) sobe
+  para 100.000. Para não estourar, concursos `ENCERRADO` há muito tempo saem das páginas estáticas (ficam no
+  banco). Avaliadas em 29/10/2026: Vercel (Hobby proíbe anúncios; Pro US$ 20/mês) e GitHub Pages (área cinzenta
+  para uso comercial).
 - **Coletores e site nunca conversam diretamente**: o banco é o ponto de encontro (mesma regra do Radar TI).
 - **Busca/filtros no navegador** sobre um `busca.json` gerado junto com o site (sem servidor). Se o volume
   crescer demais (ex.: histórico de encerrados), a busca passa a um endpoint da API sem mudar a tela.
@@ -62,7 +66,7 @@ aplicativo móvel.
 |---|---|---|---|
 | CI (a cada push) | Postgres 17 descartável + Flyway | GreenMail/Mailpit | gerado e validado, não publicado |
 | Ensaio (manual) | Postgres descartável, dono sem superusuário (igual Neon) | Mailpit | gerado como artefato |
-| Produção | Neon (projeto `nqntech-concursos`, separado do Radar TI) | serviço transacional (fase 7) | Vercel (Pro) |
+| Produção | Neon (projeto `nqntech-concursos`, separado do Radar TI) | serviço transacional (fase 7) | Cloudflare (Workers static assets) |
 | Local (opcional) | Docker | Mailpit | `http://127.0.0.1` |
 
 ---
@@ -78,7 +82,7 @@ aplicativo móvel.
 | Alertas | Spring Boot (linha de comando) + Spring Mail + Thymeleaf | Mesmo padrão do notificador do Radar TI |
 | Banco | PostgreSQL 17 no Neon, schema `concursos` | Gratuito; 1 GB; dorme quando ocioso |
 | Migrations | Flyway 12 | Mesmo esquema em todos os ambientes |
-| Hospedagem do site | Vercel Pro + domínio próprio | Permite monetização; CDN; deploy pelo GitHub Actions |
+| Hospedagem do site | Cloudflare Workers (assets estáticos) + domínio próprio | Grátis, comercial permitido, CDN; deploy pelo GitHub Actions |
 | E-mail dos alertas | Serviço transacional com faixa gratuita (escolher na fase 7) | Gmail não serve para envio a muitas pessoas |
 | Painel administrativo | Angular (opcional, fase 9) | Portfólio; não precisa de SEO |
 
@@ -178,7 +182,7 @@ Descadastro **apaga** o assinante e o filtro (não só marca).
 | 4. Estruturação | Coletor | Cargos, datas, taxas, **seção de isenções**, avisos |
 | 5. Classificação | Coletor | Área de cada cargo (`areas.yml`), escolaridade, situação por data |
 | 6. Resumo | Coletor | Resumo por regras + campos desnormalizados + `slug` |
-| 7. Site | Gerador (Java) | Páginas HTML, `busca.json`, `sitemap.xml`, `robots.txt` (só o que mudou) → Vercel |
+| 7. Site | Gerador (Java) | Páginas HTML, `busca.json`, `sitemap.xml`, `robots.txt` (só o que mudou) → Cloudflare |
 | 8. Alertas | Alertas (Java) | Para cada assinante ativo: concursos novos que batem com o filtro → e-mail |
 
 A coleta inicial é limitada por execução (ex.: 60 editais/dia) e drena o acúmulo em poucos dias.
@@ -276,7 +280,7 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
 | 2 | Coletor FGV completo: todas as áreas, níveis, UF, encerrados recentes, classificador de área | Concursos FGV classificados por área |
 | 3 | Isenções: catálogo + extrator da seção de isenção (FGV) | TJPB 2026 com os 5 tipos e o prazo |
 | 4 | Resumo automático + slug + campos desnormalizados | Resumo correto para os concursos de teste |
-| 5 | **Site estático** na Vercel: páginas, filtros, isenções, sitemap, SEO, domínio próprio | **Site no ar (MVP)** |
+| 5 | **Site estático** na Cloudflare: páginas, filtros, isenções, sitemap, SEO, domínio próprio | **Site no ar (MVP)** |
 | 6 | Mais fontes: Vunesp, Selecon, DOU (INLABS), Querido Diário + deduplicação | Cobertura nacional crescente |
 | 7 | Alertas: API de cadastro, double opt-in, links mágicos, envio diário/semanal, privacidade | Assinante recebe alerta do seu filtro |
 | 8 | Robustez: monitoramento, retenção, backup, alertas de falha para o administrador | Serviço se mantém sozinho |
@@ -292,7 +296,7 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       Thymeleaf; Neon em projeto separado; Angular só em painel administrativo opcional
 - [x] Documentos versionados em `docs/` (Git é a fonte da verdade; o Projeto no Claude guarda cópias)
 - [x] Licenças: MIT (código) + CC BY 4.0 (textos do site)
-- [x] Hospedagem: Vercel Pro com domínio próprio (no lugar do GitHub Pages); site estático regenerado após cada
+- [x] Hospedagem: Cloudflare (Workers com assets estáticos, grátis) com domínio próprio (no lugar do GitHub Pages); site estático regenerado após cada
       coleta; filtros no navegador; cadastro de alertas é a única parte com servidor
 - [x] Monetização prevista (doações, afiliados, anúncios) com informação sempre gratuita
 - [ ] Fase 0 — Repositório e base

@@ -1,0 +1,30 @@
+# Utilitário: captura páginas reais de Vunesp e Selecon como fixtures. Roda só em push na branch captura/bancas
+# e grava o resultado de volta nela (o GITHUB_TOKEN não dispara outros workflows, então não há laço).
+name: captura-bancas
+on:
+  push:
+    branches: [captura/bancas]
+    paths: [scripts/captura/**, .github/workflows/captura-bancas.yml]
+permissions:
+  contents: write
+concurrency:
+  group: captura-bancas
+  cancel-in-progress: false
+jobs:
+  capturar:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - run: pip install requests beautifulsoup4 lxml
+      - run: python scripts/captura/capturar_urls.py
+      - name: Gravar fixtures na branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f coletor/tests/fixtures
+          git commit -m "captura: páginas de bancas [skip ci]" || echo "nada novo"
+          git push

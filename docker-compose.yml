@@ -1,0 +1,68 @@
+# Ambiente de DESENVOLVIMENTO. Em produção o banco é o Neon; o e-mail dos alertas chega na fase 7.
+# Todas as portas publicadas ficam presas em 127.0.0.1: nada fica acessível pela rede local/Wi-Fi.
+name: nqntech-concursos
+
+services:
+  postgres:
+    # Mesma major do Neon (Postgres 17) para não haver diferença de comportamento.
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-concursos}
+      POSTGRES_USER: ${POSTGRES_USER:-concursos_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env}
+      TZ: America/Sao_Paulo
+      PGTZ: America/Sao_Paulo
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+  flyway:
+    image: flyway/flyway:12
+    # Executa uma vez e termina; "docker compose up" de novo reaplica só o que for novo.
+    command: migrate
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      FLYWAY_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-concursos}
+      FLYWAY_USER: ${POSTGRES_USER:-concursos_admin}
+      FLYWAY_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env}
+      # O histórico do Flyway fica dentro do schema concursos, não em public.
+      FLYWAY_SCHEMAS: concursos
+      FLYWAY_DEFAULT_SCHEMA: concursos
+      # Em dev entram também os seeds fictícios (db/seeds); em produção, só db/migrations.
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql,filesystem:/flyway/seeds
+      FLYWAY_CONNECT_RETRIES: "10"
+      FLYWAY_VALIDATE_MIGRATION_NAMING: "true"
+      # Senhas dos usuários de aplicação, usadas pela migration V3 como ${coletor_senha} e ${site_senha}.
+      FLYWAY_PLACEHOLDERS_COLETOR_SENHA: ${COLETOR_DB_PASSWORD:?Defina COLETOR_DB_PASSWORD no .env}
+      FLYWAY_PLACEHOLDERS_SITE_SENHA: ${SITE_DB_PASSWORD:?Defina SITE_DB_PASSWORD no .env}
+    volumes:
+      - ./db/migrations:/flyway/sql:ro
+      - ./db/seeds:/flyway/seeds:ro
+
+  mailpit:
+    # Ferramenta só de dev, presa em 127.0.0.1; "latest" para receber correções de segurança sem esforço.
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    environment:
+      TZ: America/Sao_Paulo
+      MP_MAX_MESSAGES: "500"
+      # Aceita SMTP sem TLS/autenticação: só faz sentido porque a porta não sai de 127.0.0.1.
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+    ports:
+      - "127.0.0.1:${MAILPIT_SMTP_PORT:-1025}:1025"
+      - "127.0.0.1:${MAILPIT_UI_PORT:-8025}:8025"
+
+volumes:
+  pgdata:

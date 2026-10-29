@@ -1,0 +1,119 @@
+# Ensaio geral da produção, sem nenhuma conta externa: um Postgres descartável faz o papel do Neon (com dono
+# SEM superusuário, como no Neon). Roda os mesmos passos de migrar.yml e diario.yml, com coleta REAL nas
+# fontes ativas (limitada), e publica no resumo da execução o que foi gravado.
+# Disparo: aba Actions → ensaio → Run workflow (ou push numa branch ensaio/...).
+name: ensaio
+
+on:
+  push:
+    branches: ["ensaio/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ensaio
+  cancel-in-progress: true
+
+jobs:
+  ensaio:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: superadmin
+          POSTGRES_PASSWORD: superadmin-ensaio
+          POSTGRES_DB: concursos
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U superadmin -d concursos"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      # Valores descartáveis deste banco efêmero (não são segredos).
+      NEON_ADMIN_URL: postgresql://dono_neon:dono-neon-ensaio-0123456789abcdef@localhost:5432/concursos?sslmode=require
+      COLETOR_DB_PASSWORD: coletor-ensaio-0123456789abcdef
+      SITE_DB_PASSWORD: site-ensaio-0123456789abcdef
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Simular o dono do banco do Neon (CREATEROLE, sem superusuário)
+        env:
+          PGPASSWORD: superadmin-ensaio
+        run: |
+          psql -X -h localhost -U superadmin -d concursos -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE dono_neon LOGIN CREATEROLE CREATEDB PASSWORD 'dono-neon-ensaio-0123456789abcdef';
+          ALTER DATABASE concursos OWNER TO dono_neon;
+          ALTER SCHEMA public OWNER TO dono_neon;
+          SQL
+
+      # ---- mesmos passos de migrar.yml ----
+      - name: Ler a string de conexão (como no migrar.yml)
+        run: |
+          python3 scripts/ci/neon_url.py --admin
+          # Único desvio do ensaio: o Postgres local não tem TLS.
+          echo "FLYWAY_URL=jdbc:postgresql://localhost:5432/concursos?sslmode=disable" >> "$GITHUB_ENV"
+          echo "PGSSLMODE=disable" >> "$GITHUB_ENV"
+
+      - name: Aplicar migrations
+        env:
+          FLYWAY_PLACEHOLDERS_COLETOR_SENHA: ${{ env.COLETOR_DB_PASSWORD }}
+          FLYWAY_PLACEHOLDERS_SITE_SENHA: ${{ env.SITE_DB_PASSWORD }}
+        run: |
+          docker run --rm --network host -v "$PWD/db/migrations:/flyway/sql:ro" \
+            -e FLYWAY_URL -e FLYWAY_USER -e FLYWAY_PASSWORD \
+            -e FLYWAY_PLACEHOLDERS_COLETOR_SENHA -e FLYWAY_PLACEHOLDERS_SITE_SENHA \
+            flyway/flyway:12 -schemas=concursos -defaultSchema=concursos -locations=filesystem:/flyway/sql \
+            -connectRetries=6 -validateMigrationNaming=true migrate
+
+      - name: Sincronizar senhas dos usuários
+        run: |
+          docker run --rm -i --network host -e PGHOST -e PGPORT -e PGDATABASE -e PGUSER -e PGPASSWORD -e PGSSLMODE \
+            -e COLETOR_DB_PASSWORD -e SITE_DB_PASSWORD postgres:17-alpine \
+            sh -c 'psql -X -q -v ON_ERROR_STOP=1 -v coletor="$COLETOR_DB_PASSWORD" -v site="$SITE_DB_PASSWORD"' <<'SQL'
+          ALTER ROLE coletor_app PASSWORD :'coletor';
+          ALTER ROLE site_app PASSWORD :'site';
+          SQL
+
+      # ---- mesmos passos de diario.yml ----
+      - id: neon
+        name: Endereço do banco (como no job config)
+        run: python3 scripts/ci/neon_url.py --host
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: coletor/pyproject.toml
+
+      - name: Coletar de verdade (limitado a 8 documentos)
+        env:
+          DB_HOST: ${{ steps.neon.outputs.db_host }}
+          DB_NAME: ${{ steps.neon.outputs.db_name }}
+          DB_SSLMODE: disable
+          COLETOR_DB_USER: coletor_app
+          COLETOR_CONTATO_EMAIL: ensaio@exemplo.com
+          COLETOR_MAX_DOCUMENTOS: "8"
+        run: |
+          pip install ./coletor
+          python -m coletor executar
+
+      - name: Conferir o que o site_app enxerga
+        if: always()
+        env:
+          PGPASSWORD: ${{ env.SITE_DB_PASSWORD }}
+        run: |
+          psql -X -h localhost -U site_app -d concursos -At -F ' | ' <<'SQL' | sed 's/^/::notice title=Banco::/'
+          SELECT 'concursos=' || count(*)
+                 || ' | ' || string_agg(DISTINCT situacao, ',')
+                 || ' | ' || (SELECT string_agg(etapa || ':' || status || '(' || itens_novos || ')', ' ' ORDER BY id)
+                              FROM execucao_coleta)
+            FROM concurso;
+          SELECT coalesce(o.nome, c.titulo) || ' | ' || coalesce(o.uf, '--') || ' | ' || b.sigla || ' | ' || c.situacao
+                 || ' | cargos=' || count(g.id)
+            FROM concurso c LEFT JOIN orgao o ON o.id = c.orgao_id JOIN banca b ON b.id = c.banca_id
+            LEFT JOIN cargo g ON g.concurso_id = c.id
+            GROUP BY c.id, o.nome, o.uf, b.sigla ORDER BY c.situacao, 1 LIMIT 15;
+          SQL

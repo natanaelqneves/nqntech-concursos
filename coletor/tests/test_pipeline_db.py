@@ -165,9 +165,7 @@ def test_pipeline_completo_idempotente_e_detecta_retificacao(parametros_coletor,
     assert [(d["tipo"], d["status_extracao"]) for d in docs] == [("EDITAL", "OK"), ("RETIFICACAO", "OK")]
     assert all(len(d["hash_sha256"]) == 64 for d in docs)
 
-    pm = consulta.execute(
-        "SELECT avisos_extracao FROM concursos.concurso WHERE link_oficial = %s", (PM,)
-    ).fetchone()
+    pm = consulta.execute("SELECT avisos_extracao FROM concursos.concurso WHERE link_oficial = %s", (PM,)).fetchone()
     assert any("quadro de cargos" in a for a in pm["avisos_extracao"])
 
     # 2ª execução: nada muda, nenhum PDF é baixado de novo
@@ -176,9 +174,9 @@ def test_pipeline_completo_idempotente_e_detecta_retificacao(parametros_coletor,
     assert next(r for r in resumos if r.etapa == "DESCOBERTA").itens_novos == 0
     assert site.pdfs_baixados == []
     assert (
-        consulta.execute("SELECT count(*) AS n FROM concursos.documento WHERE concurso_id = %s", (tjpb["id"],)).fetchone()[
-            "n"
-        ]
+        consulta.execute(
+            "SELECT count(*) AS n FROM concursos.documento WHERE concurso_id = %s", (tjpb["id"],)
+        ).fetchone()["n"]
         == 2
     )
 
@@ -197,7 +195,9 @@ def test_pipeline_completo_idempotente_e_detecta_retificacao(parametros_coletor,
     ).fetchall()
     assert [(d["tipo"], d["status_extracao"]) for d in novos] == [("RETIFICACAO", "OK")]
     assert (
-        consulta.execute("SELECT count(*) AS n FROM concursos.concurso WHERE link_oficial = %s", (TJPB,)).fetchone()["n"]
+        consulta.execute("SELECT count(*) AS n FROM concursos.concurso WHERE link_oficial = %s", (TJPB,)).fetchone()[
+            "n"
+        ]
         == 1
     )
     conn.close()
@@ -212,7 +212,8 @@ def test_falha_total_da_fonte_e_registrada(parametros_coletor, conn_admin, limpa
 
     assert codigo_de_saida(resumos) == 1
     ultima = conn_admin.execute(
-        "SELECT status, mensagem_erro FROM concursos.execucao_coleta WHERE etapa = 'DESCOBERTA' ORDER BY id DESC LIMIT 1"
+        "SELECT status, mensagem_erro FROM concursos.execucao_coleta"
+        " WHERE etapa = 'DESCOBERTA' ORDER BY id DESC LIMIT 1"
     ).fetchone()
     assert ultima[0] == "FALHA" and "layout" in ultima[1]
     conn.close()
@@ -303,10 +304,14 @@ def test_fontes_com_dados_estruturados_ibam_e_ibade(parametros_coletor, conn_adm
     assert any("só no edital" in a for a in cref["avisos_extracao"])
 
     # 2ª execução: nada muda (concurso não é "tocado" sem mudança real, nenhum PDF baixado de novo)
-    antes = consulta.execute("SELECT atualizado_em FROM concursos.concurso WHERE id = %s", (fraiburgo["id"],)).fetchone()
+    antes = consulta.execute(
+        "SELECT atualizado_em FROM concursos.concurso WHERE id = %s", (fraiburgo["id"],)
+    ).fetchone()
     site.pdfs_baixados.clear()
     orquestrador.executar(ETAPAS)
-    depois = consulta.execute("SELECT atualizado_em FROM concursos.concurso WHERE id = %s", (fraiburgo["id"],)).fetchone()
+    depois = consulta.execute(
+        "SELECT atualizado_em FROM concursos.concurso WHERE id = %s", (fraiburgo["id"],)
+    ).fetchone()
     assert antes == depois
     assert site.pdfs_baixados == []
     conn.close()

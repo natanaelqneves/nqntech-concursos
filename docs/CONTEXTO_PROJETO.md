@@ -19,11 +19,14 @@ Site **público e gratuito** de concursos públicos do Brasil, com informação 
   (CadÚnico, doadores de sangue/medula, jurados etc.). Objetivo social: **democratizar o acesso a concursos**.
 - **Alertas por e-mail**: a pessoa informa **nome e e-mail** e monta o próprio filtro (estados, áreas, níveis,
   "só com isenção"). Nada além disso é pedido.
+- **Informação sempre gratuita.** Monetização prevista (doações, afiliados, anúncios) apenas para cobrir custos
+  e manter o projeto; regras na seção 10.
 
 O site é **alimentado pelos motores de coleta** (coletores automáticos). Não há cadastro manual de concursos.
 
 ### Fora do escopo (por enquanto)
-Login com senha, comentários, conteúdo de cursinho, venda de qualquer coisa, aplicativo móvel.
+Login com senha, comentários, conteúdo de cursinho, venda de produtos próprios, cobrança pela informação,
+aplicativo móvel.
 
 ---
 
@@ -34,17 +37,21 @@ Login com senha, comentários, conteúdo de cursinho, venda de qualquer coisa, a
  Fontes ──► COLETOR (Python) ──► PostgreSQL (Neon) ──► GERADOR DO SITE (Java/Thymeleaf) ──► HTML estático
  (bancas,    descobrir, vincular,      ▲   │              páginas + sitemap.xml + busca.json       │
   diários)   baixar (temporário),      │   │                                                        ▼
-             extrair, classificar,     │   └──► ALERTAS (Java) ──► serviço de e-mail ──► assinantes  GitHub Pages
-             estruturar, resumir       │                                                          (site público)
+             extrair, classificar,     │   └──► ALERTAS (Java) ──► serviço de e-mail ──► assinantes  site público
+             estruturar, resumir       │                                                          (Vercel)
                                        │
                       API DE CADASTRO (Spring Boot, fase 7) ◄── formulário do site (nome, e-mail, filtro)
 ```
 
 **Decisões centrais**
-- **Site estático gerado 1x/dia**: os dados mudam no máximo uma vez por dia. Gerar HTML pronto dá velocidade,
-  custo zero (GitHub Pages), nenhuma superfície de ataque e **ótima indexação no Google** (SEO).
+- **Site estático gerado após cada coleta**: os dados mudam no máximo uma vez por dia; só as páginas que
+  mudaram são regeradas. HTML pronto dá velocidade, custo baixo, nenhuma superfície de ataque e **ótima
+  indexação no Google** (SEO). (Decisão de 29/10/2026: avaliado e descartado site renderizado a cada acesso.)
+- **Hospedagem na Vercel (plano Pro, pago)**: permite uso comercial (anúncios/afiliados), domínio próprio e CDN.
+  O plano Hobby proíbe anúncios e afiliados. O Pro é cobrado por time; outros projetos podem ficar no mesmo time.
 - **Coletores e site nunca conversam diretamente**: o banco é o ponto de encontro (mesma regra do Radar TI).
-- **Busca/filtros no navegador** sobre um `busca.json` gerado junto com o site (sem servidor).
+- **Busca/filtros no navegador** sobre um `busca.json` gerado junto com o site (sem servidor). Se o volume
+  crescer demais (ex.: histórico de encerrados), a busca passa a um endpoint da API sem mudar a tela.
 - **Único componente com servidor**: a API de cadastro de alertas (fase 7). Hospedagem gratuita a escolher
   nessa fase, **conferindo os limites atuais** antes de decidir.
 - A coleta roda no GitHub Actions (grátis e sem limite de minutos em repositório **público**). Rodar o coletor
@@ -55,7 +62,7 @@ Login com senha, comentários, conteúdo de cursinho, venda de qualquer coisa, a
 |---|---|---|---|
 | CI (a cada push) | Postgres 17 descartável + Flyway | GreenMail/Mailpit | gerado e validado, não publicado |
 | Ensaio (manual) | Postgres descartável, dono sem superusuário (igual Neon) | Mailpit | gerado como artefato |
-| Produção | Neon (projeto `nqntech-concursos`, separado do Radar TI) | serviço transacional (fase 7) | GitHub Pages |
+| Produção | Neon (projeto `nqntech-concursos`, separado do Radar TI) | serviço transacional (fase 7) | Vercel (Pro) |
 | Local (opcional) | Docker | Mailpit | `http://127.0.0.1` |
 
 ---
@@ -71,7 +78,7 @@ Login com senha, comentários, conteúdo de cursinho, venda de qualquer coisa, a
 | Alertas | Spring Boot (linha de comando) + Spring Mail + Thymeleaf | Mesmo padrão do notificador do Radar TI |
 | Banco | PostgreSQL 17 no Neon, schema `concursos` | Gratuito; 1 GB; dorme quando ocioso |
 | Migrations | Flyway 12 | Mesmo esquema em todos os ambientes |
-| Hospedagem do site | GitHub Pages | Gratuito em repositório público |
+| Hospedagem do site | Vercel Pro + domínio próprio | Permite monetização; CDN; deploy pelo GitHub Actions |
 | E-mail dos alertas | Serviço transacional com faixa gratuita (escolher na fase 7) | Gmail não serve para envio a muitas pessoas |
 | Painel administrativo | Angular (opcional, fase 9) | Portfólio; não precisa de SEO |
 
@@ -171,7 +178,7 @@ Descadastro **apaga** o assinante e o filtro (não só marca).
 | 4. Estruturação | Coletor | Cargos, datas, taxas, **seção de isenções**, avisos |
 | 5. Classificação | Coletor | Área de cada cargo (`areas.yml`), escolaridade, situação por data |
 | 6. Resumo | Coletor | Resumo por regras + campos desnormalizados + `slug` |
-| 7. Site | Gerador (Java) | Páginas HTML, `busca.json`, `sitemap.xml`, `robots.txt` → GitHub Pages |
+| 7. Site | Gerador (Java) | Páginas HTML, `busca.json`, `sitemap.xml`, `robots.txt` (só o que mudou) → Vercel |
 | 8. Alertas | Alertas (Java) | Para cada assinante ativo: concursos novos que batem com o filtro → e-mail |
 
 A coleta inicial é limitada por execução (ex.: 60 editais/dia) e drena o acúmulo em poucos dias.
@@ -250,6 +257,14 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
 - Resumos próprios, gerados a partir de fatos; **nunca copiar** texto de notícias; sempre linkar o oficial.
 - Informação sobre isenção é orientação geral, com aviso para conferir o edital.
 
+### Monetização
+- A informação (site e alertas) é **sempre gratuita**. Se os custos superarem a receita, o **volume** pode ser
+  limitado (ex.: alerta só semanal, fila de novos assinantes), com aviso prévio aos assinantes; nunca cobrar.
+- Ordem prevista: **doações** primeiro; **afiliados** sempre identificados como publicidade e separados do
+  resumo (o resumo nunca recomenda produto); **anúncios** só com banner de consentimento de cookies e política
+  de privacidade atualizada, sem pesar o site em celular fraco.
+- Licenças: código MIT (`LICENSE`); textos próprios do site CC BY 4.0 (`LICENSE-CONTEUDO.md`).
+
 ---
 
 ## 11. Roteiro por fases
@@ -261,11 +276,11 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
 | 2 | Coletor FGV completo: todas as áreas, níveis, UF, encerrados recentes, classificador de área | Concursos FGV classificados por área |
 | 3 | Isenções: catálogo + extrator da seção de isenção (FGV) | TJPB 2026 com os 5 tipos e o prazo |
 | 4 | Resumo automático + slug + campos desnormalizados | Resumo correto para os concursos de teste |
-| 5 | **Site estático** no GitHub Pages: páginas, filtros, isenções, sitemap, SEO | **Site no ar (MVP)** |
+| 5 | **Site estático** na Vercel: páginas, filtros, isenções, sitemap, SEO, domínio próprio | **Site no ar (MVP)** |
 | 6 | Mais fontes: Vunesp, Selecon, DOU (INLABS), Querido Diário + deduplicação | Cobertura nacional crescente |
 | 7 | Alertas: API de cadastro, double opt-in, links mágicos, envio diário/semanal, privacidade | Assinante recebe alerta do seu filtro |
 | 8 | Robustez: monitoramento, retenção, backup, alertas de falha para o administrador | Serviço se mantém sozinho |
-| 9 | (Opcional) Painel administrativo Angular, domínio próprio, resumo por LLM | — |
+| 9 | (Opcional) Painel administrativo Angular, resumo por LLM, monetização (doações → afiliados → anúncios) | — |
 
 ---
 
@@ -274,5 +289,10 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
 - [x] Ideia e decisões (29/10/2026): site público e gratuito; todas as áreas/níveis/estados; previstos, abertos
       e encerrados; resumo por concurso; isenções; alertas com cadastro só de nome + e-mail + filtro
 - [x] Decisões técnicas: repositório público `nqntech-concursos`; coleta no GitHub Actions; site estático
-      Thymeleaf no GitHub Pages; Neon em projeto separado; Angular só em painel administrativo opcional
+      Thymeleaf; Neon em projeto separado; Angular só em painel administrativo opcional
+- [x] Documentos versionados em `docs/` (Git é a fonte da verdade; o Projeto no Claude guarda cópias)
+- [x] Licenças: MIT (código) + CC BY 4.0 (textos do site)
+- [x] Hospedagem: Vercel Pro com domínio próprio (no lugar do GitHub Pages); site estático regenerado após cada
+      coleta; filtros no navegador; cadastro de alertas é a única parte com servidor
+- [x] Monetização prevista (doações, afiliados, anúncios) com informação sempre gratuita
 - [ ] Fase 0 — Repositório e base

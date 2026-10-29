@@ -1,0 +1,31 @@
+Contexto: desenvolvedor Java/Spring Boot e PostgreSQL, com conhecimento de Python. Domino integração,
+conexão com banco, variáveis de ambiente e configuração; não explique o básico.
+Projeto: NqnTech Concursos, site público e gratuito de concursos públicos do Brasil (todas as áreas, níveis e
+estados; previstos, abertos e encerrados), com resumo próprio de cada concurso, informações sobre isenções de
+taxa e alertas por e-mail com cadastro só de nome, e-mail e filtro. Coleta em Python e geração do site
+estático em Java/Thymeleaf no GitHub Actions; PostgreSQL no Neon; site no GitHub Pages.
+Repositório público: https://github.com/natanaelqneves/nqntech-concursos
+O CONTEXTO_PROJETO.md é a fonte da verdade: siga arquitetura, modelo de dados, estrutura de pastas,
+convenções e regras de segurança/privacidade dele. Se algo que eu pedir contrariar o contexto, avise antes.
+O repositório radar-ti é outro projeto: só pode ser lido como referência, nunca alterado.
+
+Padrão de código:
+- Nível profissional, como em produção: arquitetura limpa, SOLID onde fizer sentido, tratamento de erros
+  explícito, logs úteis, type hints no Python, records/dataclasses imutáveis quando possível.
+- Comente apenas o que não for trivial (regras de negócio, decisões não óbvias, regex/heurísticas,
+  pontos de segurança). Sem comentários que repetem o código; prefira bons nomes.
+- Javadoc/docstring só em interfaces e contratos públicos entre módulos.
+- Testes automatizados para toda lógica relevante, sem acessar a internet nos testes.
+- Nunca coloque segredo real no código (o repositório é público); use GitHub Secrets e mantenha o
+  .env.example atualizado.
+- Use versões estáveis atuais das bibliotecas e confira na web o que pode ter mudado.
+
+Como trabalhar:
+- Faça o trabalho completo da fase pedida: crie os arquivos no repositório, rode os testes no GitHub Actions,
+  corrija até ficar verde e só me deixe o que depende das minhas contas, com instruções em docs/PENDENCIAS.md.
+- Explicações curtas e diretas: só decisões de projeto relevantes e trade-offs.
+
+Ao final de cada fase:
+1. O que foi entregue e como verificar (workflow/página e resultado esperado).
+2. Pontos de segurança e privacidade da fase (só os relevantes).
+3. A seção "Estado atual" do CONTEXTO_PROJETO.md atualizada, no repositório e no Projeto.

@@ -299,4 +299,13 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
 - [x] Hospedagem: Cloudflare (Workers com assets estáticos, grátis) com domínio próprio (no lugar do GitHub Pages); site estático regenerado após cada
       coleta; filtros no navegador; cadastro de alertas é a única parte com servidor
 - [x] Monetização prevista (doações, afiliados, anúncios) com informação sempre gratuita
-- [ ] Fase 0 — Repositório e base
+- [x] Fase 0 — Repositório e base (29/10/2026): coletor Python herdado do Radar TI **sem o filtro de TI**
+      (fontes FGV, IBAM e IBADE; todos os editais de concursos ativos são lidos), schema `concursos`, papéis
+      `coletor_app` e `site_app` (só leitura, sessão read-only, sem acesso a texto de editais nem a sinais) com
+      RLS e testes SQL; workflows `ci` (com gitleaks), `migrar`, `diario`, `ensaio` e captura. CI verde; ensaio
+      com coleta real gravou 163 concursos das 3 fontes. Pendente com o usuário: Neon novo e secrets
+      (`docs/PENDENCIAS.md`).
+      Observações para as próximas fases: Vunesp e Selecon (fase 6) respondem 403 a servidores desde 29/10/2026
+      e ficam com `coleta_permitida = false` (não contornar); o órgão de alguns títulos da FGV sai incompleto
+      (ex.: "5ª Região"), a revisar na fase 2.
+- [ ] Fase 1 — Banco ampliado

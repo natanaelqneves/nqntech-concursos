@@ -58,7 +58,9 @@ Secrets de repositório **não** ficam visíveis para quem abre PR de fork: o c�
 
 - [x] **Settings → Code security**: ative *Secret scanning* e *Push protection* (grátis em repositório público).
       A CI também roda o gitleaks a cada push.
-- [ ] **Settings → Branches → Add rule** para `main`: exigir o check `ci / banco-e-coletor` antes de merge.
+- [ ] **Settings → Rules → Rulesets → New ruleset → New branch ruleset**: nome `main`, *Enforcement* **Active**,
+      *Target branches* → **Include default branch**; regras **Restrict deletions** e **Block force pushes**
+      (só essas: exigir PR/checks bloquearia os pushes diretos do Claude na `main`) → **Create**.
 
 ---
 

@@ -130,6 +130,24 @@ Um resumo por LLM pode ser plugado depois (fase opcional), validado contra os ca
 
 ---
 
+### 4.6 Decisões de produto (29/10/2026, a implementar nas fases 1–5)
+- **Tela inicial: só concursos com inscrições abertas**, com destaque e ordenação pelo **prazo de pedir isenção**
+  mais próximo. Previstos e encerrados ficam na busca e nas páginas de estado/área (SEO).
+- **Navegação geográfica Brasil → regiões → estados → municípios**: tabela de municípios do IBGE (código, nome, UF,
+  região) por migration; concurso municipal ligado ao código IBGE. Federais/nacionais = categoria **"Nacional"**,
+  exibidos em qualquer recorte; estaduais aparecem no estado e nos municípios dele. Páginas `/brasil/`,
+  `/regiao/<regiao>/`, `/estado/<uf>/`, `/municipio/<uf>/<municipio>/` + filtros encadeados no navegador.
+- **Por concurso**: dias restantes para pedir isenção (recalculado no navegador a partir de `isencao_fim`);
+  **calendário** (tabela de eventos: evento, início, fim; "a definir" quando o edital não traz data);
+  **matérias = só a lista de disciplinas por cargo** (nunca o conteúdo programático); **tem redação/discursiva**
+  (booleano por cargo, com aviso "confira o edital" quando incerto). Extração na fase 3, junto com isenções.
+- **Espaços de afiliados**: bloco "Prepare-se para este concurso" na página do concurso (após resumo e cargos,
+  nunca dentro do resumo), blocos discretos em páginas de área/estado e no rodapé dos alertas; no máximo 1–2 por
+  página; rótulo "Publicidade"/"Link de parceiro"; `rel="sponsored nofollow"`; parceiros em `config/parceiros.yml`
+  por área/banca. Páginas de isenção mostram só material gratuito. Só links simples (sem scripts de afiliado).
+- **Cookies**: o site não cria cookies; filtros podem lembrar escolhas em `localStorage`; estatísticas pelo
+  Cloudflare Web Analytics (sem cookies). Banner de consentimento só se entrarem anúncios com cookies.
+
 ## 5. Modelo de dados (schema `concursos`)
 
 Base herdada do Radar TI, com acréscimos marcados com ★.
@@ -308,4 +326,6 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       Observações para as próximas fases: Vunesp e Selecon (fase 6) respondem 403 a servidores desde 29/10/2026
       e ficam com `coleta_permitida = false` (não contornar); o órgão de alguns títulos da FGV sai incompleto
       (ex.: "5ª Região"), a revisar na fase 2.
-- [ ] Fase 1 — Banco ampliado
+- [x] Neon `nqntech_concursos` criado, secrets cadastrados e `migrar` verde (29/10/2026)
+- [ ] Fase 1 — Banco ampliado (incluir também: municípios IBGE/regiões, eventos do calendário, disciplinas e
+      redação por cargo — seção 4.6)

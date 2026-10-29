@@ -58,9 +58,18 @@ Secrets de repositório **não** ficam visíveis para quem abre PR de fork: o c�
 
 - [x] **Settings → Code security**: ative *Secret scanning* e *Push protection* (grátis em repositório público).
       A CI também roda o gitleaks a cada push.
-- [ ] **Settings → Rules → Rulesets → New ruleset → New branch ruleset**: nome `main`, *Enforcement* **Active**,
-      *Target branches* → **Include default branch**; regras **Restrict deletions** e **Block force pushes**
-      (só essas: exigir PR/checks bloquearia os pushes diretos do Claude na `main`) → **Create**.
+- [ ] Proteger a `main` (o Claude trabalha por PR): **Settings → Rules → Rulesets → New ruleset → New branch
+      ruleset**:
+  - **Ruleset name:** `main` · **Enforcement status:** **Active** · **Bypass list:** vazia.
+  - **Target branches → Add target → Include default branch**.
+  - Marque **Restrict deletions** e **Block force pushes**.
+  - Marque **Require a pull request before merging** → *Required approvals*: **0** (projeto de uma pessoa só;
+    você não consegue aprovar o próprio PR).
+  - Marque **Require status checks to pass** → **Add checks** → digite `banco-e-coletor` e selecione o da
+    *GitHub Actions*. Deixe *Require branches to be up to date* desmarcado.
+  - **Create**.
+- [ ] **Settings → General → Pull Requests**: deixe só **Allow squash merging** e marque
+      **Automatically delete head branches**.
 
 ---
 

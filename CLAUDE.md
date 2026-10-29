@@ -38,6 +38,10 @@ O repositório `natanaelqneves/radar-ti` é outro projeto: só pode ser lido com
   corrija até ficar verde e só deixe ao usuário o que depende das contas dele, com instruções em
   `docs/PENDENCIAS.md`.
 - Explicações curtas e diretas: só decisões de projeto relevantes e trade-offs.
+- **Nunca faça push direto na `main`** (protegida por ruleset). Fluxo: branch `fase-N-<assunto>` (ou
+  `docs/<assunto>`, `fix/<assunto>`) → push → PR com resumo do que muda → CI `banco-e-coletor` verde → merge
+  *squash* → apague a branch. Ajustes pequenos de documentação também vão por PR.
+- PRs do Dependabot: revise o changelog e faça o merge quando a CI estiver verde.
 - Respostas em português.
 
 ## Ao final de cada fase

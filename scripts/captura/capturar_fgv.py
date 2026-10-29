@@ -114,7 +114,7 @@ def main() -> int:
             if (
                 titulo.startswith("edital")
                 and not re.search(
-                    r"retifica|comunicado|resultado|convoca|homologa", titulo
+                    r"comunicado|resultado|convoca|homologa|extrato", titulo
                 )
                 and href.lower().split("?")[0].endswith(".pdf")
             ):

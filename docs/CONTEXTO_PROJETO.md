@@ -1,8 +1,7 @@
 # NqnTech Concursos — Contexto do Projeto
 
-> Documento de referência (fonte da verdade). A versão oficial fica em `docs/CONTEXTO_PROJETO.md` no
-> repositório; o Projeto no Claude guarda uma cópia. Atualizar sempre que uma decisão mudar: primeiro no Git,
-> depois a cópia no Projeto.
+> Documento de referência (fonte da verdade), mantido **só no repositório** (sem cópias no Projeto do Claude).
+> Atualizar por commit sempre que uma decisão mudar. As instruções de trabalho do Claude ficam em `CLAUDE.md`.
 > Criado em 29/10/2026 a partir da experiência do **Radar TI** (repositório `natanaelqneves/radar-ti`), que
 > continua existindo, separado, como serviço pessoal.
 
@@ -268,7 +267,8 @@ Confira sempre o edital."*
 nqntech-concursos/                 (repositório PÚBLICO)
 ├── .github/workflows/             ci.yml, migrar.yml, diario.yml (coleta → site → alertas), ensaio.yml
 ├── .github/dependabot.yml
-├── docs/                          CONTEXTO_PROJETO.md, GUIA_PROMPTS.md, INSTRUCOES_PROJETO.txt, PENDENCIAS.md
+├── CLAUDE.md                      instruções de trabalho do Claude (leia primeiro)
+├── docs/                          CONTEXTO_PROJETO.md, GUIA_PROMPTS.md, PENDENCIAS.md
 ├── db/migrations/  db/seeds/  db/tests/
 ├── config/                        areas.yml, isencoes.yml (textos das páginas de isenção), destaques.yml (CNU),
 │                                  parceiros.yml (fase 9)
@@ -351,7 +351,8 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       e encerrados; resumo por concurso; isenções; alertas com cadastro só de nome + e-mail + filtro
 - [x] Decisões técnicas: repositório público `nqntech-concursos`; coleta no GitHub Actions; site estático
       Thymeleaf; Neon em projeto separado; Angular só em painel administrativo opcional
-- [x] Documentos versionados em `docs/` (Git é a fonte da verdade; o Projeto no Claude guarda cópias)
+- [x] Documentos só no repositório (29/10/2026): `docs/` + `CLAUDE.md` com as instruções; o Projeto no Claude
+      fica sem arquivos e sem instruções, e cada conversa começa lendo o repositório
 - [x] Licenças: MIT (código) + CC BY 4.0 (textos do site)
 - [x] Hospedagem: Cloudflare (Workers com assets estáticos, grátis) com domínio próprio, no lugar do GitHub
       Pages; site estático regenerado após cada coleta; filtros no navegador; cadastro de alertas é a única

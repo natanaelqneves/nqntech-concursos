@@ -67,8 +67,9 @@ Secrets de repositório **não** ficam visíveis para quem abre PR de fork: o c�
 - [ ] Nada a criar. Ao entrar na `main`, o workflow **migrar** roda sozinho (mudou `db/migrations`). Confira em
       **Actions → migrar**: verde e, no passo "Sincronizar senhas", `tabelas no schema concursos: 17`.
       Se ele não tiver rodado, use **Run workflow**.
-- [ ] Nas **Instruções do Projeto** no Claude, troque "site no site na Cloudflare" por
-      "site na Cloudflare (Workers, assets estáticos)" — o texto certo está em `docs/INSTRUCOES_PROJETO.txt`.
+- [ ] No Projeto do Claude, remova os arquivos de **Conhecimento** (`CONTEXTO_PROJETO.md`, `GUIA_PROMPTS.md`) e
+      apague as **Instruções do projeto**: tudo agora está em `CLAUDE.md` e `docs/`. Em cada conversa nova, comece
+      pela **abertura** do `docs/GUIA_PROMPTS.md`.
 - Os concursos já coletados continuam no banco com `publicado = false`: eles só vão para o site quando as fases
   2 a 4 preencherem área, local, slug e resumo. É esperado.
 

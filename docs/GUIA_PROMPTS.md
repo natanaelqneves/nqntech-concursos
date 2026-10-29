@@ -1,14 +1,16 @@
 # NqnTech Concursos — Guia de construção com o Claude
 
-> Como usar: faça a Parte 1 uma vez. Depois, para cada fase da Parte 2, cole o prompt numa conversa do Projeto
-> (pode ser a mesma conversa para várias fases, se o contexto estiver curto). Ao fim de cada fase, o
-> `CONTEXTO_PROJETO.md` é atualizado no repositório e no Projeto.
+> Como usar: para cada fase da Parte 2, abra uma conversa no Projeto e cole a **abertura** (abaixo) seguida do
+> prompt da fase (pode ser a mesma conversa para várias fases, se o contexto estiver curto). Ao fim de cada
+> fase, o `CONTEXTO_PROJETO.md` é atualizado no repositório.
 > O Claude cria o repositório, escreve o código, roda os testes no GitHub Actions e deixa com você só o que
 > depende das suas contas (com instruções em `docs/PENDENCIAS.md`).
 >
-> **Versionamento dos documentos:** a pasta `docs/` do repositório é a fonte da verdade de
-> `CONTEXTO_PROJETO.md`, `GUIA_PROMPTS.md` e `INSTRUCOES_PROJETO.txt`. O Projeto no Claude guarda cópias:
-> quando um desses arquivos mudar no Git, atualize a cópia correspondente no Projeto.
+> **Documentos só no repositório:** `CLAUDE.md` (instruções de trabalho) e `docs/` (contexto, guia,
+> pendências). O Projeto no Claude não guarda arquivos nem instruções; nada precisa ser sincronizado.
+>
+> **Abertura** (primeira linha de toda conversa nova):
+> `Repositório https://github.com/natanaelqneves/nqntech-concursos — leia CLAUDE.md e docs/CONTEXTO_PROJETO.md antes de tudo.`
 
 ---
 
@@ -17,10 +19,9 @@
 1. **GitHub:** crie o repositório **vazio** e **público** `nqntech-concursos` em <https://github.com/new>
    (sem README, sem .gitignore, sem licença). O Claude não consegue criar repositórios na sua conta, só usar
    um que já existe.
-2. **Claude:** crie um Projeto novo chamado **NqnTech Concursos**.
-   - Em **Conhecimento do projeto**, envie `docs/CONTEXTO_PROJETO.md` e este `docs/GUIA_PROMPTS.md`.
-   - Em **Instruções do projeto**, cole o conteúdo de `docs/INSTRUCOES_PROJETO.txt`.
-3. Abra uma conversa nova no Projeto e cole o prompt da **Fase 0**.
+2. **Claude:** crie um Projeto novo chamado **NqnTech Concursos** (sem arquivos e sem instruções: tudo fica no
+   repositório, em `CLAUDE.md` e `docs/`).
+3. Abra uma conversa nova no Projeto e cole a **abertura** e o prompt da **Fase 0**.
 
 O Neon (projeto novo) e a Cloudflare são configurados quando a fase pedir; o Claude avisa e explica.
 
@@ -39,7 +40,7 @@ o radar-ti: copie o que serve (coletor Python, migrations, testes SQL, CI, ensai
 - schema "concursos" no lugar de "radar"; papéis coletor_app, site_app, alertas_app, api_app (os dois últimos
   podem nascer só na fase 7);
 - remova o que é específico do uso pessoal (notificador Java do Radar TI, perfil.yml de TI);
-- docs/ com CONTEXTO_PROJETO.md, GUIA_PROMPTS.md, INSTRUCOES_PROJETO.txt e PENDENCIAS.md;
+- docs/ com CONTEXTO_PROJETO.md, GUIA_PROMPTS.md e PENDENCIAS.md, e CLAUDE.md na raiz;
 - LICENSE (sugira uma e me pergunte antes) e README voltado ao público.
 Rode a CI no GitHub e me diga o que ficou pendente comigo (Neon novo, secrets).
 ```
@@ -157,4 +158,4 @@ correção."
 - Nunca cole senhas, connection strings ou secrets na conversa.
 - Repositório público: confira antes de cada commit que nada sensível entrou (a CI também verifica).
 - O Radar TI continua independente: mudanças no NqnTech não mexem nele.
-- Documentos de `docs/` mudam por commit no Git primeiro; depois a cópia no Projeto é atualizada.
+- `CLAUDE.md` e `docs/` mudam só por commit no Git; não existem cópias em outro lugar.

@@ -1,0 +1,14 @@
+# Varredura de segredos da CI (gitleaks). Regras padrão + exceções para falsos positivos conhecidos.
+[extend]
+useDefault = true
+
+[[allowlists]]
+# Páginas públicas da FGV capturadas como fixtures: trazem chaves PÚBLICAS de cliente embutidas no próprio HTML
+# (monitoramento do navegador e formulários do Drupal), não credenciais.
+description = "fixtures de páginas públicas das bancas"
+paths = ['''^coletor/tests/fixtures/''']
+
+[[allowlists]]
+# Senhas descartáveis do banco efêmero do ensaio (workflow ensaio.yml), que só existe durante a execução.
+description = "valores fictícios do ensaio"
+regexes = ['''ensaio-0123456789abcdef''']

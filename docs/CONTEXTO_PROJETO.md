@@ -49,10 +49,15 @@ aplicativo móvel.
   indexação no Google** (SEO). (Decisão de 29/10/2026: avaliado e descartado site renderizado a cada acesso.)
 - **Hospedagem na Cloudflare (Workers com assets estáticos, plano grátis)**: requisições a assets estáticos são
   grátis e ilimitadas, uso comercial permitido (anúncios/afiliados), CDN, domínio próprio e deploy pelo GitHub
-  Actions com um token. Limite do plano grátis: **20.000 arquivos por versão**; o plano pago (US$ 5/mês) sobe
-  para 100.000. Para não estourar, concursos `ENCERRADO` há muito tempo saem das páginas estáticas (ficam no
-  banco). Avaliadas em 29/10/2026: Vercel (Hobby proíbe anúncios; Pro US$ 20/mês) e GitHub Pages (área cinzenta
-  para uso comercial).
+  Actions com um token. Limite do plano grátis: **20.000 arquivos por versão** (25 MiB por arquivo); o plano
+  pago (US$ 5/mês) sobe para 100.000. Para não estourar, concursos `ENCERRADO` há mais de **180 dias** (mesmo
+  prazo da retenção, seção 5) saem das páginas estáticas e do `busca.json` (ficam no banco). Avaliadas em
+  29/10/2026: Vercel (Hobby proíbe anúncios; Pro US$ 20/mês) e GitHub Pages (área cinzenta para uso comercial).
+- **Deploy só pelo GitHub Actions** (`wrangler deploy` com `CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID` em
+  GitHub Secrets). O repositório **não** é conectado à Cloudflare (sem Workers Builds): o site depende do banco
+  e da ordem coleta → geração → deploy, e a Cloudflare recebe só a pasta de HTML pronta, nunca segredos do
+  banco nem o código de coleta. O Worker é **só de assets, sem script**: requisições a assets estáticos não
+  entram no limite de 100 mil requisições/dia do plano grátis.
 - **Coletores e site nunca conversam diretamente**: o banco é o ponto de encontro (mesma regra do Radar TI).
 - **Busca/filtros no navegador** sobre um `busca.json` gerado junto com o site (sem servidor). Se o volume
   crescer demais (ex.: histórico de encerrados), a busca passa a um endpoint da API sem mudar a tela.
@@ -131,8 +136,18 @@ Um resumo por LLM pode ser plugado depois (fase opcional), validado contra os ca
 ---
 
 ### 4.6 Decisões de produto (29/10/2026, a implementar nas fases 1–5)
-- **Tela inicial: só concursos com inscrições abertas**, com destaque e ordenação pelo **prazo de pedir isenção**
-  mais próximo. Previstos e encerrados ficam na busca e nas páginas de estado/área (SEO).
+- **Tela inicial: só concursos com inscrições abertas** (decisão revista em 29/10/2026). Ordem:
+  1. **CNU** (Concurso Nacional Unificado) primeiro;
+  2. depois os demais de abrangência **`NACIONAL`**;
+  3. depois estaduais e municipais.
+  Dentro de cada grupo, por **data da prova**, da mais próxima para a mais distante; sem data de prova vão ao fim
+  do grupo (desempate: `inscricao_fim` mais próximo). Concursos com isenção ganham selo com os dias restantes
+  para pedir, mas o prazo de isenção **não** define mais a ordem. Previstos e encerrados ficam na busca e nas
+  páginas de estado/área (SEO).
+- **CNU**: identificado pelo coletor por regra (título/órgão "Concurso Nacional Unificado", "CNU", "CPNU", em
+  `config/destaques.yml`) e gravado em `concurso.unificado` (migration na fase 2). A banca do CNU não está nas
+  fontes atuais (FGV, IBAM, IBADE): ele só aparece quando uma fonte que o cubra entrar (fase 6: DOU/INLABS ou
+  página oficial do CNU, conferindo robots.txt e termos).
 - **Navegação geográfica Brasil → regiões → estados → municípios**: tabela de municípios do IBGE (código, nome, UF,
   região) por migration; concurso municipal ligado ao código IBGE. Federais/nacionais = categoria **"Nacional"**,
   exibidos em qualquer recorte; estaduais aparecem no estado e nos municípios dele. Páginas `/brasil/`,
@@ -176,7 +191,8 @@ concurso         (id, orgao_id, banca_id, titulo, numero_edital, ano, situacao, 
                 ★ total_vagas, salario_max, escolaridades text[], areas text[],   -- desnormalizado p/ o site
                 ★ tem_isencao, isencao_inicio?, isencao_fim?,
                 ★ resumo, resumo_gerado_em, publicado,  -- publicar exige slug + abrangencia + resumo
-                ★ encerrado_em)           -- marcado por gatilho ao virar ENCERRADO (retenção)
+                ★ encerrado_em,           -- marcado por gatilho ao virar ENCERRADO (retenção)
+                ★ unificado)              -- CNU: primeiro na tela inicial (seção 4.6; migration na fase 2)
                                                                                      UNIQUE (link_oficial)
 cargo            (id, concurso_id, nome, especialidade, escolaridade→escolaridade, vagas, cadastro_reserva,
                   salario, uf_lotacao→uf, ★ area→area, ★ disciplinas text[] (só nomes),
@@ -214,8 +230,8 @@ Descadastro **apaga** o assinante e o filtro (não só marca).
 | 1. Descoberta | Coletor | Fontes ativas → `sinal_descoberta` (abertos **e** encerrados recentes) |
 | 2. Vinculação/deduplicação | Coletor | Sinal → concurso (chaves do Radar TI: URL → hash → órgão+edital+ano → similaridade) |
 | 3. Documentos | Coletor | PDF em pasta temporária → hash + texto → apagado |
-| 4. Estruturação | Coletor | Cargos, datas, taxas, **seção de isenções**, avisos |
-| 5. Classificação | Coletor | Área de cada cargo (`areas.yml`), escolaridade, situação por data |
+| 4. Estruturação | Coletor | Cargos, datas, taxas, **seção de isenções**, calendário, disciplinas e redação por cargo, avisos |
+| 5. Classificação | Coletor | Área de cada cargo (`areas.yml`), escolaridade, abrangência/local, CNU (`destaques.yml`), situação por data |
 | 6. Resumo | Coletor | Resumo por regras + campos desnormalizados + `slug` |
 | 7. Site | Gerador (Java) | Páginas HTML, `busca.json`, `sitemap.xml`, `robots.txt` (só o que mudou) → Cloudflare |
 | 8. Alertas | Alertas (Java) | Para cada assinante ativo: concursos novos que batem com o filtro → e-mail |
@@ -227,7 +243,8 @@ A coleta inicial é limitada por execução (ex.: 60 editais/dia) e drena o acú
 ## 7. Site (SEO e acessibilidade)
 
 Páginas:
-- `/` — concursos abertos e previstos mais recentes; destaque para "com isenção".
+- `/` — só concursos com inscrições abertas: CNU, depois nacionais, depois os demais; em cada grupo, prova mais
+  próxima primeiro (seção 4.6); selo "com isenção" com os dias restantes para pedir.
 - `/concursos/` — lista com filtros (UF, área, nível, situação, isenção, salário) no navegador.
 - `/concurso/<slug>/` — resumo, tabela de cargos, datas, taxa, isenções, links oficiais, "última atualização".
 - `/brasil/`, `/regiao/<regiao>/`, `/estado/<uf>/`, `/municipio/<uf>/<municipio>/` — navegação geográfica
@@ -253,7 +270,8 @@ nqntech-concursos/                 (repositório PÚBLICO)
 ├── .github/dependabot.yml
 ├── docs/                          CONTEXTO_PROJETO.md, GUIA_PROMPTS.md, INSTRUCOES_PROJETO.txt, PENDENCIAS.md
 ├── db/migrations/  db/seeds/  db/tests/
-├── config/                        areas.yml, isencoes.yml (textos das páginas de isenção)
+├── config/                        areas.yml, isencoes.yml (textos das páginas de isenção), destaques.yml (CNU),
+│                                  parceiros.yml (fase 9)
 ├── coletor/                       Python (base do Radar TI)
 │   └── src/coletor/  fontes/  pipeline/  extratores/  classificacao/  resumo/
 ├── site/                          Java: gerador do site estático (Thymeleaf) + templates + css/js
@@ -317,10 +335,10 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
 | 0 | Repositório público, base copiada do Radar TI (coletor, db, CI), schema `concursos`, Neon novo | CI verde |
 | 1 | Banco ampliado: áreas, isenções, slug, resumo, campos do site, papéis | Testes SQL de permissão verdes |
 | 2 | Coletor FGV completo: todas as áreas, níveis, UF, encerrados recentes, classificador de área | Concursos FGV classificados por área |
-| 3 | Isenções: catálogo + extrator da seção de isenção (FGV) | TJPB 2026 com os 5 tipos e o prazo |
+| 3 | Isenções + calendário, disciplinas e redação por cargo (FGV) | TJPB 2026 com os 5 tipos, o prazo e o calendário |
 | 4 | Resumo automático + slug + campos desnormalizados | Resumo correto para os concursos de teste |
 | 5 | **Site estático** na Cloudflare: páginas, filtros, isenções, sitemap, SEO, domínio próprio | **Site no ar (MVP)** |
-| 6 | Mais fontes: Vunesp, Selecon, DOU (INLABS), Querido Diário + deduplicação | Cobertura nacional crescente |
+| 6 | Mais fontes: DOU (INLABS), fonte do CNU, Querido Diário, Vunesp/Selecon (se liberarem) + deduplicação | Cobertura nacional crescente, CNU incluído |
 | 7 | Alertas: API de cadastro, double opt-in, links mágicos, envio diário/semanal, privacidade | Assinante recebe alerta do seu filtro |
 | 8 | Robustez: monitoramento, retenção, backup, alertas de falha para o administrador | Serviço se mantém sozinho |
 | 9 | (Opcional) Painel administrativo Angular, resumo por LLM, monetização (doações → afiliados → anúncios) | — |
@@ -335,8 +353,9 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       Thymeleaf; Neon em projeto separado; Angular só em painel administrativo opcional
 - [x] Documentos versionados em `docs/` (Git é a fonte da verdade; o Projeto no Claude guarda cópias)
 - [x] Licenças: MIT (código) + CC BY 4.0 (textos do site)
-- [x] Hospedagem: Cloudflare (Workers com assets estáticos, grátis) com domínio próprio (no lugar do GitHub Pages); site estático regenerado após cada
-      coleta; filtros no navegador; cadastro de alertas é a única parte com servidor
+- [x] Hospedagem: Cloudflare (Workers com assets estáticos, grátis) com domínio próprio, no lugar do GitHub
+      Pages; site estático regenerado após cada coleta; filtros no navegador; cadastro de alertas é a única
+      parte com servidor
 - [x] Monetização prevista (doações, afiliados, anúncios) com informação sempre gratuita
 - [x] Fase 0 — Repositório e base (29/10/2026): coletor Python herdado do Radar TI **sem o filtro de TI**
       (fontes FGV, IBAM e IBADE; todos os editais de concursos ativos são lidos), schema `concursos`, papéis
@@ -357,4 +376,9 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       estaduais, municipais, com/sem isenção, previsto, encerrado e um não publicado). Testes SQL: lista branca
       do `site_app`, integridade dos campos e catálogos. Concursos já coletados ficam `publicado = false` até as
       fases 2–4 preencherem slug, abrangência e resumo. `alertas_app`/`api_app` continuam para a fase 7.
-- [ ] Fase 2 — Coletor FGV completo (preencher também `abrangencia`, `uf`, `municipio_ibge` e `cargo.area`)
+- [x] Revisão dos documentos (29/10/2026): tela inicial ordenada por CNU → nacionais → demais e prova mais
+      próxima; encerrados saem do site após 180 dias; calendário/disciplinas/redação explícitos na fase 3;
+      conta Cloudflare criada, deploy só pelo GitHub Actions (repositório **não** conectado à Cloudflare);
+      token e Account ID em `docs/PENDENCIAS.md`.
+- [ ] Fase 2 — Coletor FGV completo (preencher também `abrangencia`, `uf`, `municipio_ibge`, `cargo.area` e
+      `unificado`)

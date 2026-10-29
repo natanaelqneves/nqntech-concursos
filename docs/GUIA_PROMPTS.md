@@ -61,7 +61,9 @@ Fase 2 — Coletor FGV para todas as áreas.
 - Descoberta também dos encerrados recentes (bloco "realizados"), com limite de páginas configurável.
 - config/areas.yml com termos por área (seção 4.1) e classificador de área do cargo, com testes por área
   (incluindo casos ambíguos e termos de exclusão).
-- Escolaridade, UF e município do concurso; situação por datas.
+- Escolaridade, abrangência (NACIONAL/ESTADUAL/MUNICIPAL), UF e município IBGE do concurso; situação por datas.
+- Revisar o órgão incompleto em alguns títulos da FGV (ex.: "5ª Região").
+- Migration com concurso.unificado e config/destaques.yml com as regras que identificam o CNU (seção 4.6).
 - Reaproveite as fixtures reais do TJPB 2026; capture mais fixtures da FGV pelo workflow de captura
   (concursos de áreas diferentes: saúde, educação, policial).
 ```
@@ -73,8 +75,10 @@ Fase 3 — Isenções de taxa.
 - config/isencoes.yml com o catálogo da seção 4.4: nome, descrição curta em linguagem simples, documentos
   usuais e base legal citada nos editais, com link oficial (confira cada link na web antes de colocar).
 - Extrator da seção de isenção dos editais FGV: tipos previstos e período para pedir; avisos quando incerto.
+- Extrator do calendário (concurso_evento: evento, início, fim; "a definir" sem data), da lista de
+  disciplinas por cargo (só os nomes, nunca o conteúdo programático) e de tem_redacao (NULL quando incerto).
 - Teste com o edital TJPB 2026 real: CadÚnico, doadores de sangue/medula, jurados, vítimas de violência
-  doméstica e doadores de plasma.
+  doméstica e doadores de plasma, período de isenção e calendário.
 Linguagem sempre informativa ("o edital prevê"), nunca "você tem direito".
 ```
 
@@ -93,19 +97,23 @@ previstos sem edital).
 Fase 5 — Site estático (seções 2 e 7 do contexto).
 - Módulo site/ em Java 25 + Spring Boot 4.1 (linha de comando) + Thymeleaf gerando HTML em uma pasta,
   conectando como site_app.
-- Páginas: início, lista com filtros no navegador (busca.json), página de cada concurso, por estado, por área,
-  por nível, isenções (índice e por tipo), sobre, privacidade (rascunho).
+- Páginas: início (só inscrições abertas, ordem da seção 4.6: CNU → nacionais → demais, prova mais próxima
+  primeiro), lista com filtros no navegador (busca.json), página de cada concurso, navegação Brasil → região →
+  estado → município (município só com concurso), por área, por nível, isenções (índice e por tipo), sobre,
+  privacidade (rascunho). Encerrados há mais de 180 dias ficam fora do site.
 - SEO: title/description por página, JSON-LD, sitemap.xml, robots.txt, URLs canônicas.
 - Acessibilidade WCAG AA, mobile first, CSS próprio leve, sem framework JS pesado.
-- Workflow que, depois da coleta diária, gera o site (só o que mudou) e publica na Cloudflare (Workers com
-  assets estáticos, domínio próprio); me diga o que preciso criar/configurar na Cloudflare e no domínio.
+- Workflow que, depois da coleta diária, gera o site (só o que mudou) e publica na Cloudflare com
+  wrangler pelo GitHub Actions (Worker só de assets, sem script, domínio próprio; secrets CLOUDFLARE_API_TOKEN
+  e CLOUDFLARE_ACCOUNT_ID já cadastrados). Sem integração Git na Cloudflare. Me diga o que falta no domínio.
 - Testes: geração com os seeds, links internos sem quebra, HTML escapado (dado coletado é não confiável).
 ```
 
 ### Fase 6 — Mais fontes
 
 ```
-Fase 6 — Novas fontes e deduplicação, uma por vez: Vunesp, Selecon, DOU via INLABS, Querido Diário.
+Fase 6 — Novas fontes e deduplicação, uma por vez: DOU via INLABS, fonte oficial do CNU, Querido Diário;
+Vunesp e Selecon só se pararem de bloquear servidores (403 em 29/10/2026; nunca contornar).
 Antes de cada fonte, confira robots.txt e termos de uso e me diga o resultado. Fixtures reais capturadas pelo
 GitHub Actions. Deduplicação com a ordem de chaves do contexto; casos duvidosos marcados possivel_duplicado.
 ```

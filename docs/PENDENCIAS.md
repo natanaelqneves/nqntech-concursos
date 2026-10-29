@@ -67,15 +67,41 @@ Secrets de repositório **não** ficam visíveis para quem abre PR de fork: o c�
 - [ ] Nada a criar. Ao entrar na `main`, o workflow **migrar** roda sozinho (mudou `db/migrations`). Confira em
       **Actions → migrar**: verde e, no passo "Sincronizar senhas", `tabelas no schema concursos: 17`.
       Se ele não tiver rodado, use **Run workflow**.
-- [ ] Nas **Instruções do Projeto** no Claude, troque "site no GitHub Pages" por
+- [ ] Nas **Instruções do Projeto** no Claude, troque "site no site na Cloudflare" por
       "site na Cloudflare (Workers, assets estáticos)" — o texto certo está em `docs/INSTRUCOES_PROJETO.txt`.
 - Os concursos já coletados continuam no banco com `publicado = false`: eles só vão para o site quando as fases
   2 a 4 preencherem área, local, slug e resumo. É esperado.
 
+## Preparação da Fase 5 — Cloudflare (pode fazer já) — ~5 min
+
+O deploy é feito **só pelo GitHub Actions**. **Não conecte o repositório à Cloudflare** (Workers Builds / "Connect
+to Git"): ela não tem acesso ao banco e rodaria um build a cada push. Se o app "Cloudflare Workers and Pages" foi
+instalado no GitHub durante o cadastro, remova-o em GitHub → **Settings → Applications** (ou deixe sem nenhum
+repositório).
+
+- [x] Criar a conta na Cloudflare (plano grátis).
+- [ ] **Account ID** (não é o e-mail; é um código de 32 caracteres): painel → **Workers & Pages** → lado direito,
+      campo *Account ID* (botão de copiar). Também aparece na URL: `dash.cloudflare.com/<account_id>/...`.
+- [ ] **API Token**: ícone do perfil → **My Profile → API Tokens → Create Token** → modelo
+      **Edit Cloudflare Workers** → *Use template*:
+  - **Account Resources:** *Include* → a sua conta (não "All accounts").
+  - **Zone Resources:** *All zones from an account* → a sua conta (restrinja ao domínio depois que ele existir).
+  - **TTL:** data de fim em 1 ano (anote para renovar).
+  - **Continue to summary → Create Token** e copie o valor (só aparece uma vez).
+- [ ] Secrets no GitHub (**Settings → Secrets and variables → Actions**):
+
+| Nome | Valor |
+|---|---|
+| `CLOUDFLARE_API_TOKEN` | o token criado acima |
+| `CLOUDFLARE_ACCOUNT_ID` | o Account ID |
+
+Nenhum dos dois vai para o `wrangler.jsonc` nem para o código (repositório público).
+
 ## Próximas fases (só para você se planejar)
 
-- **Fase 5 (site):** conta na Cloudflare (grátis), um token de API para o deploy pelo GitHub Actions e, se quiser,
-  o domínio próprio (registro no Registro.br para `.com.br`, apontando o DNS para a Cloudflare).
+- **Fase 5 (site):** se quiser o domínio próprio, registre (Registro.br para `.com.br`), adicione-o na
+  Cloudflare (**Add a domain**, plano Free) e troque os servidores DNS no registrador pelos que a Cloudflare
+  indicar. O vínculo do domínio com o site fica no código da fase 5.
 - **Fase 7 (alertas):** conta no serviço de e-mail transacional escolhido e hospedagem da API.
 
 ## Trocar uma senha

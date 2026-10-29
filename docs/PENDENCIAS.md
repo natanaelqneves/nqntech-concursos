@@ -62,6 +62,16 @@ Secrets de repositório **não** ficam visíveis para quem abre PR de fork: o c�
 
 ---
 
+## Fase 1 — Banco ampliado
+
+- [ ] Nada a criar. Ao entrar na `main`, o workflow **migrar** roda sozinho (mudou `db/migrations`). Confira em
+      **Actions → migrar**: verde e, no passo "Sincronizar senhas", `tabelas no schema concursos: 17`.
+      Se ele não tiver rodado, use **Run workflow**.
+- [ ] Nas **Instruções do Projeto** no Claude, troque "site no GitHub Pages" por
+      "site na Cloudflare (Workers, assets estáticos)" — o texto certo está em `docs/INSTRUCOES_PROJETO.txt`.
+- Os concursos já coletados continuam no banco com `publicado = false`: eles só vão para o site quando as fases
+  2 a 4 preencherem área, local, slug e resumo. É esperado.
+
 ## Próximas fases (só para você se planejar)
 
 - **Fase 5 (site):** conta na Cloudflare (grátis), um token de API para o deploy pelo GitHub Actions e, se quiser,

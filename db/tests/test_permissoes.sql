@@ -51,6 +51,24 @@ BEGIN
 END;
 $$;
 
+CREATE FUNCTION pg_temp.deve_falhar(sql text, estado text) RETURNS void
+    LANGUAGE plpgsql AS
+$$
+BEGIN
+    EXECUTE sql;
+    RAISE EXCEPTION 'FALHA: deveria falhar com % em: %', estado, sql;
+EXCEPTION
+    WHEN OTHERS THEN
+        IF SQLSTATE = 'P0001' AND SQLERRM LIKE 'FALHA:%' THEN
+            RAISE;
+        END IF;
+        IF SQLSTATE <> estado THEN
+            RAISE EXCEPTION 'FALHA: esperado % mas veio % (%) em: %', estado, SQLSTATE, SQLERRM, sql;
+        END IF;
+        RAISE NOTICE 'ok   bloqueado (%): %', estado, left(sql, 110);
+END;
+$$;
+
 BEGIN;
 
 -- 1. Seeds e dados de referência carregados.
@@ -63,7 +81,7 @@ DECLARE
 BEGIN
     SELECT count(*) INTO n_conc FROM concursos.concurso WHERE link_oficial LIKE 'https://conhecimento.fgv.br/concursos/exemplo-%';
     SELECT count(*), count(DISTINCT uf) INTO n_org, n_ufs FROM concursos.orgao WHERE nome LIKE '[EXEMPLO]%';
-    IF n_conc <> 7 OR n_org <> 6 THEN
+    IF n_conc <> 8 OR n_org <> 6 THEN
         RAISE EXCEPTION 'FALHA: seeds incompletos (concursos=%, orgaos=%)', n_conc, n_org;
     END IF;
     IF (SELECT count(*) FROM concursos.banca) < 3
@@ -166,6 +184,174 @@ BEGIN
         RAISE EXCEPTION 'FALHA: PUBLIC tem USAGE no schema concursos';
     END IF;
     RAISE NOTICE 'ok   schema concursos fechado para PUBLIC';
+END
+$$;
+
+
+-- 7. Catálogos e geografia carregados (seções 4.1, 4.2, 4.4 e 4.6).
+DO
+$$
+DECLARE
+    n_mun     int;
+    uf_vazias text;
+BEGIN
+    IF (SELECT count(*) FROM concursos.area) <> 15 OR (SELECT count(*) FROM concursos.escolaridade) <> 4
+       OR (SELECT count(*) FROM concursos.isencao_tipo) <> 11 THEN
+        RAISE EXCEPTION 'FALHA: catálogos de área/escolaridade/isenção incompletos';
+    END IF;
+    IF (SELECT count(*) FROM concursos.regiao) <> 5 OR (SELECT count(*) FROM concursos.uf) <> 27 THEN
+        RAISE EXCEPTION 'FALHA: regiões/UFs incompletas';
+    END IF;
+    SELECT count(*) INTO n_mun FROM concursos.municipio;
+    SELECT string_agg(u.sigla, ', ') INTO uf_vazias
+    FROM concursos.uf u WHERE NOT EXISTS (SELECT 1 FROM concursos.municipio m WHERE m.uf = u.sigla);
+    IF n_mun < 5560 OR uf_vazias IS NOT NULL THEN
+        RAISE EXCEPTION 'FALHA: municípios do IBGE incompletos (%; UFs sem município: %)', n_mun, uf_vazias;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM concursos.municipio WHERE codigo_ibge = 2507507 AND uf = 'PB' AND slug = 'joao-pessoa')
+       OR (SELECT count(*) FROM concursos.municipio WHERE uf = 'DF') <> 1 THEN
+        RAISE EXCEPTION 'FALHA: municípios de referência ausentes ou errados';
+    END IF;
+    IF EXISTS (SELECT 1 FROM concursos.municipio m JOIN concursos.uf u ON u.sigla = m.uf
+               WHERE m.codigo_ibge / 100000 <> u.codigo_ibge) THEN
+        RAISE EXCEPTION 'FALHA: município com código IBGE de outra UF';
+    END IF;
+    RAISE NOTICE 'ok   catálogos: 15 áreas, 4 níveis, 11 isenções, 5 regiões, 27 UFs, % municípios', n_mun;
+END
+$$;
+
+-- 8. Site só enxerga concursos publicados e o que pertence a eles (RLS), mesmo sem WHERE publicado.
+DO
+$$
+DECLARE
+    publicados int;
+    rascunho   bigint;
+BEGIN
+    SELECT count(*) INTO publicados FROM concursos.concurso
+    WHERE publicado AND link_oficial LIKE 'https://conhecimento.fgv.br/concursos/exemplo-%';
+    SELECT id INTO rascunho FROM concursos.concurso
+    WHERE link_oficial = 'https://conhecimento.fgv.br/concursos/exemplo-rascunho';
+    IF publicados <> 7 OR rascunho IS NULL THEN
+        RAISE EXCEPTION 'FALHA: seeds de publicação inesperados (publicados=%)', publicados;
+    END IF;
+    IF pg_temp.contar_como('site_app', 'concurso') <> (SELECT count(*) FROM concursos.concurso WHERE publicado) THEN
+        RAISE EXCEPTION 'FALHA: site_app enxerga concurso não publicado';
+    END IF;
+    SET LOCAL ROLE site_app;
+    IF EXISTS (SELECT 1 FROM concursos.concurso WHERE id = rascunho)
+       OR EXISTS (SELECT 1 FROM concursos.cargo WHERE concurso_id = rascunho)
+       OR EXISTS (SELECT 1 FROM concursos.documento WHERE concurso_id = rascunho)
+       OR EXISTS (SELECT 1 FROM concursos.concurso_isencao WHERE concurso_id = rascunho)
+       OR EXISTS (SELECT 1 FROM concursos.concurso_evento WHERE concurso_id = rascunho) THEN
+        RESET ROLE;
+        RAISE EXCEPTION 'FALHA: site_app enxerga dados de concurso não publicado';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM concursos.concurso_isencao) OR NOT EXISTS (SELECT 1 FROM concursos.concurso_evento)
+       OR NOT EXISTS (SELECT 1 FROM concursos.municipio) OR NOT EXISTS (SELECT 1 FROM concursos.isencao_tipo) THEN
+        RESET ROLE;
+        RAISE EXCEPTION 'FALHA: site_app não enxerga isenções, calendário ou catálogos';
+    END IF;
+    RESET ROLE;
+    RAISE NOTICE 'ok   site_app: só concursos publicados (rascunho invisível em todas as tabelas filhas)';
+END
+$$;
+
+-- 9. Lista branca do site_app: qualquer tabela nova (ex.: assinantes na fase 7) nasce invisível para o site.
+DO
+$$
+DECLARE
+    publicas  text[] := ARRAY ['banca', 'orgao', 'fonte', 'concurso', 'cargo', 'execucao_coleta', 'regiao', 'uf',
+                               'municipio', 'area', 'escolaridade', 'isencao_tipo', 'concurso_isencao',
+                               'concurso_evento'];
+    indevidas text;
+    escrita   text;
+BEGIN
+    SELECT string_agg(c.relname, ', ') INTO indevidas
+    FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'concursos' AND c.relkind IN ('r', 'v', 'm')
+      AND c.relname <> ALL (publicas) AND c.relname <> 'documento'
+      AND has_any_column_privilege('site_app', c.oid, 'SELECT');
+    IF indevidas IS NOT NULL THEN
+        RAISE EXCEPTION 'FALHA: site_app lê tabelas fora da lista branca: %', indevidas;
+    END IF;
+    SELECT string_agg(c.relname, ', ') INTO escrita
+    FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'concursos' AND c.relkind = 'r'
+      AND (has_table_privilege('site_app', c.oid, 'INSERT') OR has_table_privilege('site_app', c.oid, 'UPDATE')
+           OR has_table_privilege('site_app', c.oid, 'DELETE') OR has_table_privilege('site_app', c.oid, 'TRUNCATE')
+           OR has_any_column_privilege('site_app', c.oid, 'INSERT')
+           OR has_any_column_privilege('site_app', c.oid, 'UPDATE'));
+    IF escrita IS NOT NULL THEN
+        RAISE EXCEPTION 'FALHA: site_app pode escrever em: %', escrita;
+    END IF;
+    RAISE NOTICE 'ok   site_app: leitura só da lista branca pública, nenhuma escrita';
+END
+$$;
+SELECT pg_temp.deve_negar('site_app', $q$INSERT INTO concursos.concurso_isencao VALUES (1, 'CADUNICO', NULL)$q$);
+SELECT pg_temp.deve_negar('site_app', $q$UPDATE concursos.area SET nome = 'x'$q$);
+
+-- 10. Coletor grava isenções e calendário, mas não mexe nos catálogos.
+SELECT pg_temp.deve_permitir('coletor_app', $q$INSERT INTO concursos.concurso_evento (concurso_id, ordem, evento)
+    SELECT id, 99, 'Resultado' FROM concursos.concurso WHERE link_oficial LIKE '%exemplo-inss'$q$);
+SELECT pg_temp.deve_permitir('coletor_app', $q$DELETE FROM concursos.concurso_isencao WHERE concurso_id IN
+    (SELECT id FROM concursos.concurso WHERE link_oficial LIKE '%exemplo-inss')$q$);
+SELECT pg_temp.deve_permitir('coletor_app', $q$UPDATE concursos.cargo SET area = 'TI', tem_redacao = true
+    WHERE concurso_id IN (SELECT id FROM concursos.concurso WHERE link_oficial LIKE '%exemplo-rascunho')$q$);
+SELECT pg_temp.deve_negar('coletor_app', $q$INSERT INTO concursos.area VALUES ('NOVA', 'Nova', 'nova', 99)$q$);
+SELECT pg_temp.deve_negar('coletor_app', $q$UPDATE concursos.isencao_tipo SET nome = 'x'$q$);
+SELECT pg_temp.deve_negar('coletor_app', 'DELETE FROM concursos.municipio');
+
+-- 11. Integridade dos campos do site.
+SELECT pg_temp.deve_falhar($q$UPDATE concursos.concurso SET areas = '{TI,INEXISTENTE}'
+    WHERE link_oficial LIKE '%exemplo-tjpb'$q$, '23514');
+SELECT pg_temp.deve_falhar($q$UPDATE concursos.concurso SET escolaridades = '{DOUTORADO}'
+    WHERE link_oficial LIKE '%exemplo-tjpb'$q$, '23514');
+SELECT pg_temp.deve_falhar($q$UPDATE concursos.concurso SET publicado = true
+    WHERE link_oficial LIKE '%exemplo-rascunho'$q$, '23514');
+SELECT pg_temp.deve_falhar($q$UPDATE concursos.concurso SET slug = 'TJPB 2026'
+    WHERE link_oficial LIKE '%exemplo-tjpb'$q$, '23514');
+SELECT pg_temp.deve_falhar($q$UPDATE concursos.concurso SET slug = 'exemplo-inss'
+    WHERE link_oficial LIKE '%exemplo-tjpb'$q$, '23505');
+SELECT pg_temp.deve_falhar($q$UPDATE concursos.concurso SET uf = 'SP'
+    WHERE link_oficial LIKE '%exemplo-pmjp-saude'$q$, '23503');
+SELECT pg_temp.deve_falhar($q$UPDATE concursos.concurso SET uf = NULL
+    WHERE link_oficial LIKE '%exemplo-pmjp-saude'$q$, '23514');
+SELECT pg_temp.deve_falhar($q$UPDATE concursos.concurso SET municipio_ibge = NULL
+    WHERE link_oficial LIKE '%exemplo-pmjp-saude'$q$, '23514');
+SELECT pg_temp.deve_falhar($q$UPDATE concursos.concurso SET isencao_fim = isencao_inicio - 1
+    WHERE link_oficial LIKE '%exemplo-tjpb'$q$, '23514');
+SELECT pg_temp.deve_falhar($q$UPDATE concursos.concurso SET tem_isencao = false
+    WHERE link_oficial LIKE '%exemplo-tjpb'$q$, '23514');
+SELECT pg_temp.deve_falhar($q$UPDATE concursos.cargo SET area = 'NAO_EXISTE'$q$, '23503');
+SELECT pg_temp.deve_falhar($q$UPDATE concursos.cargo SET escolaridade = 'DOUTORADO'$q$, '23503');
+SELECT pg_temp.deve_falhar($q$UPDATE concursos.cargo SET disciplinas = ARRAY['Português', NULL]$q$, '23514');
+SELECT pg_temp.deve_falhar($q$INSERT INTO concursos.concurso_isencao
+    SELECT id, 'NAO_EXISTE', NULL FROM concursos.concurso WHERE link_oficial LIKE '%exemplo-tjpb'$q$, '23503');
+SELECT pg_temp.deve_falhar($q$INSERT INTO concursos.concurso_evento (concurso_id, ordem, evento, inicio, fim)
+    SELECT id, 50, 'X', current_date, current_date - 1 FROM concursos.concurso
+    WHERE link_oficial LIKE '%exemplo-tjpb'$q$, '23514');
+SELECT pg_temp.deve_falhar($q$INSERT INTO concursos.municipio VALUES (2599999, 'Fora', 'SP', 'fora')$q$, '23514');
+
+-- 12. encerrado_em acompanha a situação (base da retenção).
+DO
+$$
+DECLARE
+    marcado timestamptz;
+    antigo  timestamptz;
+BEGIN
+    UPDATE concursos.concurso SET situacao = 'ENCERRADO'
+    WHERE link_oficial LIKE '%exemplo-sefazal' RETURNING encerrado_em INTO marcado;
+    UPDATE concursos.concurso SET titulo = titulo || ' '
+    WHERE link_oficial LIKE '%exemplo-pmf-educacao' RETURNING encerrado_em INTO antigo;
+    IF marcado IS NULL OR antigo > now() - interval '169 days' THEN
+        RAISE EXCEPTION 'FALHA: encerrado_em não marcado ou sobrescrito (%, %)', marcado, antigo;
+    END IF;
+    UPDATE concursos.concurso SET situacao = 'EM_ANDAMENTO'
+    WHERE link_oficial LIKE '%exemplo-sefazal' RETURNING encerrado_em INTO marcado;
+    IF marcado IS NOT NULL THEN
+        RAISE EXCEPTION 'FALHA: encerrado_em não foi limpo ao reabrir';
+    END IF;
+    RAISE NOTICE 'ok   encerrado_em: marcado ao encerrar, preservado e limpo ao reabrir';
 END
 $$;
 

@@ -1,0 +1,30 @@
+# Utilitário: baixa a lista oficial de municípios do IBGE e gera a migration V6__municipios_ibge.sql na branch
+# captura/ibge (de lá ela é revisada e levada à main). Para municípios novos no futuro, o script deve gerar uma
+# migration NOVA com o nome passado em --saida; migrations já aplicadas nunca são editadas.
+name: captura-ibge
+on:
+  push:
+    branches: [captura/ibge]
+    paths: [scripts/captura/gerar_municipios_ibge.py, .github/workflows/captura-ibge.yml]
+permissions:
+  contents: write
+concurrency:
+  group: captura-ibge
+  cancel-in-progress: false
+jobs:
+  capturar:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - run: python scripts/captura/gerar_municipios_ibge.py --saida db/migrations/V6__municipios_ibge.sql
+      - name: Gravar a migration na branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add db/migrations/V6__municipios_ibge.sql
+          git commit -m "captura: municípios do IBGE [skip ci]" || echo "nada novo"
+          git push

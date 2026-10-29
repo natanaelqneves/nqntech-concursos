@@ -153,25 +153,38 @@ Um resumo por LLM pode ser plugado depois (fase opcional), validado contra os ca
 Base herdada do Radar TI, com acréscimos marcados com ★.
 
 ```
+-- geografia e catálogos (só migration altera; slug = trecho da URL)
+★ regiao         (sigla PK [N|NE|CO|SE|S], nome, slug, ordem)
+★ uf             (sigla PK, nome, codigo_ibge, regiao, slug)
+★ municipio      (codigo_ibge PK, nome, uf, slug)       UNIQUE (uf, slug); 5.571 do IBGE (V6, gerada pela captura-ibge)
+★ area           (codigo PK, nome, slug, ordem)         -- seção 4.1
+★ escolaridade   (codigo PK, nome, slug, ordem)         -- seção 4.2
+★ isencao_tipo   (codigo PK, nome, slug, ordem, descricao, base_legal, link_oficial)   -- textos na fase 3
+
 banca            (id, nome, sigla, site, coleta_permitida, observacao)
-orgao            (id, nome, sigla, esfera[FEDERAL|ESTADUAL|MUNICIPAL], uf, municipio)       UNIQUE NULLS NOT DISTINCT
+orgao            (id, nome, sigla, esfera[FEDERAL|ESTADUAL|MUNICIPAL], uf→uf, municipio, ★ municipio_ibge)
+                                                                                     UNIQUE NULLS NOT DISTINCT
 fonte            (id, tipo, nome, banca_id?, ativa, url_base)
 sinal_descoberta (id, fonte_id, titulo, url, data_publicacao, payload JSONB, status, concurso_id?,
                   criado_em, visto_em)                                                  UNIQUE (fonte_id, url)
 concurso         (id, orgao_id, banca_id, titulo, numero_edital, ano, situacao, inscricao_inicio, inscricao_fim,
                   data_prova, taxa_min, taxa_max, link_oficial, link_inscricao, avisos_extracao JSONB,
-                  possivel_duplicado, edital_documento_id?, criado_em, atualizado_em,
-                ★ slug UNIQUE,            -- URL amigável: tjpb-2026-analista-judiciario
-                ★ uf, municipio,          -- local principal (do órgão ou da lotação)
+                  possivel_duplicado, edital_documento_id?, origem_estrutura, criado_em, atualizado_em,
+                ★ slug UNIQUE,            -- URL amigável e estável: tjpb-2026-analista-judiciario
+                ★ abrangencia [NACIONAL|ESTADUAL|MUNICIPAL],   -- NACIONAL aparece em qualquer recorte
+                ★ uf→uf, municipio_ibge,  -- local principal; FK (uf, municipio_ibge)→municipio garante coerência
                 ★ total_vagas, salario_max, escolaridades text[], areas text[],   -- desnormalizado p/ o site
                 ★ tem_isencao, isencao_inicio?, isencao_fim?,
-                ★ resumo, resumo_gerado_em, publicado)                 UNIQUE (link_oficial)
-cargo            (id, concurso_id, nome, especialidade, escolaridade, vagas, cadastro_reserva, salario,
-                  uf_lotacao, ★ area)
+                ★ resumo, resumo_gerado_em, publicado,  -- publicar exige slug + abrangencia + resumo
+                ★ encerrado_em)           -- marcado por gatilho ao virar ENCERRADO (retenção)
+                                                                                     UNIQUE (link_oficial)
+cargo            (id, concurso_id, nome, especialidade, escolaridade→escolaridade, vagas, cadastro_reserva,
+                  salario, uf_lotacao→uf, ★ area→area, ★ disciplinas text[] (só nomes),
+                ★ tem_redacao (NULL = não identificado → "confira o edital"))
 documento        (id, concurso_id, tipo, titulo, url_origem UNIQUE, hash_sha256, data_publicacao,
                   texto_extraido, status_extracao, criado_em)
-★ isencao_tipo   (codigo PK, nome, descricao, base_legal, link_oficial)
-★ concurso_isencao (concurso_id, tipo_codigo, observacao)                    PK (concurso_id, tipo_codigo)
+★ concurso_isencao (concurso_id, tipo_codigo→isencao_tipo, observacao)        PK (concurso_id, tipo_codigo)
+★ concurso_evento  (id, concurso_id, ordem, evento, inicio?, fim?)  UNIQUE (concurso_id, ordem); nulo = "a definir"
 execucao_coleta  (id, fonte_id?, etapa, inicio, fim, status, itens_novos, mensagem_erro)
 
 -- fase 7 (alertas)
@@ -183,6 +196,10 @@ execucao_coleta  (id, fonte_id?, etapa, inicio, fim, status, itens_novos, mensag
 ★ alerta_envio   (id, assinante_id, enviado_em, status, qtd_concursos, mensagem_erro)
 ★ alerta_item    (alerta_envio_id, concurso_id)          UNIQUE (assinante, concurso) — nunca repetir
 ```
+
+**Regras no banco (fase 1):** `areas[]` validado contra o catálogo por gatilho; `escolaridades[]` por CHECK;
+o site (`site_app`) só enxerga concursos `publicado` e as linhas filhas deles (RLS), e só lê uma lista branca
+de tabelas públicas (testada: tabela nova nasce invisível para o site).
 
 **Retenção (limite de 1 GB):** texto de editais de concursos `ENCERRADO` há mais de 180 dias é apagado (os campos
 estruturados e o resumo ficam). Assinantes `PENDENTE` não confirmados em 7 dias são apagados.
@@ -213,7 +230,11 @@ Páginas:
 - `/` — concursos abertos e previstos mais recentes; destaque para "com isenção".
 - `/concursos/` — lista com filtros (UF, área, nível, situação, isenção, salário) no navegador.
 - `/concurso/<slug>/` — resumo, tabela de cargos, datas, taxa, isenções, links oficiais, "última atualização".
-- `/estado/<uf>/`, `/area/<area>/`, `/nivel/<nivel>/` — páginas de entrada para buscas no Google.
+- `/brasil/`, `/regiao/<regiao>/`, `/estado/<uf>/`, `/municipio/<uf>/<municipio>/` — navegação geográfica
+  (seção 4.6); concursos `NACIONAL` aparecem em todos os recortes, estaduais também nos municípios da UF.
+  Página de município só é gerada quando há concurso daquele município (evita milhares de páginas vazias e o
+  limite de arquivos da Cloudflare).
+- `/area/<area>/`, `/nivel/<nivel>/` — páginas de entrada para buscas no Google.
 - `/isencoes/` e `/isencoes/<tipo>/` — explicação de cada isenção + concursos abertos que a preveem.
 - `/alertas/` — formulário (nome, e-mail, filtro) [fase 7]; `/privacidade/`; `/sobre/` (fontes e limitações).
 
@@ -327,5 +348,13 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       e ficam com `coleta_permitida = false` (não contornar); o órgão de alguns títulos da FGV sai incompleto
       (ex.: "5ª Região"), a revisar na fase 2.
 - [x] Neon `nqntech_concursos` criado, secrets cadastrados e `migrar` verde (29/10/2026)
-- [ ] Fase 1 — Banco ampliado (incluir também: municípios IBGE/regiões, eventos do calendário, disciplinas e
-      redação por cargo — seção 4.6)
+- [x] Fase 1 — Banco ampliado (29/10/2026): migrations V5–V9 com regiões, UFs e os municípios do IBGE (V6 gerada
+      pelo workflow `captura-ibge`; a API do IBGE não responde ao GitHub Actions, então a lista veio do espelho
+      público `kelvins/municipios-brasileiros`, derivado do IBGE, 5.571 municípios, registrado no cabeçalho), catálogos de área, escolaridade e isenção, campos do
+      site em `concurso` (slug, abrangência, UF/município, desnormalizados, isenção, resumo, `publicado`,
+      `encerrado_em`), `concurso_isencao`, `concurso_evento` (calendário), disciplinas e redação por cargo,
+      índices das páginas e RLS do `site_app` restrita a concursos publicados. Seeds com 8 concursos (nacional,
+      estaduais, municipais, com/sem isenção, previsto, encerrado e um não publicado). Testes SQL: lista branca
+      do `site_app`, integridade dos campos e catálogos. Concursos já coletados ficam `publicado = false` até as
+      fases 2–4 preencherem slug, abrangência e resumo. `alertas_app`/`api_app` continuam para a fase 7.
+- [ ] Fase 2 — Coletor FGV completo (preencher também `abrangencia`, `uf`, `municipio_ibge` e `cargo.area`)

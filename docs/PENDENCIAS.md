@@ -15,14 +15,14 @@ Faça na ordem e marque `[x]` quando terminar. Cada fase acrescenta itens aqui.
 
 O Radar TI continua no projeto dele; este é outro projeto, separado.
 
-- [ ] Em <https://console.neon.tech>, **New Project**:
+- [x] Em <https://console.neon.tech>, **New Project**:
   - **Project name:** `nqntech-concursos`
   - **Postgres version:** 17
   - **Region:** *AWS South America (São Paulo)*
-- [ ] Clique em **Connect**, deixe **Connection pooling desligado** e copie a *connection string*:
+- [x] Clique em **Connect**, deixe **Connection pooling desligado** e copie a *connection string*:
       `postgresql://neondb_owner:SENHA@ep-xxxx.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require`
       Ela é o secret `NEON_ADMIN_URL` do passo 2.
-- [ ] Gere **duas** senhas aleatórias para os usuários das aplicações. No **SQL Editor** do Neon, rode duas vezes
+- [x] Gere **duas** senhas aleatórias para os usuários das aplicações. No **SQL Editor** do Neon, rode duas vezes
       (ou use seu gerenciador de senhas, 32+ caracteres):
       ```sql
       SELECT replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '');
@@ -45,18 +45,18 @@ Secrets de repositório **não** ficam visíveis para quem abre PR de fork: o c�
 
 ### 3. Criar as tabelas no Neon — 1 clique
 
-- [ ] **Actions → migrar → Run workflow**.
+- [x] **Actions → migrar → Run workflow**.
 - Esperado: verde em ~1 minuto; no passo "Sincronizar senhas" aparece `tabelas no schema concursos: 9`.
 
 ### 4. Primeira coleta real — 1 clique
 
-- [ ] **Actions → diario → Run workflow** (pode deixar o limite vazio).
+- [x] **Actions → diario → Run workflow** (pode deixar o limite vazio).
 - Esperado: `coletar` verde. A primeira execução lê no máximo 60 editais; o acúmulo é drenado nos dias seguintes.
 - Depois disso roda sozinho todo dia às **06h17** (Brasília).
 
 ### 5. Configurações recomendadas do repositório (opcional) — ~2 min
 
-- [ ] **Settings → Code security**: ative *Secret scanning* e *Push protection* (grátis em repositório público).
+- [x] **Settings → Code security**: ative *Secret scanning* e *Push protection* (grátis em repositório público).
       A CI também roda o gitleaks a cada push.
 - [ ] **Settings → Branches → Add rule** para `main`: exigir o check `ci / banco-e-coletor` antes de merge.
 
@@ -64,10 +64,10 @@ Secrets de repositório **não** ficam visíveis para quem abre PR de fork: o c�
 
 ## Fase 1 — Banco ampliado
 
-- [ ] Nada a criar. Ao entrar na `main`, o workflow **migrar** roda sozinho (mudou `db/migrations`). Confira em
+- [x] Nada a criar. Ao entrar na `main`, o workflow **migrar** roda sozinho (mudou `db/migrations`). Confira em
       **Actions → migrar**: verde e, no passo "Sincronizar senhas", `tabelas no schema concursos: 17`.
       Se ele não tiver rodado, use **Run workflow**.
-- [ ] No Projeto do Claude, remova os arquivos de **Conhecimento** (`CONTEXTO_PROJETO.md`, `GUIA_PROMPTS.md`) e
+- [x] No Projeto do Claude, remova os arquivos de **Conhecimento** (`CONTEXTO_PROJETO.md`, `GUIA_PROMPTS.md`) e
       apague as **Instruções do projeto**: tudo agora está em `CLAUDE.md` e `docs/`. Em cada conversa nova, comece
       pela **abertura** do `docs/GUIA_PROMPTS.md`.
 - Os concursos já coletados continuam no banco com `publicado = false`: eles só vão para o site quando as fases

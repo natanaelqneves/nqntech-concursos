@@ -1,0 +1,76 @@
+{
+  "requisicoes": [
+    {
+      "url": "https://conhecimento.fgv.br/robots.txt",
+      "status": 200,
+      "tipo": "text/plain",
+      "bytes": 2027
+    },
+    {
+      "url": "https://conhecimento.fgv.br/concursos",
+      "status": 200,
+      "tipo": "text/html; charset=UTF-8",
+      "bytes": 52397
+    },
+    {
+      "url": "https://conhecimento.fgv.br/concursos?page=1",
+      "status": 200,
+      "tipo": "text/html; charset=UTF-8",
+      "bytes": 53287
+    },
+    {
+      "url": "https://conhecimento.fgv.br/concursos?page=2",
+      "status": 200,
+      "tipo": "text/html; charset=UTF-8",
+      "bytes": 53538
+    },
+    {
+      "url": "https://conhecimento.fgv.br/concursos/pcpr26",
+      "status": 200,
+      "tipo": "text/html; charset=UTF-8",
+      "bytes": 60778
+    },
+    {
+      "url": "https://conhecimento.fgv.br/concursos/sesto26",
+      "status": 200,
+      "tipo": "text/html; charset=UTF-8",
+      "bytes": 64182
+    },
+    {
+      "url": "https://conhecimento.fgv.br/concursos/seducpa26",
+      "status": 200,
+      "tipo": "text/html; charset=UTF-8",
+      "bytes": 53673
+    },
+    {
+      "url": "https://conhecimento.fgv.br/concursos/dataprev26",
+      "status": 200,
+      "tipo": "text/html; charset=UTF-8",
+      "bytes": 72160
+    },
+    {
+      "url": "https://conhecimento.fgv.br/concursos/pms2026",
+      "status": 200,
+      "tipo": "text/html; charset=UTF-8",
+      "bytes": 66141
+    },
+    {
+      "url": "https://conhecimento.fgv.br/cpnu2",
+      "status": 200,
+      "tipo": "text/html; charset=UTF-8",
+      "bytes": 160007
+    }
+  ],
+  "mantidos": [
+    "robots.txt",
+    "listagem_p0.html",
+    "listagem_p1.html"
+  ],
+  "editais_escolhidos": {
+    "pcpr26": null,
+    "sesto26": null,
+    "seducpa26": null,
+    "dataprev26": null,
+    "pms2026": null
+  }
+}

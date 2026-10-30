@@ -91,6 +91,11 @@ Secrets de repositório **não** ficam visíveis para quem abre PR de fork: o c�
 - Para conferir a classificação com dados reais sem mexer no Neon: **Actions → ensaio → Run workflow**; o resumo
   da execução lista abrangências, áreas, o CNU e os cargos que ficaram em `OUTRAS`.
 
+## Fase 3 — Isenções
+
+- [ ] Nada a criar. Depois do merge, o **migrar** roda sozinho (V11: textos das isenções e reprocessamento dos
+      editais já lidos). A coleta diária seguinte grava isenções, prazo, calendário e disciplinas.
+
 ## Preparação da Fase 5 — Cloudflare (pode fazer já) — ~5 min
 
 O deploy é feito **só pelo GitHub Actions**. **Não conecte o repositório à Cloudflare** (Workers Builds / "Connect

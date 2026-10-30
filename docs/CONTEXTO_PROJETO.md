@@ -433,4 +433,23 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
         rede (147 páginas × 2,5 s) e o Neon derrubava a conexão parada. O repositório agora reconecta antes de
         gravar, e a etapa de documentos não deixa transação aberta durante a extração do PDF (`coletor_app` tem
         `idle_in_transaction_session_timeout = 300s`). Log de progresso a cada 25 páginas.
-- [ ] Fase 3 — Isenções + calendário, disciplinas e redação por cargo
+- [x] Fase 3 — Isenções + calendário, disciplinas e redação por cargo (29/10/2026, PR #4):
+      - `config/isencoes.yml`: catálogo com nome, descrição em linguagem simples, documentos usuais, base legal e
+        link oficial (conferidos na web; Lei 13.656/2018 para CadÚnico e medula em concursos federais, Lei Maria da
+        Penha como referência; os demais tipos dependem de leis estaduais/municipais, com exemplos tirados dos
+        editais reais). V11 grava os textos em `isencao_tipo` (teste garante que batem com o YAML).
+      - `extratores/secoes.py` (funções puras, reaproveitáveis por outras bancas): tipos de isenção pela lista de
+        hipóteses do item "DA ISENÇÃO" (x.1), período do pedido (aceita "dia 20 de outubro e ... de 2026"), tipos
+        sem catálogo como `OUTRA` (ex.: doadoras de leite); calendário pelo cronograma do anexo (eventos-chave com
+        nomes próprios: isenção, inscrições, provas, gabarito, resultado final) ou, sem anexo, pelos marcos do
+        edital; disciplinas por cargo pelos quadros de questões (nome quebrado em volta do número, um quadro para
+        todos, quadro por cargo ligado pelo nome); prova discursiva/redação por cargo (todos, "exclusiva para o
+        cargo de ...", "exceto" → `NULL` + aviso; sem menção fora do conteúdo programático → `false`).
+      - Gravação em `concurso` (`tem_isencao`, `isencao_inicio/fim`), `concurso_isencao`, `concurso_evento` e
+        `cargo` (`disciplinas`, `tem_redacao`), substituindo o conjunto a cada reestruturação. A V11 zera
+        `edital_documento_id` para reprocessar os editais já lidos na próxima coleta (sem baixar PDF de novo).
+      - Testes com os 7 editais reais: TJPB 2026 com os 5 tipos do contexto (+ doadoras de leite), pedido de
+        20/10 a 27/10 (edital consolidado após a 1ª retificação), calendário e disciplinas por especialidade.
+      Limitações: quadros de disciplinas separados por nível (SES-TO) só se ligam quando o edital traz a
+      escolaridade do cargo; editais com "exceto" na discursiva ficam com "confira o edital".
+- [ ] Fase 4 — Resumo automático + slug + campos desnormalizados

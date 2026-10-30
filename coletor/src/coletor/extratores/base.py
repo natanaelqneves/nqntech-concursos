@@ -20,6 +20,21 @@ class CargoExtraido:
     cadastro_reserva: bool = False
     salario: Decimal | None = None
     uf_lotacao: str | None = None
+    disciplinas: tuple[str, ...] = ()  # só os nomes, nunca o conteúdo programático
+    tem_redacao: bool | None = None  # prova discursiva/redação; None = não identificado ("confira o edital")
+
+
+@dataclass(frozen=True)
+class IsencaoPrevista:
+    codigo: str  # concursos.isencao_tipo.codigo
+    observacao: str | None = None
+
+
+@dataclass(frozen=True)
+class EventoCalendario:
+    evento: str
+    inicio: date | None = None  # None = "a definir"
+    fim: date | None = None
 
 
 @dataclass(frozen=True)
@@ -33,6 +48,10 @@ class EditalExtraido:
     data_prova: date | None = None
     taxa_min: Decimal | None = None
     taxa_max: Decimal | None = None
+    isencoes: tuple[IsencaoPrevista, ...] = ()
+    isencao_inicio: date | None = None
+    isencao_fim: date | None = None
+    eventos: tuple[EventoCalendario, ...] = ()
     avisos: tuple[str, ...] = field(default=())
 
 

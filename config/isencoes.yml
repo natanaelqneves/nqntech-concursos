@@ -1,0 +1,136 @@
+# Catálogo das isenções de taxa de inscrição (seção 4.4 do contexto).
+#
+# Fonte única dos textos das páginas /isencoes/<tipo>/ (fase 5). A migration V11 grava nome, descrição, base legal
+# e link em concursos.isencao_tipo; o teste test_catalogo_isencoes_igual_ao_banco garante que os dois batem.
+#
+# Regras de escrita:
+# - linguagem simples e informativa: "o edital prevê", nunca "você tem direito";
+# - as regras mudam de um edital para outro: a página sempre manda conferir o edital;
+# - base legal só com lei conferida; quando cada estado/município tem a sua, dizer isso e dar exemplos tirados de
+#   editais reais (com o concurso de onde veio o exemplo);
+# - link_oficial só para página oficial conferida (planalto.gov.br, camara.leg.br etc.); sem link conferido, null.
+#
+# Conferido em 29/10/2026.
+
+tipos:
+  CADUNICO:
+    nome: Inscritos no CadÚnico
+    descricao: >-
+      Pessoas de família inscrita no Cadastro Único (CadÚnico), o cadastro do governo federal para famílias de
+      baixa renda. Muitos editais pedem renda por pessoa de até meio salário mínimo e o cadastro atualizado.
+    documentos:
+      - Número de Identificação Social (NIS)
+      - Declaração de família de baixa renda (o modelo costuma estar em um anexo do edital)
+    base_legal: >-
+      Em concursos federais, Lei nº 13.656/2018. Estados e municípios têm leis próprias, citadas em cada edital.
+    link_oficial: https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13656.htm
+
+  DOADOR_MEDULA:
+    nome: Doadores de medula óssea
+    descricao: >-
+      Pessoas cadastradas como doadoras de medula óssea em hemocentro ou entidade reconhecida. Alguns editais
+      aceitam só o cadastro; outros pedem a doação já feita.
+    documentos:
+      - Comprovante ou cartão de doador emitido pelo hemocentro ou entidade credenciada
+      - Documento de identidade
+    base_legal: >-
+      Em concursos federais, Lei nº 13.656/2018. Estados e municípios têm leis próprias, citadas em cada edital.
+    link_oficial: https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13656.htm
+
+  DOADOR_SANGUE:
+    nome: Doadores de sangue
+    descricao: >-
+      Pessoas que doam sangue com regularidade. Os editais costumam exigir um número mínimo de doações num
+      período, por exemplo três doações nos últimos doze meses.
+    documentos:
+      - Declaração do hemocentro ou banco de sangue com as datas das doações
+    base_legal: >-
+      Leis estaduais e municipais. Exemplo: Lei Estadual nº 11.213/2018 da Paraíba, citada no edital do TJPB 2026.
+    link_oficial: null
+
+  DOADOR_PLASMA:
+    nome: Doadores de plasma
+    descricao: >-
+      Pessoas que doaram plasma, em geral quem se curou da COVID-19 e doou plasma convalescente, conforme lei
+      do estado.
+    documentos:
+      - Declaração da unidade de coleta com as doações feitas
+    base_legal: >-
+      Leis estaduais. Exemplo: Lei Estadual nº 11.755/2020 da Paraíba, citada no edital do TJPB 2026.
+    link_oficial: null
+
+  JURADO:
+    nome: Jurados
+    descricao: >-
+      Pessoas que atuaram como jurado no Tribunal do Júri. Os editais costumam pedir um número mínimo de
+      sessões e às vezes limitam o tempo desde o último júri.
+    documentos:
+      - Certidão da vara do júri com as datas em que a pessoa atuou
+    base_legal: >-
+      Leis estaduais. Exemplos: Lei Estadual nº 13.704/2025 da Paraíba (TJPB 2026) e Lei Estadual nº 4.530/2024
+      do Tocantins (SES-TO 2026).
+    link_oficial: null
+
+  MESARIO_ELEITORAL:
+    nome: Mesários e trabalhadores das eleições
+    descricao: >-
+      Eleitores convocados pela Justiça Eleitoral que trabalharam nas eleições, como mesários ou no apoio.
+    documentos:
+      - Declaração de Trabalhos Eleitorais, emitida pelo cartório eleitoral
+    base_legal: >-
+      Leis estaduais e municipais. Exemplos: Lei Estadual nº 19.196/2017 do Paraná (PCPR 2026) e Lei Estadual
+      nº 4.000/2022 do Tocantins (SES-TO 2026).
+    link_oficial: null
+
+  PESSOA_COM_DEFICIENCIA:
+    nome: Pessoas com deficiência
+    descricao: >-
+      Pessoas com deficiência, quando a lei do local prevê isenção da taxa. Isso é diferente da reserva de
+      vagas, que existe em quase todos os concursos.
+    documentos:
+      - Laudo médico recente que indique a deficiência
+    base_legal: >-
+      Leis estaduais e municipais. Exemplo: Lei Estadual nº 6.988/2007 do Pará (SEDUC-PA 2026).
+    link_oficial: null
+
+  VITIMA_VIOLENCIA_DOMESTICA:
+    nome: Mulheres vítimas de violência doméstica
+    descricao: >-
+      Mulheres vítimas de violência doméstica e familiar, conforme lei do estado. As leis usam a definição da
+      Lei Maria da Penha.
+    documentos:
+      - Um dos comprovantes aceitos pelo edital, como certidão de ação penal, registro de inquérito policial ou
+        medida protetiva
+    base_legal: >-
+      Leis estaduais, com base na Lei nº 11.340/2006 (Lei Maria da Penha). Exemplos: Lei Estadual nº 14.372/2026
+      da Paraíba (TJPB 2026) e Lei Estadual nº 11.040/2025 do Pará (SEDUC-PA 2026).
+    link_oficial: https://www2.camara.leg.br/legin/fed/lei/2006/lei-11340-7-agosto-2006-545133-norma-pl.html
+
+  ESTUDANTE:
+    nome: Estudantes
+    descricao: >-
+      Estudantes, em geral de baixa renda ou da rede pública, quando a lei do local prevê.
+    documentos:
+      - Comprovante de matrícula
+      - Comprovante de renda, quando o edital pedir
+    base_legal: Leis estaduais e municipais, citadas em cada edital.
+    link_oficial: null
+
+  DESEMPREGADO:
+    nome: Desempregados
+    descricao: >-
+      Pessoas sem emprego, quando a lei do local prevê. Alguns editais também exigem baixa renda.
+    documentos:
+      - Carteira de trabalho com o último contrato encerrado
+      - Declaração de que não tem renda, quando o edital pedir
+    base_legal: Leis estaduais e municipais, citadas em cada edital.
+    link_oficial: null
+
+  OUTRA:
+    nome: Outros casos previstos no edital
+    descricao: >-
+      Outras situações que o edital prevê, como doadoras de leite humano. Cada caso tem regras próprias.
+    documentos:
+      - Os indicados no edital
+    base_legal: Leis citadas em cada edital.
+    link_oficial: null

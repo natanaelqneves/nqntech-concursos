@@ -452,4 +452,15 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
         20/10 a 27/10 (edital consolidado após a 1ª retificação), calendário e disciplinas por especialidade.
       Limitações: quadros de disciplinas separados por nível (SES-TO) só se ligam quando o edital traz a
       escolaridade do cargo; editais com "exceto" na discursiva ficam com "confira o edital".
-- [ ] Fase 4 — Resumo automático + slug + campos desnormalizados
+- [x] Fase 4 — Resumo automático (29/10/2026, PR #5): nova etapa `resumir` (depois de `classificar`), com
+      regras puras em `coletor/resumo/gerador.py`:
+      - resumo de 2 a 6 frases curtas, só com o que foi extraído (sem salário/prova/taxa a frase some), datas
+        absolutas (contagens ficam para o navegador), isenção em linguagem informativa ("o edital prevê") com o prazo
+        para pedir enquanto estiver aberto, "Ainda não há edital publicado" para previstos e "confira o edital"
+        quando houve aviso de extração;
+      - slug `<órgão>-<ano>` (CNU: `concurso-nacional-unificado-<ano>`), até 80 caracteres, sufixo `-2`, `-3` se
+        repetir; gravado uma vez e nunca recalculado;
+      - campos desnormalizados a partir dos cargos: `total_vagas`, `salario_max`, `escolaridades`, `areas`;
+      - `publicado` = abrangência definida **e** oportunidade (seção 4.3); quem deixa de ser oportunidade sai do
+        site na mesma execução e mantém o slug. Grava só o que mudou (segunda execução não regrava nada).
+- [ ] Fase 5 — Site estático na Cloudflare

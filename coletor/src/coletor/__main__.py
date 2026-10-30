@@ -4,6 +4,7 @@ python -m coletor executar                 # todas as etapas (o que o GitHub Act
 python -m coletor descobrir --fonte fgv --dry-run
 python -m coletor documentos --limite 5
 python -m coletor classificar             # reaplica config/areas.yml etc. sem coletar nada
+python -m coletor resumir                 # refaz resumos, slugs e publicação sem coletar nada
 """
 
 from __future__ import annotations
@@ -52,6 +53,7 @@ def criar_parser() -> argparse.ArgumentParser:
     documentos.add_argument("--limite", type=int)
     sub.add_parser("estruturar", help="etapa 4: texto do edital → cargos, datas e taxas")
     sub.add_parser("classificar", help="etapa 5: área e escolaridade dos cargos, local do concurso e CNU")
+    sub.add_parser("resumir", help="etapa 6: resumo, slug, campos do site e publicação")
     return parser
 
 
@@ -91,6 +93,7 @@ def main(argv: list[str] | None = None) -> int:
             "documentos": ("documentos",),
             "estruturar": ("estruturar",),
             "classificar": ("classificar",),
+            "resumir": ("resumir",),
         }[args.comando]
     )
 

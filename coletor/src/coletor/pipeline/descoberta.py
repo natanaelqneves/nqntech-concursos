@@ -8,7 +8,7 @@ from collections.abc import Callable, Mapping
 from coletor.db import Repositorio
 from coletor.fontes.base import Fonte
 from coletor.http_cliente import ClienteHttp
-from coletor.pipeline.comum import ResumoEtapa, agora, status_por_falhas
+from coletor.pipeline.comum import DIAS_FOLGA_INSCRICAO, DIAS_RELEITURA, ResumoEtapa, agora, hoje, status_por_falhas
 
 log = logging.getLogger(__name__)
 
@@ -30,12 +30,14 @@ def executar_descoberta(
             continue
 
         inicio = agora()
+        pular = repo.urls_sem_oportunidade(cadastrada.id, hoje(), DIAS_FOLGA_INSCRICAO, DIAS_RELEITURA)
         try:
             with criar_http(fonte.dominios) as http:
-                resultado = fonte.descobrir(http)
+                resultado = fonte.descobrir(http, pular)
         except Exception as erro:  # uma fonte quebrada não pode derrubar as outras
             log.exception("fonte '%s' falhou", cadastrada.nome)
             if not dry_run:
+                repo.retomar_conexao()
                 repo.registrar_execucao(
                     "DESCOBERTA", inicio, "FALHA", 0, f"{type(erro).__name__}: {erro}", cadastrada.id
                 )
@@ -50,6 +52,7 @@ def executar_descoberta(
             resumos.append(ResumoEtapa("DESCOBERTA", "SUCESSO", len(resultado.sinais), None, cadastrada.nome))
             continue
 
+        repo.retomar_conexao()
         with repo.transacao():
             novos = sum(repo.gravar_sinal(cadastrada.id, sinal) for sinal in resultado.sinais)
         status = status_por_falhas(resultado.falhas, len(resultado.sinais))

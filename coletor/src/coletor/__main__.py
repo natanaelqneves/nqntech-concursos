@@ -103,8 +103,8 @@ def main(argv: list[str] | None = None) -> int:
 
     resumos: list[ResumoEtapa] = []
     try:
-        with conn:
-            orquestrador = Orquestrador(config, Repositorio(conn))
+        with Repositorio(conn, reconectar=lambda: conectar(config.banco)) as repo:
+            orquestrador = Orquestrador(config, repo)
             resumos = orquestrador.executar(
                 etapas,
                 fonte=getattr(args, "fonte", None),

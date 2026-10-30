@@ -142,6 +142,10 @@ class Fonte(Protocol):
     nome: str
     dominios: frozenset[str]
 
-    def descobrir(self, http: ClienteHttp) -> ResultadoDescoberta:
-        """Lista os concursos visíveis na fonte. Falhas pontuais vão em `falhas`; falha total levanta exceção."""
+    def descobrir(self, http: ClienteHttp, pular: frozenset[str] = frozenset()) -> ResultadoDescoberta:
+        """Lista os concursos visíveis na fonte. Falhas pontuais vão em `falhas`; falha total levanta exceção.
+
+        `pular`: URLs de sinais cuja página não precisa ser relida agora (concursos sem oportunidade aberta);
+        a fonte não devolve sinal para elas.
+        """
         ...

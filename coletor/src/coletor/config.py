@@ -61,8 +61,8 @@ class Config:
     pdf_max_bytes: int
     max_documentos_por_execucao: int
     max_paginas_listagem: int
-    # Páginas do bloco "realizados" da FGV lidas por execução (encerrados recentes); 0 desliga.
-    max_paginas_realizados: int = 2
+    # Páginas do bloco "realizados" da FGV (encerrados). Desligado (0): o site só mostra oportunidades abertas.
+    max_paginas_realizados: int = 0
 
     @property
     def user_agent(self) -> str:
@@ -99,7 +99,7 @@ def carregar_config(env: Mapping[str, str] | None = None) -> Config:
             pdf_max_bytes=int(env.get("COLETOR_PDF_MAX_MB", "40")) * 1024 * 1024,
             max_documentos_por_execucao=int(env.get("COLETOR_MAX_DOCUMENTOS", "60")),
             max_paginas_listagem=int(env.get("COLETOR_MAX_PAGINAS", "15")),
-            max_paginas_realizados=int(env.get("COLETOR_MAX_PAGINAS_REALIZADOS", "2")),
+            max_paginas_realizados=int(env.get("COLETOR_MAX_PAGINAS_REALIZADOS", "0")),
         )
     except ValueError as erro:
         raise ConfigInvalida(f"valor numérico inválido: {erro}") from erro

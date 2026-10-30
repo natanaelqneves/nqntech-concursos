@@ -101,7 +101,8 @@ Fase 5 — Site estático (seções 2 e 7 do contexto).
 - Páginas: início (só inscrições abertas, ordem da seção 4.6: CNU → nacionais → demais, prova mais próxima
   primeiro), lista com filtros no navegador (busca.json), página de cada concurso, navegação Brasil → região →
   estado → município (município só com concurso), por área, por nível, isenções (índice e por tipo), sobre,
-  privacidade (rascunho). Encerrados há mais de 180 dias ficam fora do site.
+  privacidade (rascunho). Só oportunidades (seção 4.3): inscrições abertas ou por abrir, previstos e
+  prazo de isenção em curso; o resto fica fora do site.
 - SEO: title/description por página, JSON-LD, sitemap.xml, robots.txt, URLs canônicas.
 - Acessibilidade WCAG AA, mobile first, CSS próprio leve, sem framework JS pesado.
 - Workflow que, depois da coleta diária, gera o site (só o que mudou) e publica na Cloudflare com

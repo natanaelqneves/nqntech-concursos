@@ -166,22 +166,28 @@ class FonteFGV:
     nome = "fgv"
     dominios = frozenset({"conhecimento.fgv.br"})
 
-    def __init__(self, max_paginas: int = 15, max_paginas_realizados: int = 2) -> None:
+    def __init__(self, max_paginas: int = 15, max_paginas_realizados: int = 0) -> None:
         self._max_paginas = max_paginas
         self._max_paginas_realizados = max_paginas_realizados
 
-    def descobrir(self, http: ClienteHttp) -> ResultadoDescoberta:
-        itens = self._listar(http)
-        encerrados = sum(item.encerrado for item in itens)
+    def descobrir(self, http: ClienteHttp, pular: frozenset[str] = frozenset()) -> ResultadoDescoberta:
+        listados = self._listar(http)
+        itens = [item for item in listados if item.url not in pular]
+        encerrados = sum(item.encerrado for item in listados)
         log.info(
-            "FGV: %d itens que parecem concursos (%d em andamento, %d realizados)",
-            len(itens),
-            len(itens) - encerrados,
+            "FGV: %d itens que parecem concursos (%d em andamento, %d realizados); %d páginas a ler, %d sem "
+            "oportunidade aberta ficam para a releitura semanal",
+            len(listados),
+            len(listados) - encerrados,
             encerrados,
+            len(itens),
+            len(listados) - len(itens),
         )
         sinais: list[SinalDescoberta] = []
         falhas: list[str] = []
-        for item in itens:
+        for numero, item in enumerate(itens, start=1):
+            if numero % 25 == 0:
+                log.info("FGV: %d/%d páginas lidas", numero, len(itens))
             try:
                 payload = parse_concurso(http.obter_texto(item.url), item.url, encerrado=item.encerrado)
             except ErroHttp as erro:

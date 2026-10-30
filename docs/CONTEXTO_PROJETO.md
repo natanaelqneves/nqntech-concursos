@@ -11,7 +11,10 @@
 
 Site **público e gratuito** de concursos públicos do Brasil, com informação **direta e simples**:
 
-- Concursos **previstos, abertos e encerrados**, de **todas as áreas**, **todos os níveis** e **todos os estados**.
+- **Só oportunidades disponíveis** (decisão de 29/10/2026), de **todas as áreas**, **todos os níveis** e **todos os
+  estados**: concursos com **inscrições abertas** (ou com edital publicado e inscrições ainda por abrir),
+  **previstos** (autorizados, sem edital) e, com destaque, os que estão **dentro do prazo para pedir isenção** de
+  taxa (qualquer tipo). Concurso que sai dessas condições sai do site; o que já passou não é mostrado.
 - **Resumo próprio de cada concurso**, gerado automaticamente a partir dos dados do edital (cargos, vagas,
   salários, escolaridade, inscrições, prova, taxa, isenções), sempre com link para o edital oficial.
 - **Isenções de taxa** em destaque: o que cada edital prevê e páginas explicativas por tipo de isenção
@@ -49,8 +52,8 @@ aplicativo móvel.
 - **Hospedagem na Cloudflare (Workers com assets estáticos, plano grátis)**: requisições a assets estáticos são
   grátis e ilimitadas, uso comercial permitido (anúncios/afiliados), CDN, domínio próprio e deploy pelo GitHub
   Actions com um token. Limite do plano grátis: **20.000 arquivos por versão** (25 MiB por arquivo); o plano
-  pago (US$ 5/mês) sobe para 100.000. Para não estourar, concursos `ENCERRADO` há mais de **180 dias** (mesmo
-  prazo da retenção, seção 5) saem das páginas estáticas e do `busca.json` (ficam no banco). Avaliadas em
+  pago (US$ 5/mês) sobe para 100.000. Como o site só mostra oportunidades (seção 1), o volume fica bem abaixo
+  disso; concursos sem oportunidade continuam no banco (deduplicação, histórico), fora das páginas. Avaliadas em
   29/10/2026: Vercel (Hobby proíbe anúncios; Pro US$ 20/mês) e GitHub Pages (área cinzenta para uso comercial).
 - **Deploy só pelo GitHub Actions** (`wrangler deploy` com `CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID` em
   GitHub Secrets). O repositório **não** é conectado à Cloudflare (sem Workers Builds): o site depende do banco
@@ -59,7 +62,7 @@ aplicativo móvel.
   entram no limite de 100 mil requisições/dia do plano grátis.
 - **Coletores e site nunca conversam diretamente**: o banco é o ponto de encontro (mesma regra do Radar TI).
 - **Busca/filtros no navegador** sobre um `busca.json` gerado junto com o site (sem servidor). Se o volume
-  crescer demais (ex.: histórico de encerrados), a busca passa a um endpoint da API sem mudar a tela.
+  crescer demais (ex.: muitas fontes novas), a busca passa a um endpoint da API sem mudar a tela.
 - **Único componente com servidor**: a API de cadastro de alertas (fase 7). Hospedagem gratuita a escolher
   nessa fase, **conferindo os limites atuais** antes de decidir.
 - A coleta roda no GitHub Actions (grátis e sem limite de minutos em repositório **público**). Rodar o coletor
@@ -109,6 +112,10 @@ identificada → `OUTRAS`, com aviso. Um cargo tem uma área principal.
 ### 4.3 Situação do concurso
 `PREVISTO` (sem edital), `INSCRICOES_ABERTAS`, `EM_ANDAMENTO` (inscrições encerradas, certame em curso),
 `ENCERRADO` (homologado/finalizado ou fora da listagem da banca). Derivada de datas + status da fonte.
+`INSCRICOES_ABERTAS` vale também para edital publicado com inscrição ainda por abrir (`inscricao_fim` no futuro).
+
+**Oportunidade** (o que vai ao site e aos alertas): `PREVISTO`, `INSCRICOES_ABERTAS` ou prazo de isenção em curso
+(`isencao_fim >= hoje`). `EM_ANDAMENTO` e `ENCERRADO` sem isenção em curso ficam só no banco.
 
 ### 4.4 Isenções (catálogo + o que cada edital prevê)
 Tipos iniciais (`isencao_tipo.codigo`): `CADUNICO`, `DOADOR_MEDULA`, `DOADOR_SANGUE`, `DOADOR_PLASMA`, `JURADO`,
@@ -135,14 +142,16 @@ Um resumo por LLM pode ser plugado depois (fase opcional), validado contra os ca
 ---
 
 ### 4.6 Decisões de produto (29/10/2026, a implementar nas fases 1–5)
+- **O site inteiro só mostra oportunidades** (seção 4.3; decisão de 29/10/2026 à noite): nada de encerrados nem
+  de concursos em andamento (prova, resultado) sem isenção em curso.
 - **Tela inicial: só concursos com inscrições abertas** (decisão revista em 29/10/2026). Ordem:
   1. **CNU** (Concurso Nacional Unificado) primeiro;
   2. depois os demais de abrangência **`NACIONAL`**;
   3. depois estaduais e municipais.
   Dentro de cada grupo, por **data da prova**, da mais próxima para a mais distante; sem data de prova vão ao fim
   do grupo (desempate: `inscricao_fim` mais próximo). Concursos com isenção ganham selo com os dias restantes
-  para pedir, mas o prazo de isenção **não** define mais a ordem. Previstos e encerrados ficam na busca e nas
-  páginas de estado/área (SEO).
+  para pedir, mas o prazo de isenção **não** define mais a ordem. Previstos e concursos só com isenção em prazo
+  ficam na busca, nas páginas de estado/área e em `/isencoes/`.
 - **CNU**: identificado pelo coletor por regra (título ou endereço com "Concurso Nacional Unificado", "CNU",
   "CPNU", em `config/destaques.yml`) e gravado em `concurso.unificado` (V10; sempre `NACIONAL`). O CNU 2 é
   organizado pela FGV e aparece na listagem dela (`/cpnu2`), então já vem pela fonte atual.
@@ -227,7 +236,7 @@ Descadastro **apaga** o assinante e o filtro (não só marca).
 
 | Etapa | Quem | O que faz |
 |---|---|---|
-| 1. Descoberta | Coletor | Fontes ativas → `sinal_descoberta` (abertos **e** encerrados recentes) |
+| 1. Descoberta | Coletor | Fontes ativas → `sinal_descoberta` (só a lista "em andamento"; páginas de concursos sem oportunidade não são relidas) |
 | 2. Vinculação/deduplicação | Coletor | Sinal → concurso (chaves do Radar TI: URL → hash → órgão+edital+ano → similaridade) |
 | 3. Documentos | Coletor | PDF em pasta temporária → hash + texto → apagado |
 | 4. Estruturação | Coletor | Cargos, datas, taxas, **seção de isenções**, calendário, disciplinas e redação por cargo, avisos |
@@ -238,6 +247,17 @@ Descadastro **apaga** o assinante e o filtro (não só marca).
 
 A coleta inicial é limitada por execução (ex.: 60 editais/dia) e drena o acúmulo em poucos dias.
 
+**Foco em oportunidades no coletor** (`SEM_OPORTUNIDADE` em `db.py`, constantes em `pipeline/comum.py`):
+- a FGV não separa "inscrições abertas" na listagem, então cada concurso novo tem a página lida uma vez;
+- concurso `EM_ANDAMENTO` com inscrições encerradas há mais de **15 dias** (folga para prorrogação), sem isenção
+  em curso, **não tem a página relida nem PDFs baixados**; a página é relida só uma vez por **semana** (pega
+  reabertura tardia e mantém o concurso "visto na fonte"). PDFs de `ENCERRADO` também não são baixados, mas a
+  página dele é lida se voltar à lista "em andamento" (reabertura);
+- concurso sem data de inscrição conhecida continua acompanhado (o edital precisa ser lido);
+- o bloco "realizados" da FGV fica desligado (`COLETOR_MAX_PAGINAS_REALIZADOS=0`): quem sai da lista "em
+  andamento" vira `ENCERRADO` depois de 10 dias sem aparecer.
+- As etapas que passam minutos só na rede reconectam ao banco antes de gravar (o Neon derruba conexão parada).
+
 ---
 
 ## 7. Site (SEO e acessibilidade)
@@ -245,14 +265,15 @@ A coleta inicial é limitada por execução (ex.: 60 editais/dia) e drena o acú
 Páginas:
 - `/` — só concursos com inscrições abertas: CNU, depois nacionais, depois os demais; em cada grupo, prova mais
   próxima primeiro (seção 4.6); selo "com isenção" com os dias restantes para pedir.
-- `/concursos/` — lista com filtros (UF, área, nível, situação, isenção, salário) no navegador.
+- `/concursos/` — todas as oportunidades com filtros (UF, área, nível, situação, isenção, salário) no navegador.
 - `/concurso/<slug>/` — resumo, tabela de cargos, datas, taxa, isenções, links oficiais, "última atualização".
 - `/brasil/`, `/regiao/<regiao>/`, `/estado/<uf>/`, `/municipio/<uf>/<municipio>/` — navegação geográfica
   (seção 4.6); concursos `NACIONAL` aparecem em todos os recortes, estaduais também nos municípios da UF.
   Página de município só é gerada quando há concurso daquele município (evita milhares de páginas vazias e o
   limite de arquivos da Cloudflare).
 - `/area/<area>/`, `/nivel/<nivel>/` — páginas de entrada para buscas no Google.
-- `/isencoes/` e `/isencoes/<tipo>/` — explicação de cada isenção + concursos abertos que a preveem.
+- `/isencoes/` e `/isencoes/<tipo>/` — explicação de cada isenção + concursos **com prazo de isenção em curso**
+  que a preveem, prazo mais curto primeiro (destaque do site).
 - `/alertas/` — formulário (nome, e-mail, filtro) [fase 7]; `/privacidade/`; `/sobre/` (fontes e limitações).
 
 Requisitos: HTML semântico, mobile first, leve (sem framework JS pesado), contraste e navegação por teclado
@@ -403,4 +424,13 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       Observações: editais que só trazem o quadro em tabela por localidade ficam sem vagas por cargo (aviso
       "confira o edital"); alguns órgãos sem pista de esfera/UF (ex.: estatais federais pouco conhecidas)
       ficam sem local e não são publicados até uma regra os reconhecer.
+- [x] Escopo revisto e coleta diária corrigida (29/10/2026, PR #3):
+      - site, busca e alertas mostram **só oportunidades**: inscrições abertas (ou por abrir), previstos e prazo de
+        isenção em curso (seções 1 e 4.3); encerrados e concursos em fase de prova/resultado ficam só no banco;
+      - coletor deixa de ler o bloco "realizados" da FGV e não relê páginas nem baixa PDFs de concursos sem
+        oportunidade (releitura semanal; folga de 15 dias para prorrogação), seção 6;
+      - `diario` falhava com `OperationalError: the connection is lost`: a descoberta da FGV passa ~6 min só na
+        rede (147 páginas × 2,5 s) e o Neon derrubava a conexão parada. O repositório agora reconecta antes de
+        gravar, e a etapa de documentos não deixa transação aberta durante a extração do PDF (`coletor_app` tem
+        `idle_in_transaction_session_timeout = 300s`). Log de progresso a cada 25 páginas.
 - [ ] Fase 3 — Isenções + calendário, disciplinas e redação por cargo

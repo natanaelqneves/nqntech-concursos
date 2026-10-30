@@ -37,8 +37,9 @@ class AreaClassificada:
 
 
 class ClassificadorArea:
-    def __init__(self, regras: tuple[RegraArea, ...]) -> None:
+    def __init__(self, regras: tuple[RegraArea, ...], abreviacoes: Mapping[str, str] | None = None) -> None:
         self._regras = regras
+        self._abreviacoes = dict(abreviacoes or {})
 
     @classmethod
     def padrao(cls) -> ClassificadorArea:
@@ -66,15 +67,18 @@ class ClassificadorArea:
                     excluir=Termos.de(regra.get("excluir") or ()),
                 )
             )
-        return cls(tuple(regras))
+        abreviacoes = dados.get("abreviacoes") or {}
+        if not isinstance(abreviacoes, Mapping):
+            raise RegrasInvalidas("areas.yml: 'abreviacoes' deve ser um mapeamento abreviação → palavra")
+        return cls(tuple(regras), {preparar(str(k)): preparar(str(v)) for k, v in abreviacoes.items()})
 
     @property
     def codigos(self) -> frozenset[str]:
         return frozenset(r.codigo for r in self._regras) | {AREA_PADRAO}
 
     def classificar(self, nome: str, especialidade: str | None = None, orgao: str | None = None) -> AreaClassificada:
-        texto_nome = preparar(nome)
-        texto_especialidade = preparar(especialidade)
+        texto_nome = preparar(nome, self._abreviacoes)
+        texto_especialidade = preparar(especialidade, self._abreviacoes)
         texto_cargo = f"{texto_nome} {texto_especialidade}".strip()
 
         passos = (

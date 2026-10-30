@@ -15,6 +15,21 @@
 # Os códigos são os do catálogo concursos.area (migration V7). Mudou uma regra? Rode o coletor: a etapa
 # "classificar" reclassifica tudo e só grava o que mudou.
 
+# Abreviações comuns nos quadros das bancas ("Prof. de Arte", "Aux. Educacional"), expandidas antes de comparar.
+abreviacoes:
+  prof: professor
+  profa: professora
+  profs: professor
+  aux: auxiliar
+  educ: educacao
+  tec: tecnico
+  adm: administrativo
+  assist: assistente
+  ag: agente
+  nut: nutricao
+  enf: enfermagem
+  eng: engenheiro
+
 areas:
   TI:
     principal: [analista de sistemas, analista de ti, desenvolvedor, programador, cientista de dados]
@@ -151,7 +166,13 @@ areas:
       - inspetor escolar
       - interprete de libras
       - tradutor e interprete de libras
+      - psicopedagogo
+      - auxiliar educacional
+      - auxiliar de educacao
+      - auxiliar de creche
+      - agente educacional
     termos:
+      - educacional
       - educacao
       - educacao basica
       - educacao infantil
@@ -209,6 +230,7 @@ areas:
       - fiscal de rendas
       - fiscal tributario
       - contador
+      - controlador interno
       - auditor de controle externo
       - analista de controle externo
       - agente fiscal de rendas
@@ -471,6 +493,7 @@ areas:
       - musica
       - cultura
       - biblioteconomia
+      - biblioteca
       - arquivologia
       - museologia
       - letras
@@ -487,6 +510,7 @@ areas:
       - motorista
       - auxiliar de servicos gerais
       - servicos gerais
+      - servente
       - gari
       - agente de limpeza
       - auxiliar de limpeza
@@ -521,6 +545,8 @@ areas:
       - servicos gerais
       - conservacao
       - limpeza urbana
+      - alimentacao escolar
+      - alimentacao
       - transporte
 
   ADMINISTRATIVA:

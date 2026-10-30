@@ -225,3 +225,42 @@ def test_detecta_cnu(titulo, link, esperado):
 )
 def test_escolaridade_inferida_de_forma_conservadora(nome, especialidade, esperado):
     assert InferidorEscolaridade.padrao().inferir(nome, especialidade) == esperado
+
+
+def test_municipio_achado_no_nome_do_orgao():
+    resolvedor = ResolvedorLocal(
+        IndiceMunicipios(
+            [
+                Municipio(5103403, "Cuiabá", "MT", "cuiaba"),
+                Municipio(3300258, "Arraial do Cabo", "RJ", "arraial-do-cabo"),
+                Municipio(3549904, "São José dos Campos", "SP", "sao-jose-dos-campos"),
+            ]
+        )
+    )
+    casos = {
+        OrgaoInferido("Secretaria Municipal de Fazenda de Cuiabá", "MUNICIPAL", None, None): ("MT", 5103403),
+        OrgaoInferido("IPC - Arraial do Cabo/RJ", "MUNICIPAL", "RJ", None): ("RJ", 3300258),
+        OrgaoInferido("Secretaria Municipal de Educação de São José dos Campos", "MUNICIPAL", None, None): (
+            "SP",
+            3549904,
+        ),
+    }
+    for orgao, (uf, codigo) in casos.items():
+        assert resolvedor.resolver(orgao) == Local("MUNICIPAL", uf, codigo), orgao.nome
+
+
+def test_trf_da_6a_regiao_e_de_minas():
+    resolvedor = ResolvedorLocal(IndiceMunicipios([]))
+    assert resolvedor.resolver(OrgaoInferido("Tribunal Regional Federal da 6ª Região", "FEDERAL", None, None)) == Local(
+        "ESTADUAL", "MG"
+    )
+    assert resolvedor.resolver(OrgaoInferido("Tribunal Regional Federal da 1ª Região", "FEDERAL", None, None)) == Local(
+        "NACIONAL"
+    )
+
+
+def test_assunto_da_secretaria_nao_vira_municipio():
+    # "Saúde" é um município da Bahia, mas aqui é o assunto da secretaria.
+    resolvedor = ResolvedorLocal(IndiceMunicipios([Municipio(2929800, "Saúde", "BA", "saude")]))
+    local = resolvedor.resolver(OrgaoInferido("Secretaria Municipal de Saúde", "MUNICIPAL", None, None))
+    assert local.abrangencia is None

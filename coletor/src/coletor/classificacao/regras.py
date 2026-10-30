@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -66,6 +66,10 @@ def _normalizar_termo(termo: str) -> str:
     return normalizar(termo).replace("-", " ")
 
 
-def preparar(texto: str | None) -> str:
-    """Mesma normalização dos termos: hífens e travessões viram espaço (TI–Banco de Dados)."""
-    return re.sub(r"\s+", " ", normalizar(texto or "").replace("-", " ")).strip()
+def preparar(texto: str | None, abreviacoes: Mapping[str, str] | None = None) -> str:
+    """Mesma normalização dos termos: hífens, travessões, barras e pontos viram espaço ("Prof./Aux." → "prof aux")
+    e as abreviações conhecidas são expandidas palavra a palavra."""
+    palavras = re.sub(r"[-./]", " ", normalizar(texto or "")).split()
+    if abreviacoes:
+        palavras = [abreviacoes.get(p, p) for p in palavras]
+    return " ".join(palavras)

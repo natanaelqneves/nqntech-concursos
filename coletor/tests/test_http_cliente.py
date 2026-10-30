@@ -4,7 +4,7 @@ from pathlib import Path
 import httpx
 import pytest
 
-from coletor.http_cliente import AcessoNaoPermitido, ClienteHttp, ErroHttp, RespostaRecusada
+from coletor.http_cliente import AcessoNaoPermitido, ClienteHttp, ErroHttp, RespostaRecusada, decodificar_html
 
 ROBOTS = "User-agent: *\nDisallow: /privado/\n"
 PDF = b"%PDF-1.4\n" + b"x" * 2000
@@ -171,3 +171,33 @@ def test_pdf_recusado(tmp_path, conteudo, cabecalhos, erro):
     cliente = criar_cliente(lambda r: httpx.Response(200, content=conteudo, headers=cabecalhos))
     with pytest.raises(RespostaRecusada, match=erro):
         cliente.baixar_pdf("https://exemplo.gov.br/edital.pdf", tmp_path, max_bytes=10_000)
+
+
+@pytest.mark.parametrize(
+    ("corpo", "cabecalho", "esperado"),
+    [
+        # IBAM: windows-1252 declarado só no <meta>, sem charset no cabeçalho.
+        (
+            '<meta charset="windows-1252" /><h4>Prefeitura de Balneário Piçarras/SC</h4>'.encode("cp1252"),
+            None,
+            "Balneário Piçarras",
+        ),
+        (
+            '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><p>São José</p>'.encode("latin-1"),
+            None,
+            "São José",
+        ),
+        ("<p>Macaé</p>".encode(), "utf-8", "Macaé"),
+        # Sem declaração nenhuma: tenta UTF-8 e cai para windows-1252.
+        ("<p>Paraíba</p>".encode("cp1252"), None, "Paraíba"),
+        ("<p>Paraíba</p>".encode(), None, "Paraíba"),
+    ],
+)
+def test_decodifica_html_pelo_charset_certo(corpo, cabecalho, esperado):
+    assert esperado in decodificar_html(corpo, cabecalho)
+
+
+def test_obter_texto_sem_charset_no_cabecalho_usa_o_meta():
+    pagina = '<html><head><meta charset="windows-1252"></head><body>Balneário</body></html>'.encode("cp1252")
+    cliente = criar_cliente(lambda r: httpx.Response(200, content=pagina, headers={"Content-Type": "text/html"}))
+    assert "Balneário" in cliente.obter_texto("https://exemplo.gov.br/lista")

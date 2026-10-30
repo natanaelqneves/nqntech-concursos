@@ -336,8 +336,8 @@ class Repositorio:
         for cargo in cargos:
             self.conn.execute(
                 """INSERT INTO cargo (concurso_id, nome, especialidade, escolaridade, vagas, cadastro_reserva,
-                                      salario, uf_lotacao)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                                      salario, uf_lotacao, disciplinas, tem_redacao)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                    ON CONFLICT ON CONSTRAINT cargo_uk DO NOTHING""",
                 (
                     concurso_id,
@@ -348,6 +348,8 @@ class Repositorio:
                     cargo.cadastro_reserva,
                     cargo.salario,
                     cargo.uf_lotacao,
+                    [d[:120] for d in cargo.disciplinas],
+                    cargo.tem_redacao,
                 ),
             )
 
@@ -416,7 +418,7 @@ class Repositorio:
                 """UPDATE concurso SET numero_edital = coalesce(%s, numero_edital), ano = coalesce(%s, ano),
                           inscricao_inicio = %s, inscricao_fim = %s, data_prova = %s, taxa_min = %s, taxa_max = %s,
                           avisos_extracao = %s, situacao = %s, edital_documento_id = %s,
-                          origem_estrutura = 'EDITAL'
+                          origem_estrutura = 'EDITAL', tem_isencao = %s, isencao_inicio = %s, isencao_fim = %s
                    WHERE id = %s""",
                 (
                     edital.numero_edital,
@@ -429,11 +431,32 @@ class Repositorio:
                     Jsonb(list(edital.avisos)),
                     situacao,
                     documento_id,
+                    bool(edital.isencoes),
+                    edital.isencao_inicio if edital.isencoes else None,
+                    edital.isencao_fim if edital.isencoes else None,
                     concurso_id,
                 ),
             )
             self.conn.execute("DELETE FROM cargo WHERE concurso_id = %s", (concurso_id,))
             self._inserir_cargos(concurso_id, edital.cargos)
+            self._substituir_isencoes_e_calendario(concurso_id, edital)
+
+    def _substituir_isencoes_e_calendario(self, concurso_id: int, edital: EditalExtraido) -> None:
+        # Reestruturar um edital substitui o conjunto inteiro (como os cargos).
+        self.conn.execute("DELETE FROM concurso_isencao WHERE concurso_id = %s", (concurso_id,))
+        for isencao in edital.isencoes:
+            self.conn.execute(
+                """INSERT INTO concurso_isencao (concurso_id, tipo_codigo, observacao) VALUES (%s, %s, %s)
+                   ON CONFLICT DO NOTHING""",
+                (concurso_id, isencao.codigo, isencao.observacao and isencao.observacao[:300]),
+            )
+        self.conn.execute("DELETE FROM concurso_evento WHERE concurso_id = %s", (concurso_id,))
+        for ordem, evento in enumerate(edital.eventos, start=1):
+            fim = evento.fim if evento.fim is None or evento.inicio is None or evento.fim >= evento.inicio else None
+            self.conn.execute(
+                "INSERT INTO concurso_evento (concurso_id, ordem, evento, inicio, fim) VALUES (%s, %s, %s, %s, %s)",
+                (concurso_id, ordem, evento.evento[:200], evento.inicio, fim),
+            )
 
     def atualizar_situacoes_por_data(self, hoje: date, dias_sem_ver: int) -> int:
         with self.transacao():

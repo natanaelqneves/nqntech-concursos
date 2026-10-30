@@ -26,6 +26,13 @@ from datetime import date
 from decimal import Decimal
 
 from coletor.extratores.base import CargoExtraido, EditalExtraido
+from coletor.extratores.secoes import (
+    atribuir_disciplinas,
+    calendario,
+    extrair_isencoes,
+    quadros_de_disciplinas,
+    redacao_por_cargo,
+)
 from coletor.texto import (
     colapsar_espacos,
     data_por_extenso,
@@ -119,7 +126,12 @@ class ExtratorFGV:
             avisos.append("período de inscrição incoerente (fim antes do início): confira o edital")
             inicio = fim = None
 
+        isencoes = extrair_isencoes(texto)
         prova = self._data_prova(texto)
+        eventos = calendario(texto, isencoes, (inicio, fim), prova)
+        if prova is None:
+            # Sem data no corpo do edital, o cronograma do anexo pode trazer a "data provável".
+            prova = next((e.inicio for e in eventos if e.evento.startswith("Prova objetiva")), None)
         if prova is None:
             avisos.append("data da prova não encontrada")
         elif fim is not None and prova < fim:
@@ -128,6 +140,14 @@ class ExtratorFGV:
         taxas = self._taxas(texto)
         if not taxas:
             avisos.append("taxa de inscrição não encontrada")
+        avisos.extend(isencoes.avisos)
+
+        cargos, faltou_quadro = atribuir_disciplinas(cargos, quadros_de_disciplinas(texto))
+        if faltou_quadro:
+            avisos.append("disciplinas de algum cargo não identificadas: confira o edital")
+        cargos, redacao_incerta = redacao_por_cargo(texto, cargos)
+        if redacao_incerta:
+            avisos.append("prova discursiva/redação por cargo não identificada: confira o edital")
 
         return EditalExtraido(
             orgao=self._orgao(texto),
@@ -139,6 +159,10 @@ class ExtratorFGV:
             data_prova=prova,
             taxa_min=min(taxas) if taxas else None,
             taxa_max=max(taxas) if taxas else None,
+            isencoes=isencoes.tipos,
+            isencao_inicio=isencoes.inicio,
+            isencao_fim=isencoes.fim,
+            eventos=eventos,
             avisos=tuple(avisos),
         )
 

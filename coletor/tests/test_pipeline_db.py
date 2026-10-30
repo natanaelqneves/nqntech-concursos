@@ -11,10 +11,12 @@ from pathlib import Path
 import httpx
 import psycopg
 import pytest
+import yaml
 from psycopg.rows import dict_row
 
 from coletor.config import Config, ConfigBanco
 from coletor.db import Repositorio
+from coletor.extratores.fgv import ExtratorFGV
 from coletor.http_cliente import ClienteHttp
 from coletor.pipeline.orquestrador import ETAPAS, Orquestrador, codigo_de_saida
 
@@ -377,6 +379,62 @@ def test_concurso_sem_oportunidade_nao_tem_a_pagina_relida(parametros_coletor, c
     ).fetchone()
     assert status == ("IGNORADO",)
     conn.close()
+
+
+def test_edital_tjpb_grava_isencoes_calendario_e_disciplinas(parametros_coletor, conn_admin, limpar, fixture_texto):
+    site = SiteFGVSimulado(fixture_texto)
+    conn, orquestrador = criar_orquestrador(parametros_coletor, site)
+    orquestrador.executar(ETAPAS, fonte="fgv")
+    consulta = conn_admin.cursor(row_factory=dict_row)
+    tjpb = consulta.execute(
+        "SELECT id, edital_documento_id FROM concursos.concurso WHERE link_oficial = %s", (TJPB,)
+    ).fetchone()
+
+    # Grava o edital real (o PDF da simulação é um recorte) como coletor_app: permissões e restrições valem.
+    edital = ExtratorFGV().extrair(fixture_texto("fgv/edital_tjpb26_1.txt"))
+    repo = Repositorio(conn)
+    repo.aplicar_edital(tjpb["id"], tjpb["edital_documento_id"], edital, "INSCRICOES_ABERTAS")
+    repo.aplicar_edital(tjpb["id"], tjpb["edital_documento_id"], edital, "INSCRICOES_ABERTAS")  # idempotente
+
+    concurso = consulta.execute(
+        "SELECT tem_isencao, isencao_inicio, isencao_fim FROM concursos.concurso WHERE id = %s", (tjpb["id"],)
+    ).fetchone()
+    assert concurso == {"tem_isencao": True, "isencao_inicio": date(2026, 10, 20), "isencao_fim": date(2026, 10, 27)}
+    tipos = consulta.execute(
+        "SELECT tipo_codigo, observacao FROM concursos.concurso_isencao WHERE concurso_id = %s", (tjpb["id"],)
+    ).fetchall()
+    assert {t["tipo_codigo"] for t in tipos} == {i.codigo for i in edital.isencoes}
+    eventos = consulta.execute(
+        "SELECT ordem, evento, inicio, fim FROM concursos.concurso_evento WHERE concurso_id = %s ORDER BY ordem",
+        (tjpb["id"],),
+    ).fetchall()
+    assert [e["evento"] for e in eventos] == ["Pedido de isenção da taxa", "Inscrições", "Prova objetiva"]
+    judiciaria = consulta.execute(
+        """SELECT disciplinas, tem_redacao FROM concursos.cargo
+           WHERE concurso_id = %s AND especialidade = 'Judiciária'""",
+        (tjpb["id"],),
+    ).fetchone()
+    assert judiciaria["tem_redacao"] is True
+    assert judiciaria["disciplinas"][0] == "Língua Portuguesa"
+    conn.close()
+
+
+def test_catalogo_isencoes_igual_ao_banco(conn_admin):
+    """config/isencoes.yml é a fonte dos textos; a migration V11 precisa gravar exatamente o mesmo."""
+    arquivo = Path(__file__).resolve().parents[2] / "config" / "isencoes.yml"
+    catalogo = yaml.safe_load(arquivo.read_text(encoding="utf-8"))["tipos"]
+    linhas = (
+        conn_admin.cursor(row_factory=dict_row)
+        .execute("SELECT codigo, nome, descricao, base_legal, link_oficial FROM concursos.isencao_tipo")
+        .fetchall()
+    )
+    banco = {linha.pop("codigo"): linha for linha in linhas}
+    assert set(banco) == set(catalogo)
+    for codigo, tipo in catalogo.items():
+        esperado = {campo: tipo[campo] for campo in ("nome", "descricao", "base_legal", "link_oficial")}
+        assert banco[codigo] == esperado, codigo
+        assert tipo["documentos"], codigo
+        assert "você tem direito" not in str(tipo).lower(), codigo
 
 
 class SiteIBAMeIBADESimulado:

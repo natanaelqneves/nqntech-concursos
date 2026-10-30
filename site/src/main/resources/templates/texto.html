@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head(${meta})}"></head>
+<body>
+<header th:replace="~{base :: cabecalho}"></header>
+<main id="conteudo" class="largura texto">
+    <nav class="trilha" aria-label="Você está em"><a href="/">Início</a> › <span th:text="${titulo}">Página</span></nav>
+    <h1 th:text="${titulo}">Título</h1>
+
+    <th:block th:if="${fragmento == 'sobre'}">
+        <p>O NqnTech Concursos reúne concursos públicos de todo o Brasil em um só lugar, com informação direta e
+            gratuita. O foco são as <strong>oportunidades disponíveis</strong>: concursos com inscrições abertas ou por
+            abrir, previstos e com prazo para pedir isenção da taxa.</p>
+        <h2>De onde vêm as informações</h2>
+        <p>Os dados são coletados automaticamente, uma vez por dia, das páginas oficiais das bancas organizadoras.
+            Hoje a fonte principal é a FGV; outras bancas e diários oficiais entram aos poucos. Os editais são lidos
+            por regras automáticas, e o resumo de cada concurso é escrito a partir desses dados.</p>
+        <h2>Limites</h2>
+        <ul>
+            <li>A leitura automática pode errar ou deixar de encontrar uma informação. Quando isso acontece, a página
+                avisa: confira o edital.</li>
+            <li>O site não substitui o edital. Datas, requisitos e regras de isenção valem como estão no edital
+                oficial.</li>
+            <li>Concursos encerrados e em fase de prova, sem prazo de isenção aberto, saem do site.</li>
+        </ul>
+        <p th:if="${!#strings.isEmpty(site.atualizacao())}">Última coleta: <span th:text="${site.atualizacao()}">--</span>.</p>
+        <h2>Código aberto</h2>
+        <p>O código do projeto é aberto: <a href="https://github.com/natanaelqneves/nqntech-concursos">github.com/natanaelqneves/nqntech-concursos</a>.</p>
+    </th:block>
+
+    <th:block th:if="${fragmento == 'privacidade'}">
+        <p class="aviso">Versão inicial (rascunho): será revista quando os alertas por e-mail entrarem no ar.</p>
+        <h2>O que o site coleta</h2>
+        <p>Nada que identifique você. O site não tem cadastro, não cria cookies e não usa rastreadores de
+            publicidade. Os filtros da página de concursos funcionam no seu navegador.</p>
+        <p>Podemos usar estatísticas agregadas de acesso sem cookies (por exemplo, o Cloudflare Web Analytics) para
+            saber quais páginas são mais vistas.</p>
+        <h2>Alertas por e-mail (em breve)</h2>
+        <p>Quando os alertas entrarem no ar, pediremos só nome, e-mail e o filtro escolhido, com confirmação por
+            e-mail e descadastro em um clique, que apaga seus dados.</p>
+        <h2>Contato</h2>
+        <p>Dúvidas e pedidos sobre privacidade: pelo repositório do projeto no GitHub.</p>
+    </th:block>
+</main>
+<footer th:replace="~{base :: rodape}"></footer>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head(${meta})}"></head>
+<body>
+<header th:replace="~{base :: cabecalho}"></header>
+<main id="conteudo" class="largura texto">
+    <h1>Página não encontrada</h1>
+    <p>Este endereço não existe ou o concurso já saiu do site (inscrições e prazo de isenção encerrados).</p>
+    <p><a class="botao" href="/">Ver concursos com inscrições abertas</a></p>
+</main>
+<footer th:replace="~{base :: rodape}"></footer>
+</body>
+</html>

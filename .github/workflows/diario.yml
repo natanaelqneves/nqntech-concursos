@@ -1,5 +1,5 @@
-# Execução diária do serviço: coleta (Python). Nas próximas fases entram, em sequência no mesmo workflow,
-# a geração do site estático (fase 5) e os alertas por e-mail (fase 7).
+# Execução diária do serviço: coleta (Python) → site estático (Java, publicado na Cloudflare). Os alertas por
+# e-mail (fase 7) entram depois do site.
 # Também pode ser disparado à mão: aba Actions → diario → Run workflow.
 name: diario
 
@@ -59,3 +59,10 @@ jobs:
         env:
           LIMITE: ${{ inputs.limite }}
         run: python -m coletor executar ${LIMITE:+--limite "$LIMITE"}
+
+  # O site é regerado mesmo se a coleta falhar em parte: publica o que já está no banco.
+  site:
+    needs: [config, coletar]
+    if: ${{ !cancelled() && needs.config.result == 'success' }}
+    uses: ./.github/workflows/site.yml
+    secrets: inherit

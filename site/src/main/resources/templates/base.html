@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(meta)">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${meta.titulo()}">Título</title>
+    <meta name="description" th:content="${meta.descricao()}">
+    <link th:if="${!#strings.isEmpty(meta.canonica())}" rel="canonical" th:href="${meta.canonica()}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" th:content="${site.nome()}">
+    <meta property="og:title" th:content="${meta.titulo()}">
+    <meta property="og:description" th:content="${meta.descricao()}">
+    <meta th:if="${!#strings.isEmpty(meta.canonica())}" property="og:url" th:content="${meta.canonica()}">
+    <meta name="theme-color" content="#0b5d4b">
+    <link rel="icon" href="/assets/icone.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/assets/site.css">
+    <!-- JSON já escapado (Json.escrever troca <, > e & por <...), por isso utext é seguro aqui. -->
+    <script th:if="${!#strings.isEmpty(meta.jsonLd())}" type="application/ld+json" th:utext="${meta.jsonLd()}"></script>
+    <script src="/assets/site.js" defer></script>
+</head>
+<body>
+
+<header th:fragment="cabecalho" class="topo">
+    <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+    <div class="largura topo__linha">
+        <a class="marca" href="/" aria-label="NqnTech Concursos, página inicial">
+            <span class="marca__icone" aria-hidden="true">N</span>
+            <span class="marca__nome">NqnTech <strong>Concursos</strong></span>
+        </a>
+        <nav aria-label="Principal">
+            <ul class="menu">
+                <li><a href="/concursos/">Todos</a></li>
+                <li><a href="/brasil/">Por estado</a></li>
+                <li><a href="/isencoes/">Isenção da taxa</a></li>
+                <li><a href="/sobre/">Sobre</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<footer th:fragment="rodape" class="rodape">
+    <div class="largura">
+        <p class="rodape__aviso">Informações extraídas automaticamente de fontes oficiais. <strong>Confira sempre o
+            edital.</strong></p>
+        <p th:if="${!#strings.isEmpty(site.atualizacao())}">Última atualização: <span th:text="${site.atualizacao()}">--</span>.</p>
+        <p>
+            <a href="/sobre/">Sobre</a> · <a href="/privacidade/">Privacidade</a> ·
+            <a href="https://github.com/natanaelqneves/nqntech-concursos">Código aberto</a>
+        </p>
+        <p class="rodape__licenca">Informação gratuita. Textos do site sob CC BY 4.0.</p>
+    </div>
+</footer>
+
+<!-- Cartão de concurso usado em todas as listas. data-* alimentam os filtros do navegador (/concursos/). -->
+<article th:fragment="cartao(c)" class="cartao"
+         th:attr="data-uf=${c.uf()},data-abrangencia=${c.abrangencia()},data-situacao=${c.situacao()},data-areas=${#strings.listJoin(c.areas(), ' ')},data-niveis=${#strings.listJoin(c.escolaridades(), ' ')},data-isencao=${c.temIsencao()},data-busca=${#strings.toLowerCase(c.nomeExibicao() + ' ' + c.titulo())}">
+    <h3 class="cartao__titulo">
+        <a th:href="${'/concurso/' + c.slug() + '/'}" th:text="${c.nomeExibicao()}">Órgão</a>
+    </h3>
+    <ul class="selos">
+        <li th:if="${c.unificado()}" class="selo selo--cnu">CNU</li>
+        <li class="selo" th:classappend="${c.inscricoesAbertas(fmt.hoje())} ? 'selo--aberto' : 'selo--neutro'"
+            th:text="${c.inscricoesAbertas(fmt.hoje())} ? 'Inscrições abertas' : (${c.situacao() == 'PREVISTO'} ? 'Previsto' : (${c.situacao() == 'INSCRICOES_ABERTAS'} ? 'Inscrições em breve' : 'Isenção com prazo aberto'))">Situação</li>
+        <li class="selo selo--local" th:text="${c.nacional()} ? 'Nacional' : (${c.municipio() != null} ? ${c.municipio() + '/' + c.uf()} : ${c.uf()})">PB</li>
+        <li th:if="${c.isencaoEmPrazo(fmt.hoje())}" class="selo selo--isencao"
+            th:attr="data-prazo=${fmt.dataIso(c.isencaoFim())}"
+            th:text="${'Isenção: pedidos até ' + fmt.data(c.isencaoFim())}">Isenção</li>
+    </ul>
+    <dl class="cartao__dados">
+        <div th:if="${c.totalVagas() != null and c.totalVagas() > 0}"><dt>Vagas</dt><dd th:text="${fmt.numero(c.totalVagas())}">0</dd></div>
+        <div th:if="${c.salarioMax() != null}"><dt>Salário até</dt><dd th:text="${fmt.reais(c.salarioMax())}">R$</dd></div>
+        <div th:if="${!c.escolaridades().isEmpty()}"><dt>Nível</dt><dd th:text="${fmt.niveis(c.escolaridades())}">Superior</dd></div>
+        <div th:if="${c.inscricaoFim() != null}"><dt>Inscrições até</dt><dd th:text="${fmt.data(c.inscricaoFim())}">--</dd></div>
+        <div th:if="${c.dataProva() != null}"><dt>Prova</dt><dd th:text="${fmt.data(c.dataProva())}">--</dd></div>
+    </dl>
+</article>
+
+</body>
+</html>

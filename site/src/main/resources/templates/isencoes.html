@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head(${meta})}"></head>
+<body>
+<header th:replace="~{base :: cabecalho}"></header>
+<main id="conteudo" class="largura">
+    <nav class="trilha" aria-label="Você está em"><a href="/">Início</a> › <span>Isenção da taxa</span></nav>
+    <h1>Isenção da taxa de inscrição</h1>
+    <p>Muitos editais preveem isenção da taxa para algumas pessoas: inscritos no CadÚnico, doadores de sangue ou
+        de medula, jurados e outros casos. Cada edital tem regras, documentos e prazo próprios. Veja abaixo o que
+        cada tipo costuma exigir e quais concursos abertos o preveem.</p>
+    <p class="aviso">Isto é orientação geral. Quem decide é o edital de cada concurso: confira sempre o edital.</p>
+
+    <section th:if="${!emPrazo.isEmpty()}" class="destaque" aria-labelledby="titulo-prazo">
+        <h2 id="titulo-prazo">Prazo para pedir isenção aberto agora</h2>
+        <ul class="lista-compacta">
+            <li th:each="c : ${emPrazo}">
+                <a th:href="${'/concurso/' + c.slug() + '/'}" th:text="${c.nomeExibicao()}">Órgão</a>
+                <span class="prazo" th:attr="data-prazo=${fmt.dataIso(c.isencaoFim())}"
+                      th:text="${'pedidos até ' + fmt.data(c.isencaoFim())}">pedidos até</span>
+            </li>
+        </ul>
+    </section>
+
+    <section aria-labelledby="titulo-tipos">
+        <h2 id="titulo-tipos">Tipos de isenção</h2>
+        <ul class="tipos">
+            <li th:each="t : ${tipos}">
+                <a th:href="${'/isencoes/' + t.slug() + '/'}" th:text="${t.nome()}">Tipo</a>
+                <span class="contador" th:text="${'(' + porTipo.get(t.codigo()).size() + ' concursos)'}">(0)</span>
+                <p th:text="${t.descricao()}">Descrição</p>
+            </li>
+        </ul>
+    </section>
+</main>
+<footer th:replace="~{base :: rodape}"></footer>
+</body>
+</html>

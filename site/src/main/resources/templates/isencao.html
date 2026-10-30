@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head(${meta})}"></head>
+<body>
+<header th:replace="~{base :: cabecalho}"></header>
+<main id="conteudo" class="largura">
+    <nav class="trilha" aria-label="Você está em"><a href="/">Início</a> › <a href="/isencoes/">Isenção da taxa</a> ›
+        <span th:text="${tipo.nome()}">Tipo</span></nav>
+    <h1 th:text="${'Isenção da taxa: ' + tipo.nome()}">Isenção</h1>
+    <p th:text="${tipo.descricao()}">Descrição</p>
+
+    <section th:if="${!tipo.documentos().isEmpty()}" aria-labelledby="titulo-documentos">
+        <h2 id="titulo-documentos">Documentos que os editais costumam pedir</h2>
+        <ul><li th:each="d : ${tipo.documentos()}" th:text="${d}">Documento</li></ul>
+    </section>
+
+    <section aria-labelledby="titulo-lei">
+        <h2 id="titulo-lei">Base legal</h2>
+        <p th:text="${tipo.baseLegal()}">Lei</p>
+        <p th:if="${!#strings.isEmpty(linkLei)}"><a th:href="${linkLei}" rel="noopener">Texto oficial da lei</a></p>
+    </section>
+
+    <p class="aviso">As regras variam de um edital para outro (renda, número de doações, prazos, documentos).
+        Confira sempre o edital do concurso.</p>
+
+    <section aria-labelledby="titulo-concursos">
+        <h2 id="titulo-concursos">Concursos que preveem esta isenção</h2>
+        <p th:if="${concursos.isEmpty()}" class="vazio">Nenhum concurso aberto ou previsto com esta isenção no momento.</p>
+        <div class="grade">
+            <th:block th:each="c : ${concursos}"><article th:replace="~{base :: cartao(${c})}"></article></th:block>
+        </div>
+    </section>
+</main>
+<footer th:replace="~{base :: rodape}"></footer>
+</body>
+</html>

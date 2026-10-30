@@ -1,0 +1,96 @@
+# Gera o site estático a partir do banco (como site_app) e publica na Cloudflare (Worker só de assets).
+# Chamado pelo "diario" depois da coleta; também pode ser disparado à mão (Actions → site → Run workflow).
+# O repositório NÃO é conectado à Cloudflare: o deploy acontece só aqui, com token em GitHub Secrets.
+name: site
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site
+  cancel-in-progress: false
+
+jobs:
+  config:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    outputs:
+      db_host: ${{ steps.neon.outputs.db_host }}
+      db_name: ${{ steps.neon.outputs.db_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Só o endereço do banco sai daqui; a credencial de administrador não chega ao job do site.
+      - id: neon
+        env:
+          NEON_ADMIN_URL: ${{ secrets.NEON_ADMIN_URL }}
+        run: python3 scripts/ci/neon_url.py --host
+
+  publicar:
+    needs: config
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+
+      - name: Compilar o gerador
+        run: mvn -B -ntp -f site/pom.xml -DskipTests package
+
+      # Endereço público: domínio próprio (variável SITE_URL do repositório) ou o *.workers.dev da conta.
+      - name: Endereço do site
+        id: url
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$SITE_URL" ]; then
+            resposta=$(curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain")
+            sub=$(echo "$resposta" | python3 -c 'import json,sys; print((json.load(sys.stdin).get("result") or {}).get("subdomain") or "")')
+            if [ -z "$sub" ]; then
+              echo "::error title=Cloudflare::conta sem subdomínio workers.dev (abra Workers & Pages no painel uma vez) ou token sem permissão"
+              exit 1
+            fi
+            SITE_URL="https://nqntech-concursos.${sub}.workers.dev"
+          fi
+          echo "url=${SITE_URL%/}" >> "$GITHUB_OUTPUT"
+
+      - name: Gerar o site
+        working-directory: site
+        env:
+          SITE_DB_URL: jdbc:postgresql://${{ needs.config.outputs.db_host }}/${{ needs.config.outputs.db_name }}?sslmode=require
+          SITE_DB_USER: site_app
+          SITE_DB_PASSWORD: ${{ secrets.SITE_DB_PASSWORD }}
+          SITE_URL_BASE: ${{ steps.url.outputs.url }}
+          SITE_SAIDA: saida-site
+          SITE_ISENCOES: ../config/isencoes.yml
+        run: |
+          java -jar target/nqntech-site.jar
+          echo "arquivos gerados: $(find saida-site -type f | wc -l)"
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+
+      # Só os arquivos com hash diferente sobem (o wrangler compara com a versão publicada).
+      - name: Publicar na Cloudflare
+        working-directory: site
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@4 deploy
+
+      - name: Endereço publicado
+        run: |
+          echo "::notice title=Site publicado::${{ steps.url.outputs.url }}"
+          echo "Site publicado: ${{ steps.url.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"

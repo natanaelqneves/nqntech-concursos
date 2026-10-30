@@ -121,11 +121,22 @@ repositório).
 
 Nenhum dos dois vai para o `wrangler.jsonc` nem para o código (repositório público).
 
+## Fase 5 — Site no ar
+
+- [x] Nada obrigatório: o site sai no endereço gratuito `https://nqntech-concursos.<sua-conta>.workers.dev`,
+      publicado pelo workflow **site** depois de cada coleta.
+- [ ] (Opcional) **Domínio próprio**, quando quiser:
+  1. Registre o domínio (Registro.br para `.com.br`, ~R$ 40/ano).
+  2. Cloudflare → **Add a domain** (plano Free) e troque os servidores DNS no Registro.br pelos dois que a
+     Cloudflare indicar. Espere o domínio ficar *Active*.
+  3. Cloudflare → **Workers & Pages → nqntech-concursos → Settings → Domains & Routes → Add → Custom domain**
+     com o domínio.
+  4. GitHub → **Settings → Secrets and variables → Actions → aba Variables → New variable**: `SITE_URL` =
+     `https://seu-dominio.com.br` (é variável, não secret). A próxima publicação usa esse endereço nas URLs
+     canônicas e no sitemap.
+
 ## Próximas fases (só para você se planejar)
 
-- **Fase 5 (site):** se quiser o domínio próprio, registre (Registro.br para `.com.br`), adicione-o na
-  Cloudflare (**Add a domain**, plano Free) e troque os servidores DNS no registrador pelos que a Cloudflare
-  indicar. O vínculo do domínio com o site fica no código da fase 5.
 - **Fase 7 (alertas):** conta no serviço de e-mail transacional escolhido e hospedagem da API.
 
 ## Trocar uma senha

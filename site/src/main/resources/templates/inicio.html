@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head(${meta})}"></head>
+<body>
+<header th:replace="~{base :: cabecalho}"></header>
+<main id="conteudo" class="largura">
+    <section class="abertura">
+        <h1>Concursos com inscrições abertas</h1>
+        <p class="abertura__texto">Concursos públicos de todo o Brasil, com um resumo simples de cada edital e os
+            prazos para pedir <a href="/isencoes/">isenção da taxa</a>. Gratuito, sem cadastro.</p>
+        <p class="abertura__total"><span th:text="${abertos.size()}">0</span> com inscrições abertas ·
+            <a href="/concursos/">ver todos os <span th:text="${total}">0</span> (abertos, previstos e com isenção)</a></p>
+    </section>
+
+    <section th:if="${!isencao.isEmpty()}" class="destaque" aria-labelledby="titulo-isencao">
+        <h2 id="titulo-isencao">Pedido de isenção da taxa aberto</h2>
+        <p>Estes editais preveem isenção da taxa e o prazo para pedir ainda está aberto. As regras mudam de um edital
+            para outro: confira quem pode pedir em cada um.</p>
+        <ul class="lista-compacta">
+            <li th:each="c : ${isencao}">
+                <a th:href="${'/concurso/' + c.slug() + '/'}" th:text="${c.nomeExibicao()}">Órgão</a>
+                <span class="prazo" th:attr="data-prazo=${fmt.dataIso(c.isencaoFim())}"
+                      th:text="${'pedidos até ' + fmt.data(c.isencaoFim())}">pedidos até</span>
+            </li>
+        </ul>
+    </section>
+
+    <section aria-labelledby="titulo-abertos">
+        <h2 id="titulo-abertos">Inscrições abertas</h2>
+        <p class="nota">CNU e concursos nacionais primeiro; depois, pela data da prova mais próxima.</p>
+        <p th:if="${abertos.isEmpty()}" class="vazio">Nenhum concurso com inscrições abertas no momento.
+            <a href="/concursos/">Veja os previstos e os com isenção em prazo.</a></p>
+        <div class="grade">
+            <th:block th:each="c : ${abertos}"><article th:replace="~{base :: cartao(${c})}"></article></th:block>
+        </div>
+    </section>
+</main>
+<footer th:replace="~{base :: rodape}"></footer>
+</body>
+</html>

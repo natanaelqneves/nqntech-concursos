@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head(${meta})}"></head>
+<body>
+<header th:replace="~{base :: cabecalho}"></header>
+<main id="conteudo" class="largura concurso">
+    <nav class="trilha" aria-label="Você está em"><a href="/">Início</a> › <a href="/concursos/">Concursos</a> ›
+        <span th:text="${titulo}">Órgão</span></nav>
+    <h1 th:text="${titulo}">Órgão</h1>
+    <ul class="selos">
+        <li class="selo" th:classappend="${c.inscricoesAbertas(fmt.hoje())} ? 'selo--aberto' : 'selo--neutro'"
+            th:text="${fmt.situacao(c.situacao())}">Situação</li>
+        <li class="selo selo--local" th:text="${fmt.abrangencia(c.abrangencia())}">Estadual</li>
+        <li th:if="${c.banca() != null}" class="selo selo--neutro" th:text="${'Banca: ' + c.banca()}">Banca</li>
+    </ul>
+
+    <section class="resumo" aria-labelledby="titulo-resumo">
+        <h2 id="titulo-resumo">Resumo</h2>
+        <p th:text="${c.resumo()}">Resumo do concurso.</p>
+        <p class="acoes">
+            <a th:if="${linkEdital != null}" class="botao" th:href="${linkEdital}" rel="noopener">Edital (PDF)</a>
+            <a th:if="${linkOficial != null}" class="botao botao--secundario" th:href="${linkOficial}" rel="noopener">Página oficial</a>
+            <a th:if="${linkInscricao != null and c.inscricoesAbertas(fmt.hoje())}" class="botao botao--secundario"
+               th:href="${linkInscricao}" rel="noopener">Inscrição</a>
+        </p>
+        <p class="nota">Resumo gerado automaticamente a partir do edital. Confira sempre o edital antes de se inscrever.</p>
+    </section>
+
+    <section th:if="${!c.isencoes().isEmpty()}" class="destaque" aria-labelledby="titulo-isencao">
+        <h2 id="titulo-isencao">Isenção da taxa</h2>
+        <p th:if="${c.isencaoInicio() != null or c.isencaoFim() != null}">Pedido de isenção:
+            <strong th:text="${fmt.periodo(c.isencaoInicio(), c.isencaoFim())}">datas</strong>
+            <span th:if="${c.isencaoEmPrazo(fmt.hoje())}" class="prazo"
+                  th:attr="data-prazo=${fmt.dataIso(c.isencaoFim())}"></span></p>
+        <p>O edital prevê isenção para:</p>
+        <ul>
+            <li th:each="i : ${c.isencoes()}">
+                <a th:if="${tipos.get(i.codigo()) != null}" th:href="${'/isencoes/' + tipos.get(i.codigo()).slug() + '/'}"
+                   th:text="${tipos.get(i.codigo()).nome()}">Tipo</a>
+                <span th:if="${i.observacao() != null and i.codigo() == 'OUTRA'}" th:text="${'(' + i.observacao() + ')'}">obs</span>
+            </li>
+        </ul>
+        <p class="nota">Cada edital tem regras e documentos próprios para a isenção. Confira o edital.</p>
+    </section>
+
+    <section aria-labelledby="titulo-dados">
+        <h2 id="titulo-dados">Principais dados</h2>
+        <dl class="dados">
+            <div th:if="${c.totalVagas() != null and c.totalVagas() > 0}"><dt>Vagas</dt><dd th:text="${fmt.numero(c.totalVagas())}">0</dd></div>
+            <div><dt>Inscrições</dt><dd th:text="${fmt.periodo(c.inscricaoInicio(), c.inscricaoFim())}">--</dd></div>
+            <div th:if="${c.taxaMax() != null}"><dt>Taxa</dt><dd th:text="${fmt.faixaReais(c.taxaMin(), c.taxaMax())}">R$</dd></div>
+            <div><dt>Prova</dt><dd th:text="${fmt.data(c.dataProva())}">--</dd></div>
+            <div th:if="${c.municipio() != null}"><dt>Local</dt><dd th:text="${c.municipio() + '/' + c.uf()}">--</dd></div>
+            <div th:if="${c.municipio() == null and c.uf() != null and !c.nacional()}"><dt>Estado</dt><dd>
+                <a th:href="${'/estado/' + #strings.toLowerCase(c.uf()) + '/'}" th:text="${c.uf()}">UF</a></dd></div>
+            <div th:if="${!c.areas().isEmpty()}"><dt>Áreas</dt><dd>
+                <span th:each="a, st : ${c.areas()}" th:text="${fmt.area(a) + (st.last ? '' : ', ')}">Área</span></dd></div>
+        </dl>
+    </section>
+
+    <section th:if="${!c.cargos().isEmpty()}" aria-labelledby="titulo-cargos">
+        <h2 id="titulo-cargos">Cargos</h2>
+        <div class="tabela-rolagem" tabindex="0" role="region" aria-labelledby="titulo-cargos">
+            <table>
+                <thead><tr><th scope="col">Cargo</th><th scope="col">Nível</th><th scope="col">Vagas</th>
+                    <th scope="col">Salário</th><th scope="col">Prova discursiva</th></tr></thead>
+                <tbody>
+                <tr th:each="cg : ${c.cargos()}">
+                    <th scope="row"><span th:text="${cg.nome()}">Cargo</span>
+                        <span th:if="${cg.especialidade() != null}" class="sub" th:text="${cg.especialidade()}">esp</span></th>
+                    <td th:text="${cg.escolaridade() != null ? fmt.nivel(cg.escolaridade()) : '—'}">Nível</td>
+                    <td th:text="${cg.vagas() != null ? fmt.numero(cg.vagas()) : (cg.cadastroReserva() ? 'Cadastro reserva' : '—')}">0</td>
+                    <td th:text="${cg.salario() != null ? fmt.reais(cg.salario()) : '—'}">R$</td>
+                    <td th:text="${fmt.redacao(cg.temRedacao())}">Não</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <details th:if="${c.temDisciplinas()}" class="disciplinas">
+            <summary>Disciplinas por cargo</summary>
+            <div th:each="cg : ${c.cargos()}" th:if="${!cg.disciplinas().isEmpty()}">
+                <h3 th:text="${cg.nome() + (cg.especialidade() != null ? ' – ' + cg.especialidade() : '')}">Cargo</h3>
+                <p th:text="${#strings.listJoin(cg.disciplinas(), ' · ')}">Disciplinas</p>
+            </div>
+            <p class="nota">Só os nomes das disciplinas. O conteúdo de cada uma está no edital.</p>
+        </details>
+    </section>
+
+    <section th:if="${!c.eventos().isEmpty()}" aria-labelledby="titulo-calendario">
+        <h2 id="titulo-calendario">Calendário</h2>
+        <ol class="calendario">
+            <li th:each="e : ${c.eventos()}"><span class="calendario__evento" th:text="${e.evento()}">Evento</span>
+                <span class="calendario__data" th:text="${fmt.periodo(e.inicio(), e.fim())}">a definir</span></li>
+        </ol>
+        <p class="nota">Datas previstas no edital; a banca pode alterá-las.</p>
+    </section>
+
+    <p class="nota">Atualizado em <span th:text="${fmt.dataHora(c.atualizadoEm())}">--</span>.</p>
+</main>
+<footer th:replace="~{base :: rodape}"></footer>
+</body>
+</html>

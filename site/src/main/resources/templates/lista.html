@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head(${meta})}"></head>
+<body>
+<header th:replace="~{base :: cabecalho}"></header>
+<main id="conteudo" class="largura">
+    <nav class="trilha" aria-label="Você está em"><a href="/">Início</a> › <span th:text="${titulo}">Lista</span></nav>
+    <h1 th:text="${titulo}">Concursos</h1>
+    <p th:text="${descricao}">Descrição</p>
+
+    <nav th:if="${!atalhos.isEmpty()}" class="atalhos" aria-label="Refinar">
+        <ul>
+            <li th:each="a : ${atalhos}"><a th:href="${a.url()}" th:text="${a.nome()}">Local</a>
+                <span class="contador" th:if="${a.quantidade() > 0}" th:text="${'(' + a.quantidade() + ')'}">(0)</span></li>
+        </ul>
+    </nav>
+
+    <form th:if="${filtros}" class="filtros" id="filtros" role="search" aria-label="Filtrar concursos" hidden>
+        <label>Buscar <input type="search" name="q" placeholder="órgão ou cargo" autocomplete="off"></label>
+        <label>Estado
+            <select name="uf"><option value="">Todos</option></select></label>
+        <label>Área
+            <select name="area"><option value="">Todas</option></select></label>
+        <label>Nível
+            <select name="nivel">
+                <option value="">Todos</option>
+                <option value="FUNDAMENTAL">Fundamental</option>
+                <option value="MEDIO">Médio</option>
+                <option value="TECNICO">Técnico</option>
+                <option value="SUPERIOR">Superior</option>
+            </select></label>
+        <label>Situação
+            <select name="situacao">
+                <option value="">Todas</option>
+                <option value="INSCRICOES_ABERTAS">Inscrições abertas</option>
+                <option value="PREVISTO">Previstos</option>
+            </select></label>
+        <label class="filtros__caixa"><input type="checkbox" name="isencao"> Só com isenção</label>
+        <p class="filtros__resultado" aria-live="polite"></p>
+    </form>
+
+    <p th:if="${concursos.isEmpty()}" class="vazio">Nenhum concurso aberto ou previsto aqui no momento.</p>
+    <div class="grade" id="resultados">
+        <th:block th:each="c : ${concursos}"><article th:replace="~{base :: cartao(${c})}"></article></th:block>
+    </div>
+</main>
+<footer th:replace="~{base :: rodape}"></footer>
+</body>
+</html>

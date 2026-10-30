@@ -1,0 +1,14 @@
+// Worker só de assets estáticos (sem script): requisições a assets são grátis e ilimitadas e não contam no limite
+// diário do plano grátis. Publicado apenas pelo GitHub Actions (workflow "site"), nunca por integração Git.
+{
+  "$schema": "https://unpkg.com/wrangler@4/config-schema.json",
+  "name": "nqntech-concursos",
+  "compatibility_date": "2026-10-29",
+  "workers_dev": true,
+  "preview_urls": false,
+  "assets": {
+    "directory": "./saida-site",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}

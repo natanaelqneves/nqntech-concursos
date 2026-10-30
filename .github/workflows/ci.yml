@@ -73,6 +73,26 @@ jobs:
       - name: Testes de permissão e RLS
         run: psql -X -v ON_ERROR_STOP=1 -f db/tests/test_permissoes.sql
 
+      # Site antes do coletor: os testes do gerador leem os seeds como estão (o coletor de teste os reprocessa).
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+
+      - name: Site (compilar + testes unitários e de integração como site_app)
+        env:
+          SITE_DB_URL: jdbc:postgresql://localhost:5432/concursos
+          SITE_DB_USER: site_app
+          SITE_DB_PASSWORD: ${{ env.SITE_SENHA_CI }}
+        run: |
+          set -o pipefail
+          mvn -B -ntp -f site/pom.xml verify 2>&1 | tee maven.log
+
+      - name: Anotar falhas do site
+        if: failure()
+        run: python3 scripts/ci/anotar_falhas.py "site/target/surefire-reports/*.xml" "site/target/failsafe-reports/*.xml" --log maven.log
+
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.13"

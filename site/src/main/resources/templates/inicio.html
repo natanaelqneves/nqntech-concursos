@@ -5,11 +5,19 @@
 <header th:replace="~{base :: cabecalho}"></header>
 <main id="conteudo" class="largura">
     <section class="abertura">
-        <h1>Concursos com inscrições abertas</h1>
-        <p class="abertura__texto">Concursos públicos de todo o Brasil, com um resumo simples de cada edital e os
-            prazos para pedir <a href="/isencoes/">isenção da taxa</a>. Gratuito, sem cadastro.</p>
-        <p class="abertura__total"><span th:text="${abertos.size()}">0</span> com inscrições abertas ·
-            <a href="/concursos/">ver todos os <span th:text="${total}">0</span> (abertos, previstos e com isenção)</a></p>
+        <h1>Oportunidades em concursos públicos, sem complicação.</h1>
+        <p class="abertura__texto">Inscrições abertas em todo o Brasil, com um resumo simples de cada edital e os
+            prazos para pedir <a href="/isencoes/">isenção da taxa</a>.</p>
+        <form class="busca" action="/concursos/" method="get" role="search">
+            <label class="pular" for="busca-inicio">Buscar concurso</label>
+            <input id="busca-inicio" type="search" name="q" placeholder="Buscar por órgão, cargo ou cidade" autocomplete="off">
+            <button class="botao" type="submit">Buscar</button>
+        </form>
+        <div class="numeros">
+            <div><strong th:text="${abertos.size()}">0</strong><span>inscrições abertas</span></div>
+            <div><strong th:text="${isencao.size()}">0</strong><span>com isenção em prazo</span></div>
+            <div><strong th:text="${total}">0</strong><span>oportunidades no total</span></div>
+        </div>
     </section>
 
     <section th:if="${!isencao.isEmpty()}" class="destaque" aria-labelledby="titulo-isencao">
@@ -26,8 +34,11 @@
     </section>
 
     <section aria-labelledby="titulo-abertos">
-        <h2 id="titulo-abertos">Inscrições abertas</h2>
-        <p class="nota">CNU e concursos nacionais primeiro; depois, pela data da prova mais próxima.</p>
+        <div class="cabeca-secao">
+            <h2 id="titulo-abertos">Inscrições abertas</h2>
+            <a href="/concursos/">Ver todos →</a>
+        </div>
+        <p class="nota">CNU e nacionais primeiro; depois, pela prova mais próxima.</p>
         <p th:if="${abertos.isEmpty()}" class="vazio">Nenhum concurso com inscrições abertas no momento.
             <a href="/concursos/">Veja os previstos e os com isenção em prazo.</a></p>
         <div class="grade">

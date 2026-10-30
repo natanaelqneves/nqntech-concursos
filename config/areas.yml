@@ -34,6 +34,7 @@ abreviacoes:
   acs: agente comunitario de saude
   ace: agente de combate as endemias
   vet: veterinario
+  oper: operador
 
 areas:
   TI:
@@ -342,6 +343,7 @@ areas:
       - engenheiro de pesca
       - agronomo
       - medico veterinario
+      - veterinario
       - zootecnista
       - oceanografo
       - biologo
@@ -396,6 +398,7 @@ areas:
       - inspetor de policia
       - guarda municipal
       - guarda civil municipal
+      - guarda c municipal
       - bombeiro
       - bombeiro militar
       - guarda vidas
@@ -552,6 +555,7 @@ areas:
       - auxiliar operacional
       - agente operacional
       - coveiro
+      - coletor de lixo
       - lavadeira
       - mestre de obras
     termos:

@@ -382,5 +382,23 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       próxima; encerrados saem do site após 180 dias; calendário/disciplinas/redação explícitos na fase 3;
       conta Cloudflare criada, deploy só pelo GitHub Actions (repositório **não** conectado à Cloudflare);
       token e Account ID em `docs/PENDENCIAS.md`.
-- [ ] Fase 2 — Coletor FGV completo (preencher também `abrangencia`, `uf`, `municipio_ibge`, `cargo.area` e
-      `unificado`)
+- [x] Fase 2 — Coletor FGV completo (29/10/2026, PR #1):
+      - FGV lê também o bloco "realizados" (`COLETOR_MAX_PAGINAS_REALIZADOS`, padrão 2): concurso movido para lá
+        vira `ENCERRADO` com `encerrado_em` = data da última publicação; encerrado nunca acompanhado só entra se
+        for dos últimos 180 dias (senão o sinal fica `DESCARTADO`); se voltar a "em andamento", é reaberto.
+      - Nova etapa `classificar` (depois de `estruturar`), que recalcula tudo e grava só o que mudou: área do cargo
+        (`config/areas.yml`: palavra inteira, termo mais longo vence, exclusões, abreviações, órgão e palavras
+        genéricas como últimos recursos; sem regra → `OUTRAS` com aviso no log), escolaridade faltante
+        (`config/escolaridade.yml`, conservador), abrangência/UF/município do IBGE (homônimos pela UF citada na
+        página/edital; capital como desempate) e CNU (`config/destaques.yml` → `concurso.unificado`, V10).
+      - Órgão inferido corrigido (hífen em "Procuradoria-Geral", região dos TRTs/TRFs, sigla com UF, texto antes
+        do órgão, DF); órgão federal de um estado só vira estadual (TRT da 13ª → PB, TRF da 6ª → MG).
+      - Extrator FGV: sem quadro de vagas legível, cargos vêm do anexo de remuneração, dos títulos
+        "CARGO: ... - PERFIL: ..."/"CARGO DE NÍVEL ..." ou da abertura do edital, com aviso "confira o edital".
+      - Páginas sem charset no cabeçalho (IBAM, windows-1252) passam a ser lidas pelo `<meta charset>`.
+      - Ensaio com coleta real (165 concursos): 157 com local definido, CNU 2 identificado e nacional; dos cargos
+        lidos, a maioria classificada (o resto em `OUTRAS` é listado no resumo do ensaio para afinar as regras).
+      Observações: editais que só trazem o quadro em tabela por localidade ficam sem vagas por cargo (aviso
+      "confira o edital"); alguns órgãos sem pista de esfera/UF (ex.: estatais federais pouco conhecidas)
+      ficam sem local e não são publicados até uma regra os reconhecer.
+- [ ] Fase 3 — Isenções + calendário, disciplinas e redação por cargo

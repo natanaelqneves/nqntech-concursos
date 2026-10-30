@@ -136,3 +136,19 @@ def test_area_fora_do_catalogo_e_erro_de_configuracao():
         ClassificadorArea.de_dados({"areas": {"OUTRAS": {"termos": ["x"]}}})
     with pytest.raises(RegrasInvalidas, match="areas"):
         ClassificadorArea.de_dados({})
+
+
+@pytest.mark.parametrize(
+    ("nome", "area"),
+    [
+        # Abreviações dos quadros do IBAM/IBADE (ensaio de 29/10/2026).
+        ("Prof. de Lingua Portuguesa", "EDUCACAO"),
+        ("Aux. Educacional - Lau Mello", "EDUCACAO"),
+        ("Acs Usf Boa Vista", "SAUDE"),
+        ("Med. Anestesista", "SAUDE"),
+        ("Tec. em Enfermagem", "SAUDE"),
+        ("Apoio Ao Estu. com Deficiencia", "EDUCACAO"),
+    ],
+)
+def test_abreviacoes_sao_expandidas(classificador, nome, area):
+    assert classificador.classificar(nome).codigo == area

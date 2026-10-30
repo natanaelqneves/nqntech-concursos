@@ -132,6 +132,7 @@ class ResolvedorLocal:
         trecho antes de "/UF" e os finais do nome depois de "de/da/do", do mais longo para o mais curto."""
         tentativas = [orgao.municipio] if orgao.municipio else []
         tentativas += [m.group(1).strip() for m in _ANTES_DA_BARRA.finditer(orgao.nome)]
+        tentativas += re.split(r"\s+[-–]\s+", orgao.nome)[1:]  # "IPC - Arraial do Cabo"
         tentativas += [
             final
             for m in _PREPOSICAO.finditer(orgao.nome)

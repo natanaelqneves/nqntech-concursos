@@ -29,6 +29,11 @@ abreviacoes:
   nut: nutricao
   enf: enfermagem
   eng: engenheiro
+  med: medico
+  estu: estudante
+  acs: agente comunitario de saude
+  ace: agente de combate as endemias
+  vet: veterinario
 
 areas:
   TI:
@@ -104,6 +109,9 @@ areas:
       - perfusionista
       - auditor em saude
       - biologo em saude
+      - bioquimico
+      - fiscal sanitario
+      - inspetor sanitario
     termos:
       - saude
       - medicina
@@ -133,6 +141,7 @@ areas:
       - ortopedia
       - endemias
       - zoonoses
+      - caps
       - perito medico
       - medico perito
       - instrumentador cirurgico
@@ -171,6 +180,9 @@ areas:
       - auxiliar de educacao
       - auxiliar de creche
       - agente educacional
+      - orientador pedagogico
+      - inspetor de alunos
+      - apoio ao estudante
     termos:
       - educacional
       - educacao
@@ -331,6 +343,7 @@ areas:
       - agronomo
       - medico veterinario
       - zootecnista
+      - oceanografo
       - biologo
       - tecnico agricola
       - tecnico em agropecuaria
@@ -385,6 +398,8 @@ areas:
       - guarda civil municipal
       - bombeiro
       - bombeiro militar
+      - guarda vidas
+      - salva vidas
       - agente de transito
       - vigilante
     termos:
@@ -560,6 +575,10 @@ areas:
       - administrador
       - secretario executivo
       - recepcionista
+      - secretaria
+      - secretario
+      - tesoureiro
+      - fiscal de posturas
       - telefonista
       - almoxarife
       - digitador

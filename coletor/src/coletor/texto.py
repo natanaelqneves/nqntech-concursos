@@ -124,6 +124,11 @@ def uf_por_nome(texto: str) -> str | None:
     return None
 
 
+def slugificar(texto: str) -> str:
+    """Mesma regra da migration de municípios (scripts/captura/gerar_municipios_ibge.py): 'Macaé' → 'macae'."""
+    return re.sub(r"[^a-z0-9]+", "-", sem_acento(texto).lower()).strip("-")
+
+
 def limitar(texto: str | None, maximo: int) -> str | None:
     if texto is None:
         return None

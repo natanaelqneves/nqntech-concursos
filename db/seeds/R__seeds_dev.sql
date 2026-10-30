@@ -14,13 +14,14 @@ VALUES ('[EXEMPLO] Tribunal de Justiça da Paraíba', 'TJPB', 'ESTADUAL', 'PB', 
        ('[EXEMPLO] Prefeitura de João Pessoa', 'PMJP', 'MUNICIPAL', 'PB', 'João Pessoa', 2507507),
        ('[EXEMPLO] Secretaria da Fazenda de Alagoas', 'SEFAZ-AL', 'ESTADUAL', 'AL', NULL, NULL),
        ('[EXEMPLO] Polícia Civil do Paraná', 'PCPR', 'ESTADUAL', 'PR', NULL, NULL),
-       ('[EXEMPLO] Prefeitura de Fraiburgo', 'PMF', 'MUNICIPAL', 'SC', 'Fraiburgo', 4205506);
+       ('[EXEMPLO] Prefeitura de Fraiburgo', 'PMF', 'MUNICIPAL', 'SC', 'Fraiburgo', 4205506),
+       ('[EXEMPLO] Ministério da Gestão e da Inovação em Serviços Públicos', 'MGI', 'FEDERAL', NULL, NULL, NULL);
 
 INSERT INTO concursos.concurso (orgao_id, banca_id, titulo, numero_edital, ano, situacao,
                                 inscricao_inicio, inscricao_fim, data_prova, taxa_min, taxa_max,
                                 link_oficial, link_inscricao, avisos_extracao, origem_estrutura,
                                 slug, abrangencia, uf, municipio_ibge, tem_isencao, isencao_inicio, isencao_fim,
-                                resumo, resumo_gerado_em, publicado)
+                                resumo, resumo_gerado_em, publicado, unificado)
 SELECT o.id, b.id, v.titulo, v.numero, extract(year FROM current_date)::smallint, v.situacao,
        current_date + v.ini, current_date + v.fim, current_date + v.prova, v.taxa_min, v.taxa_max,
        'https://conhecimento.fgv.br/concursos/exemplo-' || v.chave,
@@ -31,7 +32,7 @@ SELECT o.id, b.id, v.titulo, v.numero, extract(year FROM current_date)::smallint
        v.isen_ini IS NOT NULL, current_date + v.isen_ini, current_date + v.isen_fim,
        CASE WHEN v.publicado THEN 'Resumo fictício de ' || v.titulo || '. Confira sempre o edital.' END,
        CASE WHEN v.publicado THEN now() END,
-       v.publicado
+       v.publicado, v.chave = 'cnu'
 FROM (VALUES ('TJPB', 'tjpb', '[EXEMPLO] Concurso Público TJPB - Analista e Técnico Judiciário', '01/2026', 'INSCRICOES_ABERTAS', -5, 20, 80, 90.00, 120.00, '[]', 'ESTADUAL', -5, 3, true),
              ('INSS', 'inss', '[EXEMPLO] Concurso Público INSS - Técnico do Seguro Social', '02/2026', 'INSCRICOES_ABERTAS', -2, 25, 70, 85.00, 85.00, '[]', 'NACIONAL', -2, 6, true),
              ('PMJP', 'pmjp-saude', '[EXEMPLO] Concurso Público Prefeitura de João Pessoa - Saúde', '03/2026', 'INSCRICOES_ABERTAS', -1, 30, 90, 60.00, 90.00, '["data da prova não encontrada no edital"]', 'MUNICIPAL', -1, 9, true),
@@ -39,6 +40,7 @@ FROM (VALUES ('TJPB', 'tjpb', '[EXEMPLO] Concurso Público TJPB - Analista e Té
              ('PCPR', 'pcpr-previsto', '[EXEMPLO] Concurso Público PCPR - Investigador', NULL, 'PREVISTO', NULL, NULL, NULL, NULL, NULL, '[]', 'ESTADUAL', NULL, NULL, true),
              ('PCPR', 'pcpr-agente', '[EXEMPLO] Concurso Público PCPR - Agente', '05/2026', 'INSCRICOES_ABERTAS', -3, 20, 75, 90.00, 90.00, '[]', 'ESTADUAL', -3, 12, true),
              ('PMF', 'pmf-educacao', '[EXEMPLO] Processo Seletivo Prefeitura de Fraiburgo - Educação', '06/2026', 'ENCERRADO', -200, -170, -140, 50.00, 80.00, '[]', 'MUNICIPAL', -200, -190, true),
+             ('MGI', 'cnu', '[EXEMPLO] Concurso Público Nacional Unificado', '08/2026', 'INSCRICOES_ABERTAS', -4, 18, 95, 70.00, 110.00, '[]', 'NACIONAL', -4, 4, true),
              ('INSS', 'rascunho', '[EXEMPLO] Concurso recém-coletado, ainda sem resumo', '07/2026', 'INSCRICOES_ABERTAS', -1, 15, 60, 70.00, 70.00, '[]', NULL, NULL, NULL, false))
          AS v(sigla, chave, titulo, numero, situacao, ini, fim, prova, taxa_min, taxa_max, avisos, abrangencia,
               isen_ini, isen_fim, publicado)
@@ -63,6 +65,7 @@ FROM (VALUES ('tjpb', 'Analista Judiciário', 'Judiciária', 'SUPERIOR', 25, fal
              ('pcpr-agente', 'Agente de Polícia', NULL, 'SUPERIOR', 200, false, 6900.00, 'PR', 'POLICIAL_SEGURANCA', '{Língua Portuguesa,Direito Penal,Direito Processual Penal}', true),
              ('pmf-educacao', 'Professor', 'Anos Iniciais', 'SUPERIOR', 12, true, 3500.00, 'SC', 'EDUCACAO', '{Língua Portuguesa,Didática}', false),
              ('pmf-educacao', 'Motorista', NULL, 'FUNDAMENTAL', 3, false, 2300.00, 'SC', 'OPERACIONAL', '{Legislação de Trânsito}', false),
+             ('cnu', 'Analista Técnico de Políticas Sociais', NULL, 'SUPERIOR', 300, false, 6800.00, NULL, 'ASSISTENCIA_SOCIAL', '{Língua Portuguesa,Políticas Públicas}', true),
              ('rascunho', 'Analista do Seguro Social', NULL, 'SUPERIOR', 5, false, 9000.00, NULL, NULL, '{}', NULL))
          AS v(chave, nome, esp, esc, vagas, cr, salario, uf, area, disciplinas, redacao)
          JOIN concursos.concurso c ON c.link_oficial = 'https://conhecimento.fgv.br/concursos/exemplo-' || v.chave;

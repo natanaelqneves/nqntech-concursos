@@ -7,8 +7,10 @@ e limite de tamanho. Nunca tenta contornar bloqueio, anti-bot ou CAPTCHA: 403 e 
 
 from __future__ import annotations
 
+import codecs
 import hashlib
 import logging
+import re
 import time
 import urllib.robotparser
 from collections.abc import Callable
@@ -21,8 +23,32 @@ import httpx
 log = logging.getLogger(__name__)
 
 STATUS_RETENTAVEIS = frozenset({429, 500, 502, 503, 504})
+_META_CHARSET = re.compile(rb"""<meta[^>]+charset\s*=\s*["']?([a-zA-Z0-9_-]+)""", re.IGNORECASE)
 MAX_REDIRECIONAMENTOS = 5
 ESPERA_MAXIMA_S = 60.0
+
+
+def decodificar_html(corpo: bytes, charset_cabecalho: str | None) -> str:
+    """Charset do cabeçalho HTTP; senão o declarado no <meta> da página; senão UTF-8, com windows-1252 de reserva.
+
+    Sites antigos (IBAM, em ASP) mandam windows-1252 sem charset no cabeçalho: lido como UTF-8, "Balneário" vira
+    "Balne�rio" e o município não é encontrado.
+    """
+    for candidato in (charset_cabecalho, _charset_do_meta(corpo)):
+        if candidato:
+            try:
+                return corpo.decode(codecs.lookup(candidato).name, errors="replace")
+            except LookupError:
+                continue
+    try:
+        return corpo.decode("utf-8")
+    except UnicodeDecodeError:
+        return corpo.decode("cp1252", errors="replace")
+
+
+def _charset_do_meta(corpo: bytes) -> str | None:
+    achado = _META_CHARSET.search(corpo[:4096])
+    return achado.group(1).decode("ascii") if achado else None
 
 
 class ErroHttp(Exception):
@@ -87,8 +113,8 @@ class ClienteHttp:
     def obter_texto(self, url: str) -> str:
         with self._abrir(url) as resposta:
             corpo = self._ler_limitado(resposta, self._max_bytes_html, url)
-            encoding = resposta.encoding or "utf-8"
-        return corpo.decode(encoding, errors="replace")
+            charset = resposta.charset_encoding
+        return decodificar_html(corpo, charset)
 
     def baixar_pdf(self, url: str, pasta: Path, max_bytes: int) -> Download:
         """Baixa um PDF para `pasta` (temporária, criada por quem chama) conferindo tipo e tamanho."""

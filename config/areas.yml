@@ -1,0 +1,623 @@
+# Classificação da área de cada cargo (seção 4.1 do contexto).
+#
+# Como funciona (coletor/src/coletor/classificacao/areas.py):
+# - textos e termos são comparados em minúsculas, sem acento e por palavra inteira ("ti" não casa com "ativo");
+# - ordem de decisão:
+#   1. termo `principal` no NOME do cargo (profissões que definem a área: "Professor de Informática" é educação);
+#   2. qualquer termo na ESPECIALIDADE ("Analista Judiciário – TI" é TI);
+#   3. qualquer termo no NOME do cargo;
+#   4. termo `orgao` no nome do órgão ("Escriturário" do Banco do Brasil é bancária);
+#   5. termo `genericos` no cargo ("Analista", "Técnico" sem mais nada → administrativa);
+#   6. nada encontrado → OUTRAS, com aviso no log.
+# - em cada passo vence o termo mais longo ("engenheiro agrônomo" ganha de "engenheiro"); empate → ordem deste
+#   arquivo;
+# - `excluir`: se algum desses termos aparece no texto avaliado, a área não vale para ele.
+# Os códigos são os do catálogo concursos.area (migration V7). Mudou uma regra? Rode o coletor: a etapa
+# "classificar" reclassifica tudo e só grava o que mudou.
+
+# Abreviações comuns nos quadros das bancas ("Prof. de Arte", "Aux. Educacional"), expandidas antes de comparar.
+abreviacoes:
+  prof: professor
+  profa: professora
+  profs: professor
+  aux: auxiliar
+  educ: educacao
+  tec: tecnico
+  adm: administrativo
+  assist: assistente
+  ag: agente
+  nut: nutricao
+  enf: enfermagem
+  eng: engenheiro
+  med: medico
+  estu: estudante
+  acs: agente comunitario de saude
+  ace: agente de combate as endemias
+  vet: veterinario
+  oper: operador
+
+areas:
+  TI:
+    principal: [analista de sistemas, analista de ti, desenvolvedor, programador, cientista de dados]
+    termos:
+      - ti
+      - tic
+      - tecnologia da informacao
+      - tecnologia da informacao e comunicacao
+      - informatica
+      - sistemas de informacao
+      - desenvolvimento de sistemas
+      - analise de sistemas
+      - banco de dados
+      - administracao de dados
+      - ciencia de dados
+      - infraestrutura de ti
+      - infraestrutura e redes
+      - redes de computadores
+      - suporte de ti
+      - suporte tecnico em informatica
+      - seguranca da informacao
+      - seguranca cibernetica
+      - ciberseguranca
+      - engenharia de software
+      - ciencia da computacao
+      - computacao
+      - governanca de ti
+      - processamento de dados
+      - analista de processamento
+      - servicos de tic
+      - servico de tic
+      - servicos de ti
+      - gestao de servicos de ti
+      - gestao de servico de tic
+      - inteligencia artificial
+      - analise de negocios de ti
+      - sustentacao tecnologica
+      - desenvolvimento de software
+      - software
+      - tecnologia
+    excluir:
+      - tecnologia de alimentos
+      - tecnologia em radiologia
+      - tecnologia agricola
+      - tecnologia agroindustrial
+      - tecnologia em saude
+
+  SAUDE:
+    principal:
+      - medico
+      - medica
+      - enfermeiro
+      - enfermeira
+      - tecnico de enfermagem
+      - tecnico em enfermagem
+      - auxiliar de enfermagem
+      - cirurgiao dentista
+      - odontologo
+      - farmaceutico
+      - fisioterapeuta
+      - fonoaudiologo
+      - nutricionista
+      - psicologo
+      - biomedico
+      - terapeuta ocupacional
+      - agente comunitario de saude
+      - agente de combate as endemias
+      - sanitarista
+      - tecnico em radiologia
+      - tecnico de laboratorio
+      - socorrista
+      - perfusionista
+      - auditor em saude
+      - biologo em saude
+      - bioquimico
+      - fiscal sanitario
+      - inspetor sanitario
+    termos:
+      - saude
+      - medicina
+      - enfermagem
+      - odontologia
+      - farmacia
+      - fisioterapia
+      - fonoaudiologia
+      - nutricao
+      - psicologia
+      - radiologia
+      - tecnologia em radiologia
+      - analises clinicas
+      - biomedicina
+      - vigilancia sanitaria
+      - vigilancia em saude
+      - hospital
+      - hospitalar
+      - laboratorio
+      - clinica medica
+      - anestesiologia
+      - pediatria
+      - psiquiatria
+      - ginecologia
+      - obstetricia
+      - cardiologia
+      - ortopedia
+      - endemias
+      - zoonoses
+      - caps
+      - perito medico
+      - medico perito
+      - instrumentador cirurgico
+      - imobilizacao ortopedica
+      - saude bucal
+      - obstetra
+      - gestor em saude
+      - executivo em saude
+      - fisico
+    excluir:
+      - medico veterinario
+      - medicina veterinaria
+      - seguranca e saude do trabalho
+      - saude e seguranca do trabalho
+
+  EDUCACAO:
+    principal:
+      - professor
+      - professora
+      - docente
+      - pedagogo
+      - pedagoga
+      - educador
+      - monitor de creche
+      - cuidador escolar
+      - auxiliar de sala
+      - orientador educacional
+      - coordenador pedagogico
+      - especialista em educacao
+      - supervisor escolar
+      - inspetor escolar
+      - interprete de libras
+      - tradutor e interprete de libras
+      - psicopedagogo
+      - auxiliar educacional
+      - auxiliar de educacao
+      - auxiliar de creche
+      - agente educacional
+      - orientador pedagogico
+      - inspetor de alunos
+      - apoio ao estudante
+    termos:
+      - educacional
+      - educacao
+      - educacao basica
+      - educacao infantil
+      - ensino fundamental
+      - pedagogia
+      - magisterio
+      - escolar
+      - escola
+      - libras
+      - ensino
+    excluir:
+      - ensino medio completo
+      - ensino superior completo
+      - ensino fundamental completo
+
+  JURIDICA:
+    principal:
+      - juiz
+      - juiz substituto
+      - juiz de direito
+      - juiz federal
+      - juiz leigo
+      - promotor
+      - promotor de justica
+      - procurador
+      - defensor publico
+      - advogado
+      - oficial de justica
+      - tabeliao
+      - notario
+    termos:
+      - juridica
+      - juridico
+      - direito
+      - judiciaria
+      - judiciario
+      - processual
+      - oficial de justica avaliador
+      - area judiciaria
+      - magistratura
+      - ministerio publico
+      - assessoria juridica
+      - procuradoria
+      - advocacia
+      - cartorio
+      - cartorios
+    excluir:
+      - direitos humanos e assistencia social
+
+  CONTROLE_FISCAL:
+    principal:
+      - auditor fiscal
+      - auditor
+      - fiscal de tributos
+      - fiscal de rendas
+      - fiscal tributario
+      - contador
+      - controlador interno
+      - auditor de controle externo
+      - analista de controle externo
+      - agente fiscal de rendas
+    termos:
+      - auditoria
+      - fiscal
+      - fiscalizacao tributaria
+      - tributaria
+      - tributario
+      - tributos
+      - receita
+      - receita estadual
+      - fazenda
+      - contabilidade
+      - ciencias contabeis
+      - controle externo
+      - controle interno
+      - controladoria
+      - financas publicas
+      - economia
+      - orcamento
+      - financeira
+      - ciencias economicas
+      - economista
+    excluir:
+      - fiscal de obras
+      - fiscal sanitario
+      - fiscal ambiental
+      - fiscal de posturas
+      - fiscal de transito
+
+  BANCARIA:
+    principal: [escriturario, tecnico bancario, caixa executivo, agente comercial]
+    termos:
+      - bancario
+      - bancaria
+      - agencia bancaria
+      - mercado financeiro
+    orgao:
+      - banco
+      - caixa economica federal
+      - banco do brasil
+      - banco do nordeste
+      - banco da amazonia
+      - banestes
+      - banrisul
+      - banpara
+      - brb
+      - banese
+      - bndes
+
+  ENGENHARIA_ARQUITETURA:
+    principal:
+      - engenheiro
+      - engenheira
+      - arquiteto
+      - arquiteta
+      - arquiteto e urbanista
+      - tecnico em edificacoes
+      - tecnico em seguranca do trabalho
+      - topografo
+      - desenhista projetista
+    termos:
+      - engenharia
+      - engenharia civil
+      - engenharia eletrica
+      - engenharia mecanica
+      - engenharia de producao
+      - engenharia quimica
+      - engenharia de seguranca do trabalho
+      - seguranca do trabalho
+      - arquitetura
+      - arquitetura e urbanismo
+      - urbanismo
+      - edificacoes
+      - estruturas
+      - eletrotecnica
+      - mecanica
+      - agrimensura
+      - geologia
+      - geologo
+      - fiscal de obras
+      - obras
+    excluir:
+      - engenharia de software
+      - engenharia de dados
+      - arquitetura de software
+      - arquitetura de dados
+      - arquitetura de sistemas
+      - arquitetura de solucoes
+
+  MEIO_AMBIENTE_AGRARIA:
+    principal:
+      - engenheiro agronomo
+      - engenheiro florestal
+      - engenheiro ambiental
+      - engenheiro de pesca
+      - agronomo
+      - medico veterinario
+      - veterinario
+      - zootecnista
+      - oceanografo
+      - biologo
+      - tecnico agricola
+      - tecnico em agropecuaria
+      - fiscal ambiental
+      - guarda-parque
+    termos:
+      - meio ambiente
+      - ambiental
+      - gestao ambiental
+      - agronomia
+      - agropecuaria
+      - agraria
+      - agricola
+      - florestal
+      - engenharia florestal
+      - engenharia ambiental
+      - engenharia agronomica
+      - medicina veterinaria
+      - veterinaria
+      - zootecnia
+      - biologia
+      - ciencias biologicas
+      - recursos hidricos
+      - saneamento
+      - defesa agropecuaria
+      - reforma agraria
+
+  POLICIAL_SEGURANCA:
+    principal:
+      - soldado
+      - cabo
+      - sargento
+      - oficial
+      - cadete
+      - delegado
+      - delegado de policia
+      - agente de policia
+      - escrivao
+      - escrivao de policia
+      - investigador
+      - investigador de policia
+      - papiloscopista
+      - perito criminal
+      - perito oficial
+      - medico legista
+      - agente penitenciario
+      - policial penal
+      - agente de seguranca
+      - agente de seguranca socioeducativo
+      - inspetor de policia
+      - guarda municipal
+      - guarda civil municipal
+      - guarda c municipal
+      - bombeiro
+      - bombeiro militar
+      - guarda vidas
+      - salva vidas
+      - agente de transito
+      - vigilante
+    termos:
+      - policia
+      - policial
+      - policia militar
+      - policia civil
+      - policia penal
+      - policia federal
+      - policia rodoviaria
+      - seguranca publica
+      - seguranca
+      - seguranca institucional
+      - agente de policia judicial
+      - policia judicial
+      - transito
+      - socioeducativo
+      - sistema prisional
+      - corpo de bombeiros
+      - pericia criminal
+      - criminalistica
+    excluir:
+      - seguranca do trabalho
+      - seguranca da informacao
+      - seguranca cibernetica
+      - oficial de justica
+      - oficial de chancelaria
+      - oficial de registro
+      - oficial administrativo
+      - oficial de saude
+      - oficial do quadro de saude
+      - oficiais do quadro de saude
+    orgao:
+      - policia militar
+      - policia civil
+      - policia penal
+      - policia federal
+      - policia rodoviaria federal
+      - corpo de bombeiros
+      - guarda municipal
+      - secretaria de seguranca publica
+
+  LEGISLATIVA:
+    principal: [redator de debates, taquigrafo]
+    termos:
+      - analista legislativo
+      - tecnico legislativo
+      - consultor legislativo
+      - assessor legislativo
+      - legislativo
+      - legislativa
+      - processo legislativo
+      - regimento interno
+      - taquigrafia
+    orgao:
+      - assembleia legislativa
+      - camara municipal
+      - camara dos deputados
+      - senado federal
+      - camara legislativa
+
+  ASSISTENCIA_SOCIAL:
+    principal:
+      - assistente social
+      - educador social
+      - orientador social
+      - cuidador social
+      - agente social
+    termos:
+      - assistencia social
+      - servico social
+      - cras
+      - creas
+      - socioassistencial
+
+  COMUNICACAO_ARTES:
+    principal:
+      - jornalista
+      - publicitario
+      - relacoes publicas
+      - designer
+      - designer grafico
+      - fotografo
+      - cinegrafista
+      - musico
+      - ator
+      - bibliotecario
+      - arquivista
+      - museologo
+      - revisor de textos
+      - tradutor
+      - interprete
+      - historiador
+      - programador visual
+      - editor de video
+    termos:
+      - comunicacao
+      - comunicacao social
+      - jornalismo
+      - publicidade
+      - publicidade e propaganda
+      - design
+      - artes
+      - artes cenicas
+      - artes visuais
+      - musica
+      - cultura
+      - biblioteconomia
+      - biblioteca
+      - arquivologia
+      - museologia
+      - letras
+      - audiovisual
+      - radialismo
+      - producao cultural
+    excluir:
+      - interprete de libras
+      - tradutor e interprete de libras
+      - programador visual de sistemas
+
+  OPERACIONAL:
+    principal:
+      - motorista
+      - auxiliar de servicos gerais
+      - servicos gerais
+      - servente
+      - gari
+      - agente de limpeza
+      - auxiliar de limpeza
+      - merendeira
+      - merendeiro
+      - cozinheiro
+      - copeiro
+      - porteiro
+      - zelador
+      - vigia
+      - pedreiro
+      - eletricista
+      - encanador
+      - carpinteiro
+      - marceneiro
+      - pintor
+      - jardineiro
+      - mecanico
+      - operador de maquinas
+      - operador de maquinas pesadas
+      - tratorista
+      - borracheiro
+      - soldador
+      - auxiliar operacional
+      - agente operacional
+      - coveiro
+      - coletor de lixo
+      - lavadeira
+      - mestre de obras
+    termos:
+      - operacional
+      - manutencao
+      - servicos gerais
+      - conservacao
+      - limpeza urbana
+      - alimentacao escolar
+      - alimentacao
+      - transporte
+
+  ADMINISTRATIVA:
+    principal:
+      - assistente administrativo
+      - auxiliar administrativo
+      - agente administrativo
+      - tecnico administrativo
+      - oficial administrativo
+      - analista administrativo
+      - administrador
+      - secretario executivo
+      - recepcionista
+      - secretaria
+      - secretario
+      - tesoureiro
+      - fiscal de posturas
+      - telefonista
+      - almoxarife
+      - digitador
+    termos:
+      - administrativa
+      - administrativo
+      - administracao
+      - area administrativa
+      - apoio administrativo
+      - gestao
+      - gestao publica
+      - gestao de pessoas
+      - recursos humanos
+      - planejamento
+      - logistica
+      - compras
+      - licitacoes
+      - contratos
+      - patrimonio
+      - secretariado
+      - estatistica
+      - estatistico
+      - atuaria
+      - arquivo
+      - apoio especializado
+    # Palavras genéricas de cargo: só valem se nada mais (nem o órgão) indicar a área.
+    genericos: [assistente, auxiliar, analista, tecnico, agente, oficial]
+    excluir:
+      - assistente social
+      - auxiliar de enfermagem
+      - auxiliar de servicos gerais
+      - agente de policia
+      - agente de transito
+      - agente comunitario de saude
+      - agente de combate as endemias
+      - agente de seguranca
+      - tecnico de enfermagem
+      - tecnico em enfermagem

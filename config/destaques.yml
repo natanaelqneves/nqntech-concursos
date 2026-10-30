@@ -1,0 +1,10 @@
+# Concursos com destaque próprio na tela inicial (seção 4.6 do contexto).
+#
+# cnu: o Concurso Nacional Unificado vem primeiro, antes dos demais concursos nacionais. O coletor marca
+# concurso.unificado = true quando o título ou o endereço da página casa com um destes padrões (expressões
+# regulares sobre o texto em minúsculas e sem acento).
+
+cnu:
+  - 'concurso (publico )?nacional unificado'
+  - '\bcpnu\s*\d*\b'
+  - '\bcnu\s*\d*\b'

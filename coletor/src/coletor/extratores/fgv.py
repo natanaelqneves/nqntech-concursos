@@ -7,6 +7,15 @@ contexto acima da tabela ("NÍVEL SUPERIOR – CARGO: ANALISTA", "REMUNERAÇÃO:
     TI – Desenvolvimento de          ← começo do nome (linha sem números)
     10 6 1 3 0 0 R$ 7.526,14         ← números sem nome: o nome está em volta
     Sistemas                         ← fim do nome
+
+Quando o quadro de vagas não sai legível do PDF (tabelas por localidade, quadros em anexo), os cargos ainda
+são reconhecidos, nesta ordem, por:
+- linhas "Enfermeiro Obstetra 40h R$ 8.421,31" do anexo de remuneração (SES-TO 2026), que trazem o salário;
+- títulos "CARGO: ANALISTA DE TI - PERFIL: DESENVOLVIMENTO" (anexos de atribuições, Dataprev 2026) ou
+  "CARGO DE NÍVEL SUPERIOR - COORDENADOR PEDAGÓGICO I - 40h" (Prefeitura do Salvador 2026);
+- a abertura do edital: "...concurso público para os cargos de Delegado de Polícia, Agente de Polícia Judiciária
+  e Papiloscopista Policial, do Quadro..." (PCPR 2026).
+Isso basta para classificar a área; o que faltar (vagas, salário) fica com o aviso "confira o edital".
 """
 
 from __future__ import annotations
@@ -42,6 +51,35 @@ _CARGO_CONTEXTO = re.compile(r"\bcargo\s*:\s*([^\n|]+?)\s*$", re.IGNORECASE | re
 _CABECALHO_TABELA = re.compile(r"^(especialidade|cargos?|area|perfil|funcao|emprego)\b.*\bvagas\b")
 _ESCOLARIDADE = {"superior": "SUPERIOR", "medio": "MEDIO", "tecnico": "TECNICO", "fundamental": "FUNDAMENTAL"}
 _TAXA_MAXIMA_PLAUSIVEL = Decimal("2000")
+_ROTULO_CARGO = re.compile(
+    r"^CARGOS?(?:\s+DE\s+N[ÍI]VEL\s+(?P<nivel>SUPERIOR|M[ÉE]DIO|T[ÉE]CNICO|FUNDAMENTAL))?\s*[:–-]\s*(?P<resto>.+)$"
+)
+# Separadores do título do cargo: "- PERFIL: ...", "– ESPECIALIDADE: ...", "- 40h", "- SALVADOR".
+_ROTULO_ESPECIALIDADE = re.compile(r"\s+[-–]\s+(?:PERFIL|ESPECIALIDADE|[ÁA]REA|FORMA[ÇC][ÃA]O)\s*:\s*", re.IGNORECASE)
+_NUMERACAO = re.compile(r"^\d{1,2}\s*[.)]\s*")
+_LINHA_REMUNERACAO = re.compile(
+    r"^(?P<nome>[A-ZÁÉÍÓÚÂÊÔÃÕÇ][^\d\n]{2,90}?)\s+\d{1,2}\s?(?:h|horas)\b[^\n]*?\s(?P<sal>R\$\s*\d{1,3}(?:\.\d{3})*,\d{2})$"
+)
+_ABERTURA_CARGOS = re.compile(r"(?:dos|para os|para o) cargos? de\s+(?P<lista>[^.;]{5,240})", re.IGNORECASE)
+# Onde a lista de cargos da abertura termina: ", do Quadro...", ", observado...", ", nos termos...".
+_FIM_LISTA = re.compile(
+    r",?\s+(?:d[oa]s?|n[oa]s?|conforme|observad[oa]s?|nos termos|que|com|de acordo|sendo|ser[aã]o?|visando|"
+    r"a serem|para)\s+(?=[a-záéíóúâêôãõç])",
+)
+_PALAVRAS_DE_FRASE = frozenset(
+    {"que", "deste", "desta", "conforme", "forma", "sera", "serao", "vagas", "edital", "anexo", "nos", "termos",
+     "respectivos", "ambito", "posteriormente", "todas", "todos", "diversos", "nivel", "cargos", "cargo"}
+)  # fmt: skip
+
+
+def nome_de_cargo_plausivel(nome: str) -> bool:
+    """Filtra o que a leitura de tabelas por texto às vezes devolve como "cargo" (pedaços de frase do edital)."""
+    palavras = re.findall(r"[a-z]+", normalizar(nome))
+    if not 1 <= len(palavras) <= 9 or not nome[:1].isalpha() or not nome[:1].isupper():
+        return False
+    if any(c.isdigit() for c in nome):
+        return False
+    return not set(palavras) & _PALAVRAS_DE_FRASE
 
 
 @dataclass
@@ -61,6 +99,14 @@ class ExtratorFGV:
             avisos.append("número do edital não encontrado")
 
         cargos = self._cargos(texto)
+        if not cargos:
+            cargos = self._cargos_por_remuneracao(texto)
+            if cargos:
+                avisos.append("vagas de cada cargo não identificadas: confira o edital")
+        if not cargos:
+            cargos = self._cargos_por_rotulo(texto) or self._cargos_da_abertura(texto)
+            if cargos:
+                avisos.append("vagas e salários de cada cargo não identificados: confira o edital")
         if not cargos:
             avisos.append("quadro de cargos/vagas não encontrado: confira o edital")
         elif any(c.escolaridade is None for c in cargos):
@@ -122,8 +168,67 @@ class ExtratorFGV:
                 continue
             tabela = self._contexto_tabela(linhas[max(0, indice - 8) : indice], cabecalho)
             for cargo in self._linhas_da_tabela(linhas[indice + 1 :], tabela):
+                if not nome_de_cargo_plausivel(cargo.especialidade or cargo.nome):
+                    continue
                 cargos.setdefault((normalizar(cargo.nome), normalizar(cargo.especialidade or "")), cargo)
         return list(cargos.values())
+
+    @staticmethod
+    def _cargos_por_remuneracao(texto: str) -> list[CargoExtraido]:
+        cargos: dict[tuple[str, str], CargoExtraido] = {}
+        for linha in texto.split("\n"):
+            achado = _LINHA_REMUNERACAO.match(linha.strip())
+            if achado is None:
+                continue
+            texto_nome = re.sub(r"\s+[-–]\s+", " - ", colapsar_espacos(achado.group("nome")))
+            nome, _, especialidade = texto_nome.partition(" - ")
+            if not nome_de_cargo_plausivel(nome) or (especialidade and not nome_de_cargo_plausivel(especialidade)):
+                continue
+            salario = valores_monetarios(achado.group("sal"))
+            cargo = CargoExtraido(
+                nome=nome, especialidade=especialidade or None, salario=salario[0] if salario else None
+            )
+            cargos.setdefault((normalizar(nome), normalizar(especialidade)), cargo)
+        # Uma ou duas linhas soltas nesse formato não fazem um quadro (podem ser exemplos no meio do texto).
+        return list(cargos.values()) if len(cargos) >= 3 else []
+
+    @staticmethod
+    def _cargos_por_rotulo(texto: str) -> list[CargoExtraido]:
+        cargos: dict[tuple[str, str], CargoExtraido] = {}
+        linhas = texto.split("\n")
+        for indice, linha in enumerate(linhas):
+            rotulo = _ROTULO_CARGO.match(linha.strip())
+            if rotulo is None:
+                continue
+            resto = rotulo.group("resto")
+            # Perfil quebrado em duas linhas: "PERFIL: 2. ARQUITETURA, ENGENHARIA E" + "SUSTENTAÇÃO TECNOLÓGICA".
+            seguinte = linhas[indice + 1].strip() if indice + 1 < len(linhas) else ""
+            if re.search(r"(?:,|\s(?:E|DE|DA|DO|DAS|DOS))$", resto) and seguinte.isupper() and len(seguinte) < 60:
+                resto = f"{resto} {seguinte}"
+            partes = _ROTULO_ESPECIALIDADE.split(resto, maxsplit=1)
+            # Sem rótulo de especialidade, o que vem depois do 1º " - " é carga horária ou local ("- 40h - SALVADOR").
+            nome = re.split(r"\s+[-–]\s+", partes[0], maxsplit=1)[0]
+            nome = titulo_portugues(_NUMERACAO.sub("", nome).strip(" *.:–-"))
+            especialidade = titulo_portugues(_NUMERACAO.sub("", partes[1]).strip(" *.:–-")) if len(partes) > 1 else None
+            if not nome_de_cargo_plausivel(nome) or (especialidade and len(especialidade.split()) > 12):
+                continue
+            nivel = rotulo.group("nivel")
+            cargo = CargoExtraido(
+                nome=nome,
+                especialidade=especialidade or None,
+                escolaridade=_ESCOLARIDADE[normalizar(nivel)] if nivel else None,
+            )
+            cargos.setdefault((normalizar(nome), normalizar(especialidade or "")), cargo)
+        return list(cargos.values())
+
+    @staticmethod
+    def _cargos_da_abertura(texto: str) -> list[CargoExtraido]:
+        achado = _ABERTURA_CARGOS.search(colapsar_espacos(texto[:8000]))
+        if achado is None:
+            return []
+        lista = _FIM_LISTA.split(achado.group("lista"), maxsplit=1)[0]
+        nomes = [re.sub(r"\s+e$", "", colapsar_espacos(n).strip(" ,")) for n in re.split(r",\s*|\s+e\s+", lista)]
+        return [CargoExtraido(nome=titulo_portugues(n)) for n in nomes if nome_de_cargo_plausivel(n)]
 
     @staticmethod
     def _contexto_tabela(anteriores: list[str], cabecalho: str) -> _Tabela:

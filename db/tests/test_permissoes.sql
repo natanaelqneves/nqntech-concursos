@@ -81,7 +81,7 @@ DECLARE
 BEGIN
     SELECT count(*) INTO n_conc FROM concursos.concurso WHERE link_oficial LIKE 'https://conhecimento.fgv.br/concursos/exemplo-%';
     SELECT count(*), count(DISTINCT uf) INTO n_org, n_ufs FROM concursos.orgao WHERE nome LIKE '[EXEMPLO]%';
-    IF n_conc <> 8 OR n_org <> 6 THEN
+    IF n_conc <> 9 OR n_org <> 7 THEN
         RAISE EXCEPTION 'FALHA: seeds incompletos (concursos=%, orgaos=%)', n_conc, n_org;
     END IF;
     IF (SELECT count(*) FROM concursos.banca) < 3
@@ -231,7 +231,7 @@ BEGIN
     WHERE publicado AND link_oficial LIKE 'https://conhecimento.fgv.br/concursos/exemplo-%';
     SELECT id INTO rascunho FROM concursos.concurso
     WHERE link_oficial = 'https://conhecimento.fgv.br/concursos/exemplo-rascunho';
-    IF publicados <> 7 OR rascunho IS NULL THEN
+    IF publicados <> 8 OR rascunho IS NULL THEN
         RAISE EXCEPTION 'FALHA: seeds de publicação inesperados (publicados=%)', publicados;
     END IF;
     IF pg_temp.contar_como('site_app', 'concurso') <> (SELECT count(*) FROM concursos.concurso WHERE publicado) THEN
@@ -331,6 +331,11 @@ SELECT pg_temp.deve_falhar($q$INSERT INTO concursos.concurso_evento (concurso_id
     SELECT id, 50, 'X', current_date, current_date - 1 FROM concursos.concurso
     WHERE link_oficial LIKE '%exemplo-tjpb'$q$, '23514');
 SELECT pg_temp.deve_falhar($q$INSERT INTO concursos.municipio VALUES (2599999, 'Fora', 'SP', 'fora')$q$, '23514');
+-- CNU é sempre nacional.
+SELECT pg_temp.deve_falhar($q$UPDATE concursos.concurso SET unificado = true
+    WHERE link_oficial LIKE '%exemplo-tjpb'$q$, '23514');
+SELECT pg_temp.deve_permitir('coletor_app', $q$UPDATE concursos.concurso SET unificado = false
+    WHERE link_oficial LIKE '%exemplo-cnu'$q$);
 
 -- 12. encerrado_em acompanha a situação (base da retenção).
 DO
@@ -351,7 +356,20 @@ BEGIN
     IF marcado IS NOT NULL THEN
         RAISE EXCEPTION 'FALHA: encerrado_em não foi limpo ao reabrir';
     END IF;
-    RAISE NOTICE 'ok   encerrado_em: marcado ao encerrar, preservado e limpo ao reabrir';
+    -- Data informada por quem encerra (última publicação da banca) é respeitada; data futura vira "agora".
+    UPDATE concursos.concurso SET situacao = 'ENCERRADO', encerrado_em = now() - interval '30 days'
+    WHERE link_oficial LIKE '%exemplo-sefazal' RETURNING encerrado_em INTO marcado;
+    IF marcado IS NULL OR marcado > now() - interval '29 days' THEN
+        RAISE EXCEPTION 'FALHA: encerrado_em informado foi ignorado (%)', marcado;
+    END IF;
+    UPDATE concursos.concurso SET situacao = 'EM_ANDAMENTO'
+    WHERE link_oficial LIKE '%exemplo-sefazal';
+    UPDATE concursos.concurso SET situacao = 'ENCERRADO', encerrado_em = now() + interval '10 days'
+    WHERE link_oficial LIKE '%exemplo-sefazal' RETURNING encerrado_em INTO marcado;
+    IF marcado > now() THEN
+        RAISE EXCEPTION 'FALHA: encerrado_em no futuro (%)', marcado;
+    END IF;
+    RAISE NOTICE 'ok   encerrado_em: marcado ao encerrar, preservado, limpo ao reabrir e com data informada';
 END
 $$;
 

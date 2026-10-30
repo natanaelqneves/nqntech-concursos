@@ -1,8 +1,10 @@
-"""Fonte FGV Conhecimento: aba "Em andamento" de https://conhecimento.fgv.br/concursos.
+"""Fonte FGV Conhecimento: blocos "Em andamento" e "Realizados" de https://conhecimento.fgv.br/concursos.
 
 Estrutura observada em 29/10/2026 (Drupal):
-- listagem: bloco `.view-concursos-em-andamento` com `.views-row a` e paginação `?page=N` (0-based),
-  compartilhada com o bloco "realizados", que ignoramos;
+- listagem: blocos `.view-concursos-em-andamento` e `.view-concursos-realizados`, cada um com `.views-row a`;
+  os dois compartilham a paginação `?page=N` (0-based): a página N traz a N-ésima página de cada bloco;
+- "realizados" lista os concursos já finalizados, dos mais novos para os mais antigos: lemos só as primeiras
+  páginas, o bastante para perceber quando um concurso que acompanhamos sai de "em andamento";
 - página do concurso: `h1`, status em `.field--name-field-concurso-status`, descrição em `.field--name-body`
   e "Arquivos do concurso" em `.field--name-field-concurso-arquivos .paragraph` (data em <time datetime>).
 """
@@ -38,29 +40,55 @@ _TITULOS_IGNORADOS = re.compile(
 class ItemListagem:
     titulo: str
     url: str
+    encerrado: bool = False
 
 
 @dataclass(frozen=True)
-class PaginaListagem:
+class Bloco:
     itens: tuple[ItemListagem, ...]
     ultima_pagina: int
 
 
+@dataclass(frozen=True)
+class PaginaListagem:
+    andamento: Bloco
+    realizados: Bloco
+
+    @property
+    def itens(self) -> tuple[ItemListagem, ...]:
+        return self.andamento.itens
+
+    @property
+    def ultima_pagina(self) -> int:
+        return self.andamento.ultima_pagina
+
+
 def parse_listagem(html: str) -> PaginaListagem:
     soup = BeautifulSoup(html, "lxml")
-    bloco = soup.select_one("div.view-concursos-em-andamento")
-    if bloco is None:
+    andamento = soup.select_one("div.view-concursos-em-andamento")
+    if andamento is None:
         raise ErroHttp("listagem da FGV sem o bloco 'concursos em andamento' (o layout do site mudou?)")
+    realizados = soup.select_one("div.view-concursos-realizados")
+    if realizados is None:
+        log.warning("FGV: listagem sem o bloco 'concursos realizados'; encerrados não serão detectados por ele")
+    return PaginaListagem(
+        andamento=_parse_bloco(andamento, encerrado=False),
+        realizados=_parse_bloco(realizados, encerrado=True) if realizados is not None else Bloco((), 0),
+    )
+
+
+def _parse_bloco(bloco: Tag, encerrado: bool) -> Bloco:
     itens = []
     for link in bloco.select(".views-row a[href]"):
         titulo = colapsar_espacos(link.get_text(" "))
         if titulo:
-            itens.append(ItemListagem(titulo=titulo, url=canonizar(urljoin(BASE, str(link["href"])))))
+            url = canonizar(urljoin(BASE, str(link["href"])))
+            itens.append(ItemListagem(titulo=titulo, url=url, encerrado=encerrado))
     paginas = [0]
     for link in bloco.select("a[href*='page=']"):
         valores = parse_qs(urlsplit(str(link["href"])).query).get("page", [])
         paginas.extend(int(v) for v in valores if v.isdigit())
-    return PaginaListagem(tuple(itens), max(paginas))
+    return Bloco(tuple(itens), max(paginas))
 
 
 def eh_concurso(item: ItemListagem) -> bool:
@@ -70,8 +98,11 @@ def eh_concurso(item: ItemListagem) -> bool:
     return _TITULOS_IGNORADOS.search(normalizar(item.titulo)) is None
 
 
-def parse_concurso(html: str, url: str) -> dict:
-    """Dados da página do concurso, no formato gravado em sinal_descoberta.payload."""
+def parse_concurso(html: str, url: str, encerrado: bool = False) -> dict:
+    """Dados da página do concurso, no formato gravado em sinal_descoberta.payload.
+
+    `encerrado` = o concurso estava no bloco "realizados" da listagem (a FGV já o deu por finalizado).
+    """
     soup = BeautifulSoup(html, "lxml")
     principal = soup.find("main") or soup
     titulo_tag = principal.find("h1")
@@ -98,6 +129,7 @@ def parse_concurso(html: str, url: str) -> dict:
         "descricao": colapsar_espacos(corpo.get_text(" "))[:MAX_DESCRICAO] if corpo else None,
         "link_inscricao": _link_inscricao(principal),
         "arquivos": arquivos,
+        "encerrado": encerrado,
     }
 
 
@@ -134,17 +166,24 @@ class FonteFGV:
     nome = "fgv"
     dominios = frozenset({"conhecimento.fgv.br"})
 
-    def __init__(self, max_paginas: int = 15) -> None:
+    def __init__(self, max_paginas: int = 15, max_paginas_realizados: int = 2) -> None:
         self._max_paginas = max_paginas
+        self._max_paginas_realizados = max_paginas_realizados
 
     def descobrir(self, http: ClienteHttp) -> ResultadoDescoberta:
         itens = self._listar(http)
-        log.info("FGV: %d itens na aba 'em andamento' que parecem concursos", len(itens))
+        encerrados = sum(item.encerrado for item in itens)
+        log.info(
+            "FGV: %d itens que parecem concursos (%d em andamento, %d realizados)",
+            len(itens),
+            len(itens) - encerrados,
+            encerrados,
+        )
         sinais: list[SinalDescoberta] = []
         falhas: list[str] = []
         for item in itens:
             try:
-                payload = parse_concurso(http.obter_texto(item.url), item.url)
+                payload = parse_concurso(http.obter_texto(item.url), item.url, encerrado=item.encerrado)
             except ErroHttp as erro:
                 log.warning("FGV: falha ao ler %s: %s", item.url, erro)
                 falhas.append(f"{item.url}: {erro}")
@@ -163,12 +202,20 @@ class FonteFGV:
     def _listar(self, http: ClienteHttp) -> list[ItemListagem]:
         # A primeira página é obrigatória: se falhar, a fonte inteira falhou (a exceção sobe).
         primeira = parse_listagem(http.obter_texto(LISTAGEM))
-        ultima = min(primeira.ultima_pagina, self._max_paginas - 1)
-        itens = list(primeira.itens)
-        for pagina in range(1, ultima + 1):
-            itens.extend(parse_listagem(http.obter_texto(f"{LISTAGEM}?page={pagina}")).itens)
+        ultima_andamento = min(primeira.andamento.ultima_pagina, self._max_paginas - 1)
+        ultima_realizados = min(primeira.realizados.ultima_pagina, self._max_paginas_realizados - 1)
+        andamento = list(primeira.andamento.itens)
+        realizados = list(primeira.realizados.itens) if ultima_realizados >= 0 else []
+        for pagina in range(1, max(ultima_andamento, ultima_realizados) + 1):
+            listagem = parse_listagem(http.obter_texto(f"{LISTAGEM}?page={pagina}"))
+            if pagina <= ultima_andamento:
+                andamento.extend(listagem.andamento.itens)
+            if pagina <= ultima_realizados:
+                realizados.extend(listagem.realizados.itens)
+        # "Em andamento" vence: um concurso visto nos dois blocos (a listagem muda durante a leitura) não é
+        # dado por encerrado.
         vistos: dict[str, ItemListagem] = {}
-        for item in itens:
+        for item in [*andamento, *realizados]:
             if eh_concurso(item):
                 vistos.setdefault(item.url, item)
         return list(vistos.values())

@@ -143,13 +143,14 @@ Um resumo por LLM pode ser plugado depois (fase opcional), validado contra os ca
   do grupo (desempate: `inscricao_fim` mais próximo). Concursos com isenção ganham selo com os dias restantes
   para pedir, mas o prazo de isenção **não** define mais a ordem. Previstos e encerrados ficam na busca e nas
   páginas de estado/área (SEO).
-- **CNU**: identificado pelo coletor por regra (título/órgão "Concurso Nacional Unificado", "CNU", "CPNU", em
-  `config/destaques.yml`) e gravado em `concurso.unificado` (migration na fase 2). A banca do CNU não está nas
-  fontes atuais (FGV, IBAM, IBADE): ele só aparece quando uma fonte que o cubra entrar (fase 6: DOU/INLABS ou
-  página oficial do CNU, conferindo robots.txt e termos).
+- **CNU**: identificado pelo coletor por regra (título ou endereço com "Concurso Nacional Unificado", "CNU",
+  "CPNU", em `config/destaques.yml`) e gravado em `concurso.unificado` (V10; sempre `NACIONAL`). O CNU 2 é
+  organizado pela FGV e aparece na listagem dela (`/cpnu2`), então já vem pela fonte atual.
 - **Navegação geográfica Brasil → regiões → estados → municípios**: tabela de municípios do IBGE (código, nome, UF,
   região) por migration; concurso municipal ligado ao código IBGE. Federais/nacionais = categoria **"Nacional"**,
-  exibidos em qualquer recorte; estaduais aparecem no estado e nos municípios dele. Páginas `/brasil/`,
+  exibidos em qualquer recorte; estaduais aparecem no estado e nos municípios dele. Órgão federal de um estado só
+  (TRT da 13ª Região, universidade ou instituto federal com o estado no nome) entra como **estadual**, porque as
+  vagas são daquele estado (decisão da fase 2). Páginas `/brasil/`,
   `/regiao/<regiao>/`, `/estado/<uf>/`, `/municipio/<uf>/<municipio>/` + filtros encadeados no navegador.
 - **Por concurso**: dias restantes para pedir isenção (recalculado no navegador a partir de `isencao_fim`);
   **calendário** (tabela de eventos: evento, início, fim; "a definir" quando o edital não traz data);
@@ -270,8 +271,8 @@ nqntech-concursos/                 (repositório PÚBLICO)
 ├── CLAUDE.md                      instruções de trabalho do Claude (leia primeiro)
 ├── docs/                          CONTEXTO_PROJETO.md, GUIA_PROMPTS.md, PENDENCIAS.md
 ├── db/migrations/  db/seeds/  db/tests/
-├── config/                        areas.yml, isencoes.yml (textos das páginas de isenção), destaques.yml (CNU),
-│                                  parceiros.yml (fase 9)
+├── config/                        areas.yml, escolaridade.yml, destaques.yml (CNU), isencoes.yml (textos das
+│                                  páginas de isenção, fase 3), parceiros.yml (fase 9)
 ├── coletor/                       Python (base do Radar TI)
 │   └── src/coletor/  fontes/  pipeline/  extratores/  classificacao/  resumo/
 ├── site/                          Java: gerador do site estático (Thymeleaf) + templates + css/js
@@ -338,7 +339,7 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
 | 3 | Isenções + calendário, disciplinas e redação por cargo (FGV) | TJPB 2026 com os 5 tipos, o prazo e o calendário |
 | 4 | Resumo automático + slug + campos desnormalizados | Resumo correto para os concursos de teste |
 | 5 | **Site estático** na Cloudflare: páginas, filtros, isenções, sitemap, SEO, domínio próprio | **Site no ar (MVP)** |
-| 6 | Mais fontes: DOU (INLABS), fonte do CNU, Querido Diário, Vunesp/Selecon (se liberarem) + deduplicação | Cobertura nacional crescente, CNU incluído |
+| 6 | Mais fontes: DOU (INLABS), Querido Diário, Vunesp/Selecon (se liberarem) + deduplicação | Cobertura nacional crescente |
 | 7 | Alertas: API de cadastro, double opt-in, links mágicos, envio diário/semanal, privacidade | Assinante recebe alerta do seu filtro |
 | 8 | Robustez: monitoramento, retenção, backup, alertas de falha para o administrador | Serviço se mantém sozinho |
 | 9 | (Opcional) Painel administrativo Angular, resumo por LLM, monetização (doações → afiliados → anúncios) | — |
@@ -381,5 +382,25 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       próxima; encerrados saem do site após 180 dias; calendário/disciplinas/redação explícitos na fase 3;
       conta Cloudflare criada, deploy só pelo GitHub Actions (repositório **não** conectado à Cloudflare);
       token e Account ID em `docs/PENDENCIAS.md`.
-- [ ] Fase 2 — Coletor FGV completo (preencher também `abrangencia`, `uf`, `municipio_ibge`, `cargo.area` e
-      `unificado`)
+- [x] Fase 2 — Coletor FGV completo (29/10/2026, PR #1):
+      - FGV lê também o bloco "realizados" (`COLETOR_MAX_PAGINAS_REALIZADOS`, padrão 2): concurso movido para lá
+        vira `ENCERRADO` com `encerrado_em` = data da última publicação; encerrado nunca acompanhado só entra se
+        for dos últimos 180 dias (senão o sinal fica `DESCARTADO`); se voltar a "em andamento", é reaberto.
+      - Nova etapa `classificar` (depois de `estruturar`), que recalcula tudo e grava só o que mudou: área do cargo
+        (`config/areas.yml`: palavra inteira, termo mais longo vence, exclusões, abreviações, órgão e palavras
+        genéricas como últimos recursos; sem regra → `OUTRAS` com aviso no log), escolaridade faltante
+        (`config/escolaridade.yml`, conservador), abrangência/UF/município do IBGE (homônimos pela UF citada na
+        página/edital; capital como desempate) e CNU (`config/destaques.yml` → `concurso.unificado`, V10).
+      - Órgão inferido corrigido (hífen em "Procuradoria-Geral", região dos TRTs/TRFs, sigla com UF, texto antes
+        do órgão, DF); órgão federal de um estado só vira estadual (TRT da 13ª → PB, TRF da 6ª → MG).
+      - Extrator FGV: sem quadro de vagas legível, cargos vêm do anexo de remuneração, dos títulos
+        "CARGO: ... - PERFIL: ..."/"CARGO DE NÍVEL ..." ou da abertura do edital, com aviso "confira o edital".
+      - Páginas sem charset no cabeçalho (IBAM, windows-1252) passam a ser lidas pelo `<meta charset>`; o IBADE
+        deixou de gerar "cargos" com a unidade de lotação ("UN: EMEF ... - TIPOLOGIA").
+      - Ensaio com coleta real (165 concursos, 20 editais lidos): 158 com local definido (7 sem pista suficiente),
+        CNU 2 identificado e nacional; 589 cargos, 581 (98,6%) com área e 8 em `OUTRAS` (listados no resumo do
+        ensaio para afinar `config/areas.yml`).
+      Observações: editais que só trazem o quadro em tabela por localidade ficam sem vagas por cargo (aviso
+      "confira o edital"); alguns órgãos sem pista de esfera/UF (ex.: estatais federais pouco conhecidas)
+      ficam sem local e não são publicados até uma regra os reconhecer.
+- [ ] Fase 3 — Isenções + calendário, disciplinas e redação por cargo

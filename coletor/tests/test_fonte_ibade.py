@@ -66,3 +66,16 @@ def test_descobrir_segue_as_paginas_e_tolera_falha(fixture_texto):
 
     assert [s.url for s in resultado.sinais] == ["https://portal.ibade.selecao.site/edital/ver/128"]
     assert len(resultado.falhas) == 8
+
+
+def test_unidade_de_lotacao_nao_vira_cargo():
+    from bs4 import BeautifulSoup
+
+    from coletor.fontes.ibade import _cargos
+
+    html = """<div id="vagas"><div class="card"><div class="card-header">Nível Superior</div>
+      <div class="list-group-item">
+        <p><span>S01 - Professor de Matemática - UN: EMEF Progresso - TIPOLOGIA: D</span></p></div>
+      <div class="list-group-item"><p><span>UN: EMEF Rio Verde - TIPOLOGIA: D</span></p></div>
+    </div></div>"""
+    assert [c.nome for c in _cargos(BeautifulSoup(html, "lxml"))] == ["Professor de Matemática"]

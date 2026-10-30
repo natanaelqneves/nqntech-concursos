@@ -140,7 +140,9 @@ def _cargos(soup: BeautifulSoup) -> list[CargoExtraido]:
                 continue
             # "S01 - ADVOGADO I" / "M01 - Prestador ... - Lotação: ARIQUEMES": o código e a lotação saem do nome.
             nome = re.sub(r"^[A-Z]{0,3}\d{1,3}\s*-\s*", "", colapsar_espacos(nome_tag.get_text(" ")))
-            nome = re.split(r"\s+-\s+lota[cç][aã]o\s*:", nome, flags=re.IGNORECASE)[0]
+            nome = re.split(r"\s+-\s+(?:lota[cç][aã]o|un)\s*:", nome, flags=re.IGNORECASE)[0]
+            if re.match(r"^un\s*:", nome, flags=re.IGNORECASE):
+                continue  # "UN: EMEF ... - TIPOLOGIA: D" é a unidade de lotação, não um cargo
             nome = titulo_portugues(nome.strip(" -"))
             cargos.setdefault(nome.lower(), CargoExtraido(nome=nome, escolaridade=escolaridade))
     return list(cargos.values())

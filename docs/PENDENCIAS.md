@@ -58,7 +58,7 @@ Secrets de repositório **não** ficam visíveis para quem abre PR de fork: o c�
 
 - [x] **Settings → Code security**: ative *Secret scanning* e *Push protection* (grátis em repositório público).
       A CI também roda o gitleaks a cada push.
-- [ ] Proteger a `main` (o Claude trabalha por PR): **Settings → Rules → Rulesets → New ruleset → New branch
+- [x] Proteger a `main` (o Claude trabalha por PR): **Settings → Rules → Rulesets → New ruleset → New branch
       ruleset**:
   - **Ruleset name:** `main` · **Enforcement status:** **Active** · **Bypass list:** vazia.
   - **Target branches → Add target → Include default branch**.
@@ -68,7 +68,7 @@ Secrets de repositório **não** ficam visíveis para quem abre PR de fork: o c�
   - Marque **Require status checks to pass** → **Add checks** → digite `banco-e-coletor` e selecione o da
     *GitHub Actions*. Deixe *Require branches to be up to date* desmarcado.
   - **Create**.
-- [ ] **Settings → General → Pull Requests**: deixe só **Allow squash merging** e marque
+- [x] **Settings → General → Pull Requests**: deixe só **Allow squash merging** e marque
       **Automatically delete head branches**.
 
 ---
@@ -84,6 +84,13 @@ Secrets de repositório **não** ficam visíveis para quem abre PR de fork: o c�
 - Os concursos já coletados continuam no banco com `publicado = false`: eles só vão para o site quando as fases
   2 a 4 preencherem área, local, slug e resumo. É esperado.
 
+## Fase 2 — Coletor FGV completo
+
+- [ ] Nada a criar. Depois do merge do PR, o workflow **migrar** roda sozinho (nova migration V10). Confira em
+      **Actions → migrar**: verde. A coleta diária seguinte já classifica tudo (etapa "classificar").
+- Para conferir a classificação com dados reais sem mexer no Neon: **Actions → ensaio → Run workflow**; o resumo
+  da execução lista abrangências, áreas, o CNU e os cargos que ficaram em `OUTRAS`.
+
 ## Preparação da Fase 5 — Cloudflare (pode fazer já) — ~5 min
 
 O deploy é feito **só pelo GitHub Actions**. **Não conecte o repositório à Cloudflare** (Workers Builds / "Connect
@@ -92,15 +99,15 @@ instalado no GitHub durante o cadastro, remova-o em GitHub → **Settings → Ap
 repositório).
 
 - [x] Criar a conta na Cloudflare (plano grátis).
-- [ ] **Account ID** (não é o e-mail; é um código de 32 caracteres): painel → **Workers & Pages** → lado direito,
+- [x] **Account ID** (não é o e-mail; é um código de 32 caracteres): painel → **Workers & Pages** → lado direito,
       campo *Account ID* (botão de copiar). Também aparece na URL: `dash.cloudflare.com/<account_id>/...`.
-- [ ] **API Token**: ícone do perfil → **My Profile → API Tokens → Create Token** → modelo
+- [x] **API Token**: ícone do perfil → **My Profile → API Tokens → Create Token** → modelo
       **Edit Cloudflare Workers** → *Use template*:
   - **Account Resources:** *Include* → a sua conta (não "All accounts").
   - **Zone Resources:** *All zones from an account* → a sua conta (restrinja ao domínio depois que ele existir).
   - **TTL:** data de fim em 1 ano (anote para renovar).
   - **Continue to summary → Create Token** e copie o valor (só aparece uma vez).
-- [ ] Secrets no GitHub (**Settings → Secrets and variables → Actions**):
+- [x] Secrets no GitHub (**Settings → Secrets and variables → Actions**):
 
 | Nome | Valor |
 |---|---|

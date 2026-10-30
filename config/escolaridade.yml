@@ -1,0 +1,48 @@
+# Escolaridade do cargo quando o quadro de vagas não a informa (coletor/src/coletor/classificacao/escolaridade.py).
+#
+# A fonte principal é o próprio edital/página da banca. Este arquivo só completa o que ficou vazio, e de forma
+# conservadora: menção explícita no nome ("Nível Superior", "Ensino Médio") ou profissões que por lei exigem
+# curso superior. Na dúvida, fica vazio (o site mostra "confira o edital").
+# Comparação em minúsculas, sem acento e por palavra inteira.
+
+superior:
+  - medico
+  - medica
+  - enfermeiro
+  - enfermeira
+  - engenheiro
+  - engenheira
+  - arquiteto
+  - arquiteta
+  - advogado
+  - contador
+  - psicologo
+  - assistente social
+  - nutricionista
+  - farmaceutico
+  - fisioterapeuta
+  - fonoaudiologo
+  - odontologo
+  - cirurgiao dentista
+  - biomedico
+  - medico veterinario
+  - zootecnista
+  - agronomo
+  - biologo
+  - geologo
+  - economista
+  - estatistico
+  - bibliotecario
+  - arquivista
+  - jornalista
+  - pedagogo
+  - juiz
+  - promotor de justica
+  - defensor publico
+  - procurador
+  - delegado de policia
+  - auditor fiscal
+  - analista judiciario
+  - analista legislativo
+  - perito criminal
+  - perito medico

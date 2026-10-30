@@ -249,9 +249,10 @@ A coleta inicial é limitada por execução (ex.: 60 editais/dia) e drena o acú
 
 **Foco em oportunidades no coletor** (`SEM_OPORTUNIDADE` em `db.py`, constantes em `pipeline/comum.py`):
 - a FGV não separa "inscrições abertas" na listagem, então cada concurso novo tem a página lida uma vez;
-- concurso `ENCERRADO`, ou `EM_ANDAMENTO` com inscrições encerradas há mais de **15 dias** (folga para
-  prorrogação), sem isenção em curso, **não tem a página relida nem PDFs baixados**; a página é relida só uma vez
-  por **semana** (pega reabertura tardia e mantém o concurso "visto na fonte");
+- concurso `EM_ANDAMENTO` com inscrições encerradas há mais de **15 dias** (folga para prorrogação), sem isenção
+  em curso, **não tem a página relida nem PDFs baixados**; a página é relida só uma vez por **semana** (pega
+  reabertura tardia e mantém o concurso "visto na fonte"). PDFs de `ENCERRADO` também não são baixados, mas a
+  página dele é lida se voltar à lista "em andamento" (reabertura);
 - concurso sem data de inscrição conhecida continua acompanhado (o edital precisa ser lido);
 - o bloco "realizados" da FGV fica desligado (`COLETOR_MAX_PAGINAS_REALIZADOS=0`): quem sai da lista "em
   andamento" vira `ENCERRADO` depois de 10 dias sem aparecer.

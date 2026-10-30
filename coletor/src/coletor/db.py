@@ -25,12 +25,14 @@ log = logging.getLogger(__name__)
 
 Linha = dict[str, Any]
 
-# Concurso sem oportunidade aberta (seção 1 do contexto): encerrado, ou com inscrições encerradas antes de
-# %(limite)s (hoje menos a folga para prorrogações), e sem prazo de isenção em curso. Sem data de inscrição
-# conhecida o concurso continua acompanhado: é preciso ler o edital para saber.
-SEM_OPORTUNIDADE = """(c.situacao = 'ENCERRADO'
-                        OR (c.situacao = 'EM_ANDAMENTO' AND c.inscricao_fim < %(limite)s))
+# Concurso com inscrições encerradas antes de %(limite)s (hoje menos a folga para prorrogações) e sem prazo de
+# isenção em curso (seção 1 do contexto). Sem data de inscrição conhecida o concurso continua acompanhado: é
+# preciso ler o edital para saber.
+INSCRICAO_VENCIDA = """c.situacao = 'EM_ANDAMENTO' AND c.inscricao_fim < %(limite)s
                        AND (c.isencao_fim IS NULL OR c.isencao_fim < %(hoje)s)"""
+# Para PDFs, encerrado também não interessa. Para páginas, sim: encerrado que volta à lista "em andamento" da
+# banca precisa ser relido para ser reaberto.
+SEM_OPORTUNIDADE = f"""(c.situacao = 'ENCERRADO' OR ({INSCRICAO_VENCIDA}))"""
 
 
 def conectar(config: ConfigBanco, tentativas: int = 3) -> psycopg.Connection[Linha]:
@@ -144,12 +146,12 @@ class Repositorio:
         return [FonteCadastrada(**linha) for linha in linhas]
 
     def urls_sem_oportunidade(self, fonte_id: int, hoje: date, folga_dias: int, releitura_dias: int) -> frozenset[str]:
-        """Sinais da fonte cuja página não precisa ser relida hoje: concurso sem oportunidade aberta e página lida
+        """Sinais da fonte cuja página não precisa ser relida hoje: inscrição vencida sem isenção em curso e página lida
         há menos de `releitura_dias` (gravar_sinal atualiza visto_em a cada leitura)."""
         linhas = self.conn.execute(
             f"""SELECT s.url FROM sinal_descoberta s JOIN concurso c ON c.id = s.concurso_id
                 WHERE s.fonte_id = %(fonte)s AND s.visto_em >= now() - make_interval(days => %(releitura)s)
-                  AND {SEM_OPORTUNIDADE}""",
+                  AND {INSCRICAO_VENCIDA}""",
             {
                 "fonte": fonte_id,
                 "releitura": releitura_dias,

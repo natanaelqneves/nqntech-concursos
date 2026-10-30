@@ -463,4 +463,23 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       - campos desnormalizados a partir dos cargos: `total_vagas`, `salario_max`, `escolaridades`, `areas`;
       - `publicado` = abrangência definida **e** oportunidade (seção 4.3); quem deixa de ser oportunidade sai do
         site na mesma execução e mantém o slug. Grava só o que mudou (segunda execução não regrava nada).
-- [ ] Fase 5 — Site estático na Cloudflare
+- [x] Fase 5 — Site estático (29/10/2026, PR #6): módulo `site/` (Java 25, Spring Boot 4.1.1 em linha de comando,
+      Thymeleaf puro com `TemplateEngine` próprio, `JdbcClient` como `site_app`):
+      - páginas: início (só inscrições abertas: CNU → nacionais → demais, prova mais próxima; destaque "pedido de
+        isenção aberto"), `/concursos/` (todas as oportunidades + filtros no navegador sobre os cartões, estado na
+        URL), `/concurso/<slug>/` (resumo, links oficiais, isenções com link para a página do tipo, dados, cargos
+        com nível/vagas/salário/discursiva, disciplinas, calendário), `/brasil/`, `/regiao/`, `/estado/<uf>/`,
+        `/municipio/<uf>/<municipio>/` (só com concurso), `/area/` e `/nivel/` (só com concurso), `/isencoes/` e
+        `/isencoes/<tipo>/` (textos do catálogo + documentos do YAML), `/sobre/`, `/privacidade/` (rascunho), 404;
+      - SEO: `title`/`description`, canônica, Open Graph, JSON-LD (WebSite, BreadcrumbList), `sitemap.xml`,
+        `robots.txt`; `busca.json` com o índice enxuto;
+      - segurança: texto do banco sempre escapado; links das fontes só se forem http(s) absolutos (`UrlSegura`);
+        JSON-LD com `<`/`>`/`&` escapados; `_headers` com CSP só `'self'`, `nosniff`, `frame-ancestors 'none'`;
+        JS sem `innerHTML`; o gerador também refiltra "oportunidade" além da RLS;
+      - acessibilidade e leveza: HTML semântico, link "pular para o conteúdo", foco visível, alvos de 44 px, tema
+        escuro, CSS ~8 KB e JS ~4 KB sem framework, funciona sem JavaScript; prazos "faltam N dias" no navegador;
+      - publicação: workflow `site` (chamado pelo `diario` depois da coleta, mesmo se ela falhar em parte, e
+        manual) gera tudo e roda `wrangler deploy` (Worker só de assets; só arquivos alterados sobem). Endereço:
+        variável `SITE_URL` do repositório (domínio próprio) ou o `*.workers.dev` da conta, lido da API.
+      - testes: unitários (JSON, URL segura, formatos, ordenação, renderização com dados hostis) e integração
+        contra os seeds (só oportunidades, ordem da tela inicial, nenhum link interno quebrado).

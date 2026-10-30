@@ -6,6 +6,15 @@ from zoneinfo import ZoneInfo
 
 FUSO = ZoneInfo("America/Sao_Paulo")
 
+# Escopo do site (seção 1 do contexto): só oportunidades — inscrições abertas ou ainda por abrir, previstos e
+# prazo de isenção em curso. Concurso fora disso não tem a página relida nem PDFs baixados, com duas folgas:
+# - inscrição encerrada há até DIAS_FOLGA_INSCRICAO dias continua acompanhada (prorrogações e reaberturas
+#   costumam sair em cima do prazo);
+# - a página é relida a cada DIAS_RELEITURA dias mesmo assim (reabertura tardia). Precisa ser menor que
+#   DIAS_FORA_DA_LISTA_PARA_ENCERRAR (estruturacao.py): a releitura é o que marca o sinal como visto na fonte.
+DIAS_FOLGA_INSCRICAO = 15
+DIAS_RELEITURA = 7
+
 
 @dataclass(frozen=True)
 class ResumoEtapa:

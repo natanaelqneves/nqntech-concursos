@@ -65,9 +65,11 @@ class SiteFGVSimulado:
             + b"\n% segunda\n",
         }
         self.pdfs_baixados: list[str] = []
+        self.paginas_lidas: list[str] = []
 
     def responder(self, request: httpx.Request) -> httpx.Response:
         caminho = request.url.path
+        self.paginas_lidas.append(caminho)
         if caminho in self.pdfs:
             self.pdfs_baixados.append(caminho)
             return httpx.Response(200, content=self.pdfs[caminho], headers={"Content-Type": "application/pdf"})
@@ -113,6 +115,7 @@ def criar_orquestrador(parametros_coletor, site: SiteFGVSimulado):
         pdf_max_bytes=5 * 1024 * 1024,
         max_documentos_por_execucao=100,
         max_paginas_listagem=3,
+        max_paginas_realizados=2,
     )
     conn = psycopg.connect(**parametros_coletor, row_factory=dict_row)
     conn.execute("SET search_path = concursos")
@@ -313,6 +316,66 @@ def test_encerrados_da_fgv_e_classificacao(parametros_coletor, conn_admin, limpa
         "SELECT situacao, encerrado_em FROM concursos.concurso WHERE link_oficial = %s", (PM,)
     ).fetchone()
     assert (pm["situacao"], pm["encerrado_em"]) == ("EM_ANDAMENTO", None)
+    conn.close()
+
+
+def test_concurso_sem_oportunidade_nao_tem_a_pagina_relida(parametros_coletor, conn_admin, limpar, fixture_texto):
+    site = SiteFGVSimulado(fixture_texto)
+    conn, orquestrador = criar_orquestrador(parametros_coletor, site)
+    orquestrador.executar(ETAPAS, fonte="fgv")
+
+    def relidas() -> set[str]:
+        site.paginas_lidas.clear()
+        resumos = orquestrador.executar(("descobrir",), fonte="fgv")
+        assert codigo_de_saida(resumos) == 0, resumos
+        return set(site.paginas_lidas)
+
+    # Inscrições da PM encerradas há 30 dias (além da folga para prorrogação) e sem isenção em curso.
+    conn_admin.execute(
+        """UPDATE concursos.concurso SET situacao = 'EM_ANDAMENTO', inscricao_fim = current_date - 30
+           WHERE link_oficial = %s""",
+        (PM,),
+    )
+    paginas = relidas()
+    assert "/concursos/teste-pm" not in paginas
+    assert "/concursos/tjpb26" in paginas
+
+    # Encerrada há poucos dias: ainda pode sair prorrogação, então continua acompanhada.
+    conn_admin.execute("UPDATE concursos.concurso SET inscricao_fim = current_date - 3 WHERE link_oficial = %s", (PM,))
+    assert "/concursos/teste-pm" in relidas()
+
+    # Prazo de isenção em curso também é oportunidade.
+    conn_admin.execute(
+        """UPDATE concursos.concurso SET inscricao_fim = current_date - 30, tem_isencao = true,
+                  isencao_inicio = current_date - 1, isencao_fim = current_date + 5
+           WHERE link_oficial = %s""",
+        (PM,),
+    )
+    assert "/concursos/teste-pm" in relidas()
+
+    # Sem oportunidade, mas lida pela última vez há 8 dias: releitura semanal (pega reabertura tardia).
+    conn_admin.execute(
+        """UPDATE concursos.concurso SET tem_isencao = false, isencao_inicio = NULL, isencao_fim = NULL
+           WHERE link_oficial = %s""",
+        (PM,),
+    )
+    assert "/concursos/teste-pm" not in relidas()
+    conn_admin.execute(
+        "UPDATE concursos.sinal_descoberta SET visto_em = now() - interval '8 days' WHERE url = %s", (PM,)
+    )
+    assert "/concursos/teste-pm" in relidas()
+
+    # PDF novo de concurso sem oportunidade não é baixado.
+    conn_admin.execute(
+        """INSERT INTO concursos.documento (concurso_id, tipo, titulo, url_origem)
+           SELECT id, 'RETIFICACAO', 'Retificação tardia', %s FROM concursos.concurso WHERE link_oficial = %s""",
+        (f"{ARQ}/teste-pm-ret-tardia.pdf", PM),
+    )
+    orquestrador.executar(("documentos",), fonte="fgv")
+    status = conn_admin.execute(
+        "SELECT status_extracao FROM concursos.documento WHERE url_origem = %s", (f"{ARQ}/teste-pm-ret-tardia.pdf",)
+    ).fetchone()
+    assert status == ("IGNORADO",)
     conn.close()
 
 

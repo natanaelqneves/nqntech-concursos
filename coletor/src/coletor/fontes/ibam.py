@@ -220,7 +220,8 @@ class FonteIBAM:
     nome = "ibam"
     dominios = frozenset({"ibam-concursos.org.br"})
 
-    def descobrir(self, http: ClienteHttp) -> ResultadoDescoberta:
+    def descobrir(self, http: ClienteHttp, pular: frozenset[str] = frozenset()) -> ResultadoDescoberta:
+        # A listagem já traz tudo (uma página só): não há leitura por concurso a economizar.
         sinais = parse_listagem(http.obter_texto(LISTAGEM))
         log.info("IBAM: %d concursos na página 'em andamento'", len(sinais))
         return ResultadoDescoberta(tuple(sinais))

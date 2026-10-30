@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import logging
 import time
-from collections.abc import Iterator, Sequence
-from contextlib import contextmanager
+from collections.abc import Callable, Iterator, Sequence
+from contextlib import contextmanager, suppress
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 from typing import Any
 
@@ -24,6 +24,13 @@ from coletor.fontes.base import DadosEstruturados, SinalDescoberta
 log = logging.getLogger(__name__)
 
 Linha = dict[str, Any]
+
+# Concurso sem oportunidade aberta (seção 1 do contexto): encerrado, ou com inscrições encerradas antes de
+# %(limite)s (hoje menos a folga para prorrogações), e sem prazo de isenção em curso. Sem data de inscrição
+# conhecida o concurso continua acompanhado: é preciso ler o edital para saber.
+SEM_OPORTUNIDADE = """(c.situacao = 'ENCERRADO'
+                        OR (c.situacao = 'EM_ANDAMENTO' AND c.inscricao_fim < %(limite)s))
+                       AND (c.isencao_fim IS NULL OR c.isencao_fim < %(hoje)s)"""
 
 
 def conectar(config: ConfigBanco, tentativas: int = 3) -> psycopg.Connection[Linha]:
@@ -62,8 +69,47 @@ class FonteCadastrada:
 
 
 class Repositorio:
-    def __init__(self, conn: psycopg.Connection[Linha]) -> None:
+    def __init__(
+        self,
+        conn: psycopg.Connection[Linha],
+        reconectar: Callable[[], psycopg.Connection[Linha]] | None = None,
+    ) -> None:
         self.conn = conn
+        self._reconectar = reconectar
+
+    def __enter__(self) -> Repositorio:
+        return self
+
+    def __exit__(self, tipo: type[BaseException] | None, *_: object) -> None:
+        # Mesmo papel do "with conn" do psycopg, mas sobre a conexão atual (pode ter sido trocada por retomar_conexao).
+        if self.conn.closed:
+            return
+        try:
+            if tipo is None:
+                self.conn.commit()
+            else:
+                self.conn.rollback()
+        finally:
+            self.conn.close()
+
+    def retomar_conexao(self) -> None:
+        """Garante uma conexão viva antes de gravar, depois de minutos só na rede (sem nada pendente para gravar).
+
+        O Neon encerra conexões paradas (o processamento "dorme" após ~5 min sem atividade); a descoberta da FGV
+        passa mais que isso lendo páginas com o intervalo de cortesia entre acessos.
+        """
+        if not self.conn.closed:
+            try:
+                self.conn.execute("SELECT 1")
+                self.conn.commit()
+                return
+            except psycopg.OperationalError as erro:
+                log.warning("a conexão com o banco caiu durante a etapa (%s); reconectando", erro)
+                with suppress(Exception):
+                    self.conn.close()
+        if self._reconectar is None:
+            raise psycopg.OperationalError("conexão com o banco perdida e sem como reconectar")
+        self.conn = self._reconectar()
 
     @contextmanager
     def transacao(self) -> Iterator[None]:
@@ -96,6 +142,23 @@ class Repositorio:
         linhas = self.conn.execute("SELECT id, nome, banca_id FROM fonte WHERE ativa ORDER BY id").fetchall()
         self.conn.commit()
         return [FonteCadastrada(**linha) for linha in linhas]
+
+    def urls_sem_oportunidade(self, fonte_id: int, hoje: date, folga_dias: int, releitura_dias: int) -> frozenset[str]:
+        """Sinais da fonte cuja página não precisa ser relida hoje: concurso sem oportunidade aberta e página lida
+        há menos de `releitura_dias` (gravar_sinal atualiza visto_em a cada leitura)."""
+        linhas = self.conn.execute(
+            f"""SELECT s.url FROM sinal_descoberta s JOIN concurso c ON c.id = s.concurso_id
+                WHERE s.fonte_id = %(fonte)s AND s.visto_em >= now() - make_interval(days => %(releitura)s)
+                  AND {SEM_OPORTUNIDADE}""",
+            {
+                "fonte": fonte_id,
+                "releitura": releitura_dias,
+                "limite": hoje - timedelta(days=folga_dias),
+                "hoje": hoje,
+            },
+        ).fetchall()
+        self.conn.commit()
+        return frozenset(linha["url"] for linha in linhas)
 
     def gravar_sinal(self, fonte_id: int, sinal: SinalDescoberta) -> bool:
         """Insere ou atualiza (payload novo = arquivos novos). Devolve True se o sinal é inédito."""
@@ -287,15 +350,16 @@ class Repositorio:
             )
 
     # --- documentos ------------------------------------------------------------------------------
-    def ignorar_documentos_sem_interesse(self) -> int:
+    def ignorar_documentos_sem_interesse(self, hoje: date, folga_dias: int) -> int:
         """Só vale baixar o que pode mudar a página do concurso: editais (cargos, datas, taxas, isenções) e
-        retificações. Comunicados e documentos de concursos encerrados não são baixados."""
+        retificações. Comunicados e documentos de concursos sem oportunidade aberta não são baixados."""
         with self.transacao():
             cursor = self.conn.execute(
-                """UPDATE documento d SET status_extracao = 'IGNORADO'
-                   FROM concurso c
-                   WHERE c.id = d.concurso_id AND d.status_extracao = 'PENDENTE'
-                     AND (c.situacao = 'ENCERRADO' OR d.tipo IN ('COMUNICADO', 'OUTRO'))"""
+                f"""UPDATE documento d SET status_extracao = 'IGNORADO'
+                    FROM concurso c
+                    WHERE c.id = d.concurso_id AND d.status_extracao = 'PENDENTE'
+                      AND (({SEM_OPORTUNIDADE}) OR d.tipo IN ('COMUNICADO', 'OUTRO'))""",
+                {"limite": hoje - timedelta(days=folga_dias), "hoje": hoje},
             )
             return cursor.rowcount
 

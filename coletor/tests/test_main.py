@@ -12,11 +12,16 @@ ENV = {
 
 
 class ConexaoQueCaiAoFechar:
-    def __enter__(self):
-        return self
+    closed = False
 
-    def __exit__(self, *_):
+    def commit(self):
         raise ConnectionError("server closed the connection unexpectedly")
+
+    def rollback(self):
+        pass
+
+    def close(self):
+        pass
 
 
 def test_queda_fora_das_etapas_vira_anotacao_no_github(monkeypatch, capsys):

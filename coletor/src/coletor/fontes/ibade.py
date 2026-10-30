@@ -165,9 +165,14 @@ class FonteIBADE:
     nome = "ibade"
     dominios = frozenset({"portal.ibade.selecao.site", "ibade.selecao.site"})
 
-    def descobrir(self, http: ClienteHttp) -> ResultadoDescoberta:
-        itens = parse_listagem(http.obter_texto(LISTAGEM))
-        log.info("IBADE: %d concursos em aberto, em andamento ou futuros", len(itens))
+    def descobrir(self, http: ClienteHttp, pular: frozenset[str] = frozenset()) -> ResultadoDescoberta:
+        listados = parse_listagem(http.obter_texto(LISTAGEM))
+        itens = [item for item in listados if item[0] not in pular]
+        log.info(
+            "IBADE: %d concursos em aberto, em andamento ou futuros (%d sem oportunidade, não relidos)",
+            len(listados),
+            len(listados) - len(itens),
+        )
         sinais: list[SinalDescoberta] = []
         falhas: list[str] = []
         for url, titulo, situacao in itens:

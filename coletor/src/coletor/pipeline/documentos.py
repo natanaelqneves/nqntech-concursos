@@ -17,7 +17,7 @@ from pdfminer.pdfparser import PDFSyntaxError
 
 from coletor.db import Repositorio
 from coletor.http_cliente import AcessoNaoPermitido, ClienteHttp, ErroHttp
-from coletor.pipeline.comum import ResumoEtapa, agora
+from coletor.pipeline.comum import DIAS_FOLGA_INSCRICAO, ResumoEtapa, agora, hoje
 from coletor.texto import limitar
 
 log = logging.getLogger(__name__)
@@ -70,7 +70,7 @@ def executar_documentos(
     max_bytes: int,
 ) -> ResumoEtapa:
     inicio = agora()
-    ignorados = repo.ignorar_documentos_sem_interesse()
+    ignorados = repo.ignorar_documentos_sem_interesse(hoje(), DIAS_FOLGA_INSCRICAO)
     pendentes = repo.documentos_pendentes(limite)
     repo.conn.commit()
     log.info(
@@ -88,6 +88,7 @@ def executar_documentos(
             try:
                 download = http.baixar_pdf(url, Path(pasta), max_bytes)
             except ErroHttp as erro:
+                repo.retomar_conexao()
                 log.warning("download recusado/falhou: %s", erro)
                 # Fora da política (robots.txt, domínio) ou fora dos limites não é falha: é decisão de não baixar.
                 recusado = isinstance(erro, AcessoNaoPermitido) or "excede" in str(erro) or "não é PDF" in str(erro)
@@ -98,7 +99,9 @@ def executar_documentos(
                 continue
 
             try:
+                repo.retomar_conexao()
                 existente = repo.texto_por_hash(download.sha256)
+                repo.conn.commit()  # a extração pode levar minutos: nada de transação aberta enquanto isso
                 if existente is not None:
                     # Mesmo arquivo publicado em outra URL (comum em retificações consolidadas): reaproveita.
                     repo.salvar_extracao(
@@ -109,9 +112,11 @@ def executar_documentos(
                         texto = extrair_texto_pdf(download.caminho)
                     except ExtracaoFalhou as erro:
                         log.warning("extração falhou em %s: %s", url, erro)
+                        repo.retomar_conexao()
                         repo.salvar_extracao(documento["id"], download.sha256, None, "FALHA")
                         falhas.append(f"{url}: {erro}")
                         continue
+                    repo.retomar_conexao()
                     util = len(texto.replace("\f", "").strip())
                     status = "OK" if util >= MIN_CARACTERES_UTEIS else "SEM_TEXTO"
                     repo.salvar_extracao(documento["id"], download.sha256, limitar(texto, MAX_CARACTERES_TEXTO), status)

@@ -113,7 +113,7 @@ Fase 5 — Site estático (seções 2 e 7 do contexto).
 ### Fase 6 — Mais fontes
 
 ```
-Fase 6 — Novas fontes e deduplicação, uma por vez: DOU via INLABS, fonte oficial do CNU, Querido Diário;
+Fase 6 — Novas fontes e deduplicação, uma por vez: DOU via INLABS, Querido Diário (o CNU já vem pela FGV);
 Vunesp e Selecon só se pararem de bloquear servidores (403 em 29/10/2026; nunca contornar).
 Antes de cada fonte, confira robots.txt e termos de uso e me diga o resultado. Fixtures reais capturadas pelo
 GitHub Actions. Deduplicação com a ordem de chaves do contexto; casos duvidosos marcados possivel_duplicado.

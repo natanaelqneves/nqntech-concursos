@@ -122,14 +122,26 @@ jobs:
         if: always()
         env:
           PGPASSWORD: ${{ env.COLETOR_DB_PASSWORD }}
+        # Uma linha por consulta: o GitHub mostra no máximo 10 anotações por passo.
         run: |
-          psql -X -h localhost -U coletor_app -d concursos -At <<'SQL' | sed 's/^/::notice title=Classificação::/'
+          psql -X -q -h localhost -U coletor_app -d concursos -At <<'SQL' | sed 's/^/::notice title=Classificação::/'
           SET search_path = concursos;
-          SELECT 'abrangência ' || coalesce(abrangencia, '(sem)') || ' / ' || situacao || ': ' || count(*)
-            FROM concurso GROUP BY abrangencia, situacao ORDER BY 1;
-          SELECT 'CNU: ' || string_agg(titulo, '; ') FROM concurso WHERE unificado;
-          SELECT 'área ' || coalesce(area, '(sem)') || ': ' || count(*) || ' cargos'
-            FROM cargo GROUP BY area ORDER BY count(*) DESC;
-          SELECT 'sem local: ' || titulo FROM concurso WHERE abrangencia IS NULL AND situacao <> 'ENCERRADO' LIMIT 15;
-          SELECT 'em OUTRAS: ' || nome || coalesce(' / ' || especialidade, '') FROM cargo WHERE area = 'OUTRAS' LIMIT 20;
+          SELECT 'abrangência/situação: ' || string_agg(chave || '=' || n, ', ' ORDER BY chave)
+            FROM (SELECT coalesce(abrangencia, 'SEM') || '/' || situacao AS chave, count(*) AS n
+                  FROM concurso GROUP BY 1) t;
+          SELECT 'CNU: ' || coalesce(string_agg(titulo || ' (' || coalesce(abrangencia, '-') || ')', '; '), 'nenhum')
+            FROM concurso WHERE unificado;
+          SELECT 'cargos por área: ' || string_agg(coalesce(area, 'SEM') || '=' || n, ', ' ORDER BY n DESC)
+            FROM (SELECT area, count(*) AS n FROM cargo GROUP BY area) t;
+          SELECT 'concursos com cargos: ' || count(DISTINCT concurso_id) || ' de ' || (SELECT count(*) FROM concurso)
+            FROM cargo;
+          SELECT 'sem local (' || count(*) || '): ' || coalesce(string_agg(left(titulo, 70), ' | '), '-')
+            FROM (SELECT titulo FROM concurso WHERE abrangencia IS NULL ORDER BY id LIMIT 25) t;
+          SELECT 'em OUTRAS (' || (SELECT count(*) FROM cargo WHERE area = 'OUTRAS') || '): '
+                 || coalesce(string_agg(nome || coalesce(' / ' || especialidade, ''), ' | '), '-')
+            FROM (SELECT nome, especialidade FROM cargo WHERE area = 'OUTRAS' ORDER BY id LIMIT 40) t;
+          SELECT 'municipais: ' || string_agg(DISTINCT m.nome || '/' || m.uf, ', ')
+            FROM concurso c JOIN municipio m ON m.codigo_ibge = c.municipio_ibge;
+          SELECT 'nacionais: ' || coalesce(string_agg(left(titulo, 60), ' | '), '-')
+            FROM concurso WHERE abrangencia = 'NACIONAL';
           SQL

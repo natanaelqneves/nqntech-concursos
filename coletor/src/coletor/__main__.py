@@ -101,14 +101,22 @@ def main(argv: list[str] | None = None) -> int:
         anotar_github([ResumoEtapa("CONEXAO", "FALHA", 0, str(erro))])
         return 1
 
-    with conn:
-        orquestrador = Orquestrador(config, Repositorio(conn))
-        resumos = orquestrador.executar(
-            etapas,
-            fonte=getattr(args, "fonte", None),
-            dry_run=getattr(args, "dry_run", False),
-            limite_documentos=getattr(args, "limite", None),
-        )
+    resumos: list[ResumoEtapa] = []
+    try:
+        with conn:
+            orquestrador = Orquestrador(config, Repositorio(conn))
+            resumos = orquestrador.executar(
+                etapas,
+                fonte=getattr(args, "fonte", None),
+                dry_run=getattr(args, "dry_run", False),
+                limite_documentos=getattr(args, "limite", None),
+            )
+    except Exception as erro:
+        # Falha fora de qualquer etapa (ex.: a conexão caiu e nem o rollback funcionou): sem isto, o GitHub Actions
+        # só mostraria "exit code 1", sem dizer o que houve.
+        log.exception("coletor interrompido")
+        anotar_github([*resumos, ResumoEtapa("GERAL", "FALHA", 0, f"{type(erro).__name__}: {erro}")])
+        return 1
 
     for resumo in resumos:
         log.info(

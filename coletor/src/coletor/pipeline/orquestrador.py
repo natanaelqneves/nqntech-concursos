@@ -14,12 +14,12 @@ from coletor.pipeline.comum import ResumoEtapa, agora
 from coletor.pipeline.descoberta import executar_descoberta
 from coletor.pipeline.documentos import executar_documentos
 from coletor.pipeline.estruturacao import executar_estruturacao
+from coletor.pipeline.resumo import executar_resumo
 from coletor.pipeline.vinculacao import executar_vinculacao
 
 log = logging.getLogger(__name__)
 
-# O resumo (fase 4) entra depois de "classificar".
-ETAPAS = ("descobrir", "vincular", "documentos", "estruturar", "classificar")
+ETAPAS = ("descobrir", "vincular", "documentos", "estruturar", "classificar", "resumir")
 
 
 class Orquestrador:
@@ -86,6 +86,8 @@ class Orquestrador:
                 return [executar_estruturacao(self._repo)]
             case "classificar":
                 return [executar_classificacao(self._repo)]
+            case "resumir":
+                return [executar_resumo(self._repo)]
         raise ValueError(f"etapa desconhecida: {etapa}")
 
 

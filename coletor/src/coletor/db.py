@@ -511,6 +511,55 @@ class Repositorio:
             (list(concurso_ids),),
         ).fetchall()
 
+    # --- resumo e publicação (fase 4) ----------------------------------------------------------------
+    def concursos_para_resumir(self) -> list[Linha]:
+        """Concursos ainda ativos (e os publicados, para poderem sair do site), com o que o resumo usa."""
+        return self.conn.execute(
+            """SELECT c.id, c.titulo, c.situacao, c.ano, c.abrangencia, c.uf, c.unificado, c.slug, c.resumo,
+                      c.publicado, c.total_vagas, c.salario_max, c.escolaridades, c.areas,
+                      c.inscricao_inicio, c.inscricao_fim, c.data_prova, c.taxa_min, c.taxa_max, c.isencao_fim,
+                      jsonb_array_length(coalesce(c.avisos_extracao, '[]'::jsonb)) > 0 AS tem_avisos,
+                      extract(year FROM c.criado_em)::int AS ano_criacao,
+                      o.nome AS orgao, b.sigla AS banca, m.nome AS municipio,
+                      g.vagas AS cargos_vagas, coalesce(g.reserva, false) AS cargos_reserva,
+                      g.salario_min AS cargos_salario_min, g.salario_max AS cargos_salario_max,
+                      coalesce(g.escolaridades, '{}') AS cargos_escolaridades, coalesce(g.areas, '{}') AS cargos_areas,
+                      coalesce(i.tipos, '{}') AS isencoes
+               FROM concurso c
+                        LEFT JOIN orgao o ON o.id = c.orgao_id
+                        LEFT JOIN banca b ON b.id = c.banca_id
+                        LEFT JOIN municipio m ON m.codigo_ibge = c.municipio_ibge
+                        LEFT JOIN LATERAL (
+                   SELECT sum(vagas)::int AS vagas, bool_or(cadastro_reserva) AS reserva,
+                          min(salario) AS salario_min, max(salario) AS salario_max,
+                          array_agg(DISTINCT escolaridade) FILTER (WHERE escolaridade IS NOT NULL) AS escolaridades,
+                          array_agg(DISTINCT area) FILTER (WHERE area IS NOT NULL) AS areas
+                   FROM cargo WHERE concurso_id = c.id) g ON true
+                        LEFT JOIN LATERAL (
+                   SELECT array_agg(tipo_codigo) AS tipos FROM concurso_isencao WHERE concurso_id = c.id) i ON true
+               WHERE c.situacao <> 'ENCERRADO' OR c.publicado
+               ORDER BY c.id"""
+        ).fetchall()
+
+    def slugs_ocupados(self) -> set[str]:
+        return {linha["slug"] for linha in self.conn.execute("SELECT slug FROM concurso WHERE slug IS NOT NULL")}
+
+    def aplicar_resumo(self, concurso_id: int, campos: dict[str, Any]) -> bool:
+        """Grava slug, campos desnormalizados, resumo e publicação só se algo mudou. Devolve True se alterou."""
+        cursor = self.conn.execute(
+            """UPDATE concurso
+               SET slug = %(slug)s, total_vagas = %(total_vagas)s, salario_max = %(salario_max)s,
+                   escolaridades = %(escolaridades)s, areas = %(areas)s, resumo = %(resumo)s,
+                   resumo_gerado_em = CASE WHEN resumo IS DISTINCT FROM %(resumo)s THEN now() ELSE resumo_gerado_em END,
+                   publicado = %(publicado)s
+               WHERE id = %(id)s
+                 AND (slug, total_vagas, salario_max, escolaridades, areas, resumo, publicado)
+                     IS DISTINCT FROM (%(slug)s, %(total_vagas)s, %(salario_max)s::numeric, %(escolaridades)s::text[],
+                                       %(areas)s::text[], %(resumo)s, %(publicado)s)""",
+            {**campos, "id": concurso_id},
+        )
+        return cursor.rowcount > 0
+
     def aplicar_local(self, concurso_id: int, local: Local, unificado: bool) -> bool:
         """Grava abrangência, UF, município e CNU só se mudaram. Devolve True se alterou."""
         cursor = self.conn.execute(

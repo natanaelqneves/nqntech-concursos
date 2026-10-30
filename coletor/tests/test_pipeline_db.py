@@ -6,6 +6,7 @@ Conecta como coletor_app, exatamente como em produção; um admin só limpa os d
 from __future__ import annotations
 
 from datetime import date, timedelta
+from decimal import Decimal
 from pathlib import Path
 
 import httpx
@@ -142,6 +143,7 @@ def test_pipeline_completo_idempotente_e_detecta_retificacao(parametros_coletor,
         "DOCUMENTOS": "SUCESSO",
         "ESTRUTURACAO": "SUCESSO",
         "CLASSIFICACAO": "SUCESSO",
+        "RESUMO": "SUCESSO",
     }
 
     tjpb = consulta.execute(
@@ -179,6 +181,13 @@ def test_pipeline_completo_idempotente_e_detecta_retificacao(parametros_coletor,
         None,
         False,
     )
+    # Fase 4: slug estável, campos desnormalizados, resumo e publicação só se for oportunidade.
+    assert tjpb["slug"] == "tribunal-de-justica-do-estado-da-paraiba-2026"
+    assert (tjpb["total_vagas"], tjpb["salario_max"], tjpb["escolaridades"]) == (50, Decimal("7526.14"), ["SUPERIOR"])
+    assert set(tjpb["areas"]) == {"JURIDICA", "TI", "CONTROLE_FISCAL"}
+    assert tjpb["resumo"].startswith("Tribunal de Justiça do Estado da Paraíba (PB) ")
+    assert "50 vagas" in tjpb["resumo"] and "Banca: FGV." in tjpb["resumo"]
+    assert tjpb["publicado"] is (tjpb["situacao"] == "INSCRICOES_ABERTAS")
 
     docs = consulta.execute(
         "SELECT tipo, status_extracao, hash_sha256 FROM concursos.documento WHERE concurso_id = %s ORDER BY tipo",
@@ -194,6 +203,7 @@ def test_pipeline_completo_idempotente_e_detecta_retificacao(parametros_coletor,
     site.pdfs_baixados.clear()
     resumos = orquestrador.executar(ETAPAS, fonte="fgv")
     assert next(r for r in resumos if r.etapa == "DESCOBERTA").itens_novos == 0
+    assert next(r for r in resumos if r.etapa == "RESUMO").itens_novos == 0  # nada mudou: nada regravado
     assert site.pdfs_baixados == []
     assert (
         consulta.execute(

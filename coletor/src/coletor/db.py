@@ -15,6 +15,8 @@ import psycopg
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
+from coletor.classificacao.local import Local, Municipio
+from coletor.classificacao.orgao import OrgaoInferido
 from coletor.config import ConfigBanco
 from coletor.extratores.base import CargoExtraido, EditalExtraido
 from coletor.fontes.base import DadosEstruturados, SinalDescoberta
@@ -57,14 +59,6 @@ class FonteCadastrada:
     id: int
     nome: str
     banca_id: int | None
-
-
-@dataclass(frozen=True)
-class OrgaoInferido:
-    nome: str
-    esfera: str | None
-    uf: str | None
-    municipio: str | None
 
 
 class Repositorio:
@@ -119,7 +113,7 @@ class Repositorio:
     # --- vinculação ------------------------------------------------------------------------------
     def sinais_para_vincular(self, desde: datetime) -> list[Linha]:
         return self.conn.execute(
-            """SELECT s.id, s.titulo, s.url, s.payload, s.concurso_id, f.banca_id
+            """SELECT s.id, s.titulo, s.url, s.data_publicacao, s.payload, s.concurso_id, f.banca_id
                FROM sinal_descoberta s JOIN fonte f ON f.id = s.fonte_id
                WHERE s.status = 'NOVO' OR (s.status = 'VINCULADO' AND s.visto_em >= %s)
                ORDER BY s.id""",
@@ -152,13 +146,14 @@ class Repositorio:
                        CASE WHEN %(tem_edital)s THEN 'EM_ANDAMENTO' ELSE 'PREVISTO' END)
                ON CONFLICT (link_oficial) DO UPDATE
                   SET titulo = EXCLUDED.titulo,
-                      orgao_id = coalesce(concurso.orgao_id, EXCLUDED.orgao_id),
+                      -- A inferência do órgão melhora com o tempo: a mais nova vale (vazia não apaga a antiga).
+                      orgao_id = coalesce(EXCLUDED.orgao_id, concurso.orgao_id),
                       link_inscricao = coalesce(EXCLUDED.link_inscricao, concurso.link_inscricao),
                       situacao = CASE WHEN concurso.situacao = 'PREVISTO' AND %(tem_edital)s
                                       THEN 'EM_ANDAMENTO' ELSE concurso.situacao END
                   -- Só toca a linha se algo mudou, para atualizado_em continuar significando "mudou".
                   WHERE (concurso.titulo, concurso.orgao_id, concurso.link_inscricao, concurso.situacao)
-                        IS DISTINCT FROM (EXCLUDED.titulo, coalesce(concurso.orgao_id, EXCLUDED.orgao_id),
+                        IS DISTINCT FROM (EXCLUDED.titulo, coalesce(EXCLUDED.orgao_id, concurso.orgao_id),
                                           coalesce(EXCLUDED.link_inscricao, concurso.link_inscricao),
                                           CASE WHEN concurso.situacao = 'PREVISTO' AND %(tem_edital)s
                                                THEN 'EM_ANDAMENTO' ELSE concurso.situacao END)
@@ -188,6 +183,25 @@ class Repositorio:
             (concurso_id, tipo, titulo[:500], url, data_publicacao),
         ).fetchone()
         return linha is not None
+
+    def marcar_encerrado(self, concurso_id: int, desde: datetime | None) -> bool:
+        """A fonte deu o concurso por finalizado. `desde` aproxima quando (última publicação); sem ela, agora."""
+        cursor = self.conn.execute(
+            """UPDATE concurso SET situacao = 'ENCERRADO', encerrado_em = coalesce(%s, now())
+               WHERE id = %s AND situacao <> 'ENCERRADO'""",
+            (desde, concurso_id),
+        )
+        return cursor.rowcount > 0
+
+    def reabrir(self, concurso_id: int) -> bool:
+        """Concurso dado por encerrado que voltou a "em andamento" na fonte."""
+        cursor = self.conn.execute(
+            "UPDATE concurso SET situacao = 'EM_ANDAMENTO' WHERE id = %s AND situacao = 'ENCERRADO'", (concurso_id,)
+        )
+        return cursor.rowcount > 0
+
+    def descartar_sinal(self, sinal_id: int) -> None:
+        self.conn.execute("UPDATE sinal_descoberta SET status = 'DESCARTADO' WHERE id = %s", (sinal_id,))
 
     def marcar_sinal_vinculado(self, sinal_id: int, concurso_id: int) -> None:
         self.conn.execute(
@@ -372,3 +386,72 @@ class Repositorio:
                 (dias_sem_ver,),
             ).rowcount
         return fechadas + encerradas
+
+    # --- classificação ---------------------------------------------------------------------------
+    def codigos_area(self) -> frozenset[str]:
+        linhas = self.conn.execute("SELECT codigo FROM area").fetchall()
+        self.conn.commit()
+        return frozenset(linha["codigo"] for linha in linhas)
+
+    def municipios(self) -> list[Municipio]:
+        linhas = self.conn.execute("SELECT codigo_ibge, nome, uf, slug FROM municipio").fetchall()
+        self.conn.commit()
+        return [Municipio(**linha) for linha in linhas]
+
+    def concursos_para_classificar(self, dias_encerrado: int) -> list[Linha]:
+        """Concursos que ainda podem ir ao site, com o contexto para achar o local: órgão, descrição da página
+        da banca e o começo do edital lido (onde costuma estar "Estado de ..."/"Município de ...")."""
+        return self.conn.execute(
+            """SELECT c.id, c.titulo, c.link_oficial, c.abrangencia, c.uf, c.municipio_ibge, c.unificado,
+                      o.id AS orgao_id, o.nome AS orgao_nome, o.esfera AS orgao_esfera, o.uf AS orgao_uf,
+                      o.municipio AS orgao_municipio, o.municipio_ibge AS orgao_municipio_ibge,
+                      (SELECT s.payload ->> 'descricao' FROM sinal_descoberta s WHERE s.concurso_id = c.id
+                       ORDER BY s.visto_em DESC LIMIT 1) AS descricao,
+                      (SELECT left(d.texto_extraido, 3000) FROM documento d WHERE d.id = c.edital_documento_id)
+                          AS edital_inicio
+               FROM concurso c LEFT JOIN orgao o ON o.id = c.orgao_id
+               WHERE c.situacao <> 'ENCERRADO' OR c.encerrado_em >= now() - make_interval(days => %s)
+               ORDER BY c.id""",
+            (dias_encerrado,),
+        ).fetchall()
+
+    def cargos_dos_concursos(self, concurso_ids: Sequence[int]) -> list[Linha]:
+        return self.conn.execute(
+            """SELECT id, concurso_id, nome, especialidade, escolaridade, area FROM cargo
+               WHERE concurso_id = ANY(%s) ORDER BY id""",
+            (list(concurso_ids),),
+        ).fetchall()
+
+    def aplicar_local(self, concurso_id: int, local: Local, unificado: bool) -> bool:
+        """Grava abrangência, UF, município e CNU só se mudaram. Devolve True se alterou."""
+        cursor = self.conn.execute(
+            """UPDATE concurso SET abrangencia = %(abrangencia)s, uf = %(uf)s, municipio_ibge = %(municipio)s,
+                                  unificado = %(unificado)s
+               WHERE id = %(id)s
+                 AND (abrangencia, uf, municipio_ibge, unificado)
+                     IS DISTINCT FROM (%(abrangencia)s, %(uf)s::char(2), %(municipio)s::integer, %(unificado)s)""",
+            {
+                "id": concurso_id,
+                "abrangencia": local.abrangencia,
+                "uf": local.uf,
+                "municipio": local.municipio_ibge,
+                "unificado": unificado,
+            },
+        )
+        return cursor.rowcount > 0
+
+    def completar_municipio_do_orgao(self, orgao_id: int, uf: str, municipio_ibge: int) -> None:
+        # Só completa órgão que já tem a mesma UF: mudar a UF do órgão mexeria na chave única dele.
+        self.conn.execute(
+            """UPDATE orgao SET municipio_ibge = %s
+               WHERE id = %s AND uf = %s AND municipio_ibge IS DISTINCT FROM %s""",
+            (municipio_ibge, orgao_id, uf, municipio_ibge),
+        )
+
+    def aplicar_classificacao_cargo(self, cargo_id: int, area: str, escolaridade: str | None) -> bool:
+        cursor = self.conn.execute(
+            """UPDATE cargo SET area = %(area)s, escolaridade = %(escolaridade)s
+               WHERE id = %(id)s AND (area, escolaridade) IS DISTINCT FROM (%(area)s, %(escolaridade)s)""",
+            {"id": cargo_id, "area": area, "escolaridade": escolaridade},
+        )
+        return cursor.rowcount > 0

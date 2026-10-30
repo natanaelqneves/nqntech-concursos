@@ -55,7 +55,7 @@ jobs:
           cache-dependency-path: coletor/pyproject.toml
       - name: Instalar coletor
         run: pip install ./coletor
-      - name: Coletar (descobrir → vincular → documentos → estruturar)
+      - name: Coletar (descobrir → vincular → documentos → estruturar → classificar)
         env:
           LIMITE: ${{ inputs.limite }}
         run: python -m coletor executar ${LIMITE:+--limite "$LIMITE"}

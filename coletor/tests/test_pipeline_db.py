@@ -5,6 +5,7 @@ Conecta como coletor_app, exatamente como em produção; um admin só limpa os d
 
 from __future__ import annotations
 
+from datetime import date, timedelta
 from pathlib import Path
 
 import httpx
@@ -23,6 +24,8 @@ PDFS = Path(__file__).parent / "fixtures" / "pdf"
 BASE = "https://conhecimento.fgv.br"
 TJPB = f"{BASE}/concursos/tjpb26"
 PM = f"{BASE}/concursos/teste-pm"
+ANTIGO = f"{BASE}/concursos/teste-antigo"
+RECENTE = f"{BASE}/concursos/teste-recente"
 ARQ = f"{BASE}/sites/default/files/concursos"
 
 LISTAGEM = """<html><body><main>
@@ -76,14 +79,17 @@ class SiteFGVSimulado:
 @pytest.fixture
 def limpar(conn_admin):
     def apagar() -> None:
-        conn_admin.execute("DELETE FROM concursos.sinal_descoberta WHERE url = ANY(%s)", ([TJPB, PM],))
-        conn_admin.execute("DELETE FROM concursos.concurso WHERE link_oficial = ANY(%s)", ([TJPB, PM],))
+        urls = [TJPB, PM, ANTIGO, RECENTE]
+        conn_admin.execute("DELETE FROM concursos.sinal_descoberta WHERE url = ANY(%s)", (urls,))
+        conn_admin.execute("DELETE FROM concursos.concurso WHERE link_oficial = ANY(%s)", (urls,))
         for prefixo in ("https://www.ibam-concursos.org.br/%", "https://portal.ibade.selecao.site/%"):
             conn_admin.execute("DELETE FROM concursos.sinal_descoberta WHERE url LIKE %s", (prefixo,))
             conn_admin.execute("DELETE FROM concursos.concurso WHERE link_oficial LIKE %s", (prefixo,))
         conn_admin.execute(
             """DELETE FROM concursos.orgao o WHERE nome IN ('Tribunal de Justiça do Estado da Paraíba',
-                                                        'Polícia Militar do Estado do Piauí')
+                                                        'Polícia Militar do Estado do Piauí',
+                                                        'Câmara Municipal de Taubaté',
+                                                        'Tribunal Regional do Trabalho da 16ª Região')
                AND NOT EXISTS (SELECT 1 FROM concursos.concurso c WHERE c.orgao_id = o.id)"""
         )
 
@@ -130,6 +136,7 @@ def test_pipeline_completo_idempotente_e_detecta_retificacao(parametros_coletor,
         "VINCULACAO": "SUCESSO",
         "DOCUMENTOS": "SUCESSO",
         "ESTRUTURACAO": "SUCESSO",
+        "CLASSIFICACAO": "SUCESSO",
     }
 
     tjpb = consulta.execute(
@@ -153,10 +160,20 @@ def test_pipeline_completo_idempotente_e_detecta_retificacao(parametros_coletor,
     assert tjpb["link_inscricao"] == "https://portal.conhecimento.fgv.br/Concurso/Inscricao"
 
     cargos = consulta.execute(
-        "SELECT especialidade, vagas FROM concursos.cargo WHERE concurso_id = %s", (tjpb["id"],)
+        "SELECT especialidade, vagas, area FROM concursos.cargo WHERE concurso_id = %s", (tjpb["id"],)
     ).fetchall()
     assert len(cargos) == 9
     assert {"TI – Desenvolvimento de Sistemas", "TI – Banco de Dados"} <= {c["especialidade"] for c in cargos}
+    areas = {c["especialidade"]: c["area"] for c in cargos}
+    assert areas["TI – Banco de Dados"] == "TI"
+    assert areas["Contabilidade"] == "CONTROLE_FISCAL"
+    assert all(a is not None and a != "OUTRAS" for a in areas.values())
+    assert (tjpb["abrangencia"], tjpb["uf"], tjpb["municipio_ibge"], tjpb["unificado"]) == (
+        "ESTADUAL",
+        "PB",
+        None,
+        False,
+    )
 
     docs = consulta.execute(
         "SELECT tipo, status_extracao, hash_sha256 FROM concursos.documento WHERE concurso_id = %s ORDER BY tipo",
@@ -216,6 +233,86 @@ def test_falha_total_da_fonte_e_registrada(parametros_coletor, conn_admin, limpa
         " WHERE etapa = 'DESCOBERTA' ORDER BY id DESC LIMIT 1"
     ).fetchone()
     assert ultima[0] == "FALHA" and "layout" in ultima[1]
+    conn.close()
+
+
+def _bloco_realizados(itens: list[tuple[str, str]]) -> str:
+    linhas = "".join(f'<div class="views-row"><a href="{href}">{titulo}</a></div>' for href, titulo in itens)
+    return f'<div class="view view-concursos-realizados"><div class="view-content">{linhas}</div></div>'
+
+
+def _pagina_simples(titulo: str, data: date) -> str:
+    return f"""<html><body><main><h1>{titulo}</h1>
+<div class="field field--name-field-concurso-arquivos"><div class="field__item"><div class="paragraph">
+  <time datetime="{data.isoformat()}T12:00:00Z">{data:%d/%m/%Y}</time>
+  <a href="{ARQ}/resultado-{data}.pdf">Resultado final</a>
+</div></div></div></main></body></html>"""
+
+
+def test_encerrados_da_fgv_e_classificacao(parametros_coletor, conn_admin, limpar, fixture_texto):
+    site = SiteFGVSimulado(fixture_texto)
+    conn, orquestrador = criar_orquestrador(parametros_coletor, site)
+    consulta = conn_admin.cursor(row_factory=dict_row)
+    orquestrador.executar(ETAPAS, fonte="fgv")
+
+    pm = consulta.execute(
+        "SELECT abrangencia, uf, situacao FROM concursos.concurso WHERE link_oficial = %s", (PM,)
+    ).fetchone()
+    assert (pm["abrangencia"], pm["uf"]) == ("ESTADUAL", "PI")
+    assert pm["situacao"] != "ENCERRADO"
+
+    # A FGV move o concurso da PM para "realizados" e lista mais dois finalizados que nunca acompanhamos:
+    # um recente (entra como encerrado) e um antigo (fora do site: descartado sem criar concurso).
+    recente = date.today() - timedelta(days=20)
+    linha_pm = (
+        '<div class="views-row">\n    <a href="/concursos/teste-pm">'
+        "Concurso Público para a Polícia Militar do Estado do Piauí</a></div>"
+    )
+    assert linha_pm in LISTAGEM
+    realizados = _bloco_realizados(
+        [
+            ("/concursos/teste-pm", "Concurso Público para a Polícia Militar do Estado do Piauí"),
+            ("/concursos/teste-recente", "Concurso Público para a Câmara Municipal de Taubaté"),
+            ("/concursos/teste-antigo", "Concurso Público para o Tribunal Regional do Trabalho - 16ª Região"),
+        ]
+    )
+    site.paginas["/concursos"] = LISTAGEM.replace(linha_pm, "").replace("</main>", realizados + "</main>")
+    site.paginas["/concursos/teste-recente"] = _pagina_simples(
+        "Concurso Público para a Câmara Municipal de Taubaté", recente
+    )
+    site.paginas["/concursos/teste-antigo"] = _pagina_simples(
+        "Concurso Público para o Tribunal Regional do Trabalho - 16ª Região", date(2022, 5, 10)
+    )
+    resumos = orquestrador.executar(ETAPAS, fonte="fgv")
+    assert codigo_de_saida(resumos) == 0, resumos
+
+    pm = consulta.execute(
+        "SELECT situacao, encerrado_em::date AS desde FROM concursos.concurso WHERE link_oficial = %s", (PM,)
+    ).fetchone()
+    assert (pm["situacao"], str(pm["desde"])) == ("ENCERRADO", "2026-10-01")  # data da última publicação
+
+    taubate = consulta.execute(
+        """SELECT situacao, encerrado_em::date AS desde, abrangencia, uf, municipio_ibge
+           FROM concursos.concurso WHERE link_oficial = %s""",
+        (RECENTE,),
+    ).fetchone()
+    assert (taubate["situacao"], taubate["desde"]) == ("ENCERRADO", recente)
+    assert (taubate["abrangencia"], taubate["uf"], taubate["municipio_ibge"]) == ("MUNICIPAL", "SP", 3554102)
+
+    assert consulta.execute("SELECT 1 FROM concursos.concurso WHERE link_oficial = %s", (ANTIGO,)).fetchone() is None
+    descartado = consulta.execute("SELECT status FROM concursos.sinal_descoberta WHERE url = %s", (ANTIGO,)).fetchone()
+    assert descartado["status"] == "DESCARTADO"
+
+    # Documentos de concurso encerrado não são baixados.
+    assert not [u for u in site.pdfs_baixados if "resultado-" in u]
+
+    # A PM volta a "em andamento": o concurso é reaberto.
+    site.paginas["/concursos"] = LISTAGEM
+    orquestrador.executar(("descobrir", "vincular"), fonte="fgv")
+    pm = consulta.execute(
+        "SELECT situacao, encerrado_em FROM concursos.concurso WHERE link_oficial = %s", (PM,)
+    ).fetchone()
+    assert (pm["situacao"], pm["encerrado_em"]) == ("EM_ANDAMENTO", None)
     conn.close()
 
 
@@ -281,9 +378,13 @@ def test_fontes_com_dados_estruturados_ibam_e_ibade(parametros_coletor, conn_adm
         "130.00",
     )
     cargos = consulta.execute(
-        "SELECT nome, escolaridade, vagas FROM concursos.cargo WHERE concurso_id = %s", (fraiburgo["id"],)
+        "SELECT nome, escolaridade, vagas, area FROM concursos.cargo WHERE concurso_id = %s", (fraiburgo["id"],)
     ).fetchall()
-    assert ("Analista de Sistemas", "SUPERIOR", 1) in [(c["nome"], c["escolaridade"], c["vagas"]) for c in cargos]
+    assert ("Analista de Sistemas", "SUPERIOR", 1, "TI") in [
+        (c["nome"], c["escolaridade"], c["vagas"], c["area"]) for c in cargos
+    ]
+    assert all(c["area"] is not None for c in cargos)
+    assert (fraiburgo["abrangencia"], fraiburgo["municipio_ibge"]) == ("MUNICIPAL", 4205506)
 
     # Todo concurso ativo tem o edital baixado e lido (todas as áreas interessam ao site).
     docs = {

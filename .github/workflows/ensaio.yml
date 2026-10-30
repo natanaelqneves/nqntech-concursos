@@ -88,14 +88,14 @@ jobs:
           cache: pip
           cache-dependency-path: coletor/pyproject.toml
 
-      - name: Coletar de verdade (limitado a 8 documentos)
+      - name: Coletar de verdade (limitado a 20 documentos)
         env:
           DB_HOST: ${{ steps.neon.outputs.db_host }}
           DB_NAME: ${{ steps.neon.outputs.db_name }}
           DB_SSLMODE: disable
           COLETOR_DB_USER: coletor_app
           COLETOR_CONTATO_EMAIL: ensaio@exemplo.com
-          COLETOR_MAX_DOCUMENTOS: "8"
+          COLETOR_MAX_DOCUMENTOS: "20"
         run: |
           pip install ./coletor
           python -m coletor executar
@@ -116,4 +116,20 @@ jobs:
             FROM concurso c LEFT JOIN orgao o ON o.id = c.orgao_id JOIN banca b ON b.id = c.banca_id
             LEFT JOIN cargo g ON g.concurso_id = c.id
             GROUP BY c.id, o.nome, o.uf, b.sigla ORDER BY c.situacao, 1 LIMIT 15;
+          SQL
+
+      - name: Conferir a classificação (área, local, CNU)
+        if: always()
+        env:
+          PGPASSWORD: ${{ env.COLETOR_DB_PASSWORD }}
+        run: |
+          psql -X -h localhost -U coletor_app -d concursos -At <<'SQL' | sed 's/^/::notice title=Classificação::/'
+          SET search_path = concursos;
+          SELECT 'abrangência ' || coalesce(abrangencia, '(sem)') || ' / ' || situacao || ': ' || count(*)
+            FROM concurso GROUP BY abrangencia, situacao ORDER BY 1;
+          SELECT 'CNU: ' || string_agg(titulo, '; ') FROM concurso WHERE unificado;
+          SELECT 'área ' || coalesce(area, '(sem)') || ': ' || count(*) || ' cargos'
+            FROM cargo GROUP BY area ORDER BY count(*) DESC;
+          SELECT 'sem local: ' || titulo FROM concurso WHERE abrangencia IS NULL AND situacao <> 'ENCERRADO' LIMIT 15;
+          SELECT 'em OUTRAS: ' || nome || coalesce(' / ' || especialidade, '') FROM cargo WHERE area = 'OUTRAS' LIMIT 20;
           SQL

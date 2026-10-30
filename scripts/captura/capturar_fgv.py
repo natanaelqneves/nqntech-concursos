@@ -1,7 +1,8 @@
 """Captura páginas reais da FGV para servirem de fixtures dos testes (roda no GitHub Actions).
 
 Respeita robots.txt e espera 3 s entre requisições. Salva HTML, robots.txt, um relatório e o texto
-extraído dos editais do concurso-alvo (os PDFs não são versionados).
+extraído do edital de cada concurso-alvo (os PDFs não são versionados). Fixtures que já existem não são
+sobrescritas: os testes dependem do conteúdo capturado da primeira vez.
 """
 
 from __future__ import annotations
@@ -12,7 +13,7 @@ import sys
 import time
 import urllib.robotparser
 from pathlib import Path
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 
 import pdfplumber
 import requests
@@ -22,7 +23,16 @@ BASE = "https://conhecimento.fgv.br"
 LISTAGEM = f"{BASE}/concursos"
 UA = "NqnTechConcursos/0.1 (site publico e gratuito de concursos; respeita robots.txt)"
 DESTINO = Path("coletor/tests/fixtures/fgv")
-ALVO = re.compile(r"tjpb", re.I)
+# Concursos de áreas diferentes (fase 2): policial, saúde, educação, TI, municipal e o CNU (só a página).
+ALVOS = {
+    "/concursos/pcpr26": True,
+    "/concursos/sesto26": True,
+    "/concursos/seducpa26": True,
+    "/concursos/dataprev26": True,
+    "/concursos/pms2026": True,
+    "/cpnu2": False,
+}
+PAGINAS_LISTAGEM = (0, 1, 2)
 INTERVALO_S = 3.0
 
 sessao = requests.Session()
@@ -31,7 +41,9 @@ relatorio: dict = {"requisicoes": []}
 ultimo = 0.0
 
 
-def obter(url: str, robots: urllib.robotparser.RobotFileParser | None) -> requests.Response | None:
+def obter(
+    url: str, robots: urllib.robotparser.RobotFileParser | None
+) -> requests.Response | None:
     global ultimo
     if robots is not None and not robots.can_fetch(UA, url):
         relatorio["requisicoes"].append({"url": url, "bloqueado_robots": True})
@@ -47,13 +59,21 @@ def obter(url: str, robots: urllib.robotparser.RobotFileParser | None) -> reques
     finally:
         ultimo = time.monotonic()
     relatorio["requisicoes"].append(
-        {"url": url, "status": resp.status_code, "tipo": resp.headers.get("Content-Type"), "bytes": len(resp.content)}
+        {
+            "url": url,
+            "status": resp.status_code,
+            "tipo": resp.headers.get("Content-Type"),
+            "bytes": len(resp.content),
+        }
     )
     return resp
 
 
-def salvar(nome: str, conteudo: str | bytes) -> None:
+def salvar(nome: str, conteudo: str | bytes, sobrescrever: bool = False) -> None:
     caminho = DESTINO / nome
+    if caminho.exists() and not sobrescrever:
+        relatorio.setdefault("mantidos", []).append(nome)
+        return
     caminho.parent.mkdir(parents=True, exist_ok=True)
     if isinstance(conteudo, bytes):
         caminho.write_bytes(conteudo)
@@ -71,53 +91,55 @@ def main() -> int:
     else:
         robots.parse([])
 
-    paginas: list[str] = []
-    for pagina in (0, 1):
+    for pagina in PAGINAS_LISTAGEM:
         url = LISTAGEM if pagina == 0 else f"{LISTAGEM}?page={pagina}"
         resp = obter(url, robots)
-        if resp is None or not resp.ok:
-            continue
-        salvar(f"listagem_p{pagina}.html", resp.text)
-        soup = BeautifulSoup(resp.text, "lxml")
-        for a in soup.select("a[href]"):
-            href = urljoin(BASE, a["href"])
-            caminho = urlparse(href).path.rstrip("/")
-            if href.startswith(BASE) and re.fullmatch(r"/concursos/[^/]+", caminho) and href not in paginas:
-                paginas.append(href.split("?")[0].split("#")[0])
-    relatorio["links_concurso"] = paginas
+        if resp is not None and resp.ok:
+            salvar(f"listagem_p{pagina}.html", resp.text)
 
-    alvos = [p for p in paginas if ALVO.search(p)]
-    escolhidas = (alvos[:1] + [p for p in paginas if p not in alvos][:3])
-    relatorio["escolhidas"] = escolhidas
-    for url in escolhidas:
+    for caminho, com_edital in ALVOS.items():
+        url = f"{BASE}{caminho}"
         resp = obter(url, robots)
         if resp is None or not resp.ok:
             continue
-        slug = urlparse(url).path.rstrip("/").rsplit("/", 1)[-1]
+        slug = caminho.rstrip("/").rsplit("/", 1)[-1]
         salvar(f"concurso_{slug}.html", resp.text)
-        if not ALVO.search(url):
+        if not com_edital:
             continue
         soup = BeautifulSoup(resp.text, "lxml")
-        pdfs = [urljoin(url, a["href"]) for a in soup.select("a[href]") if a["href"].lower().split("?")[0].endswith(".pdf")]
-        relatorio["pdfs_alvo"] = pdfs
-        editais = [p for p in pdfs if re.search(r"edital", p, re.I) and not re.search(r"retifica", p, re.I)] or pdfs
-        for i, pdf_url in enumerate(editais[:2]):
-            pdf = obter(pdf_url, robots)
-            if pdf is None or not pdf.ok:
-                continue
-            tmp = Path("/tmp") / f"edital_{i}.pdf"
-            tmp.write_bytes(pdf.content)
-            with pdfplumber.open(tmp) as doc:
-                textos = [pg.extract_text() or "" for pg in doc.pages]
-                tabelas = []
-                for n, pg in enumerate(doc.pages[:40]):
-                    for t in pg.extract_tables():
-                        tabelas.append({"pagina": n + 1, "linhas": t})
-            salvar(f"edital_{slug}_{i}.txt", "\n\f\n".join(textos))
-            salvar(f"edital_{slug}_{i}_tabelas.json", json.dumps(tabelas, ensure_ascii=False, indent=1))
-            relatorio.setdefault("editais", []).append({"url": pdf_url, "paginas": len(textos)})
+        edital = None
+        for a in soup.select(".field--name-field-concurso-arquivos a[href]"):
+            titulo = a.get_text(" ", strip=True).lower()
+            href = urljoin(url, a["href"])
+            if (
+                titulo.startswith("edital")
+                and not re.search(
+                    r"comunicado|resultado|convoca|homologa|extrato", titulo
+                )
+                and href.lower().split("?")[0].endswith(".pdf")
+            ):
+                edital = href
+                break
+        relatorio.setdefault("editais_escolhidos", {})[slug] = edital
+        if edital is None:
+            continue
+        pdf = obter(edital, robots)
+        if pdf is None or not pdf.ok:
+            continue
+        tmp = Path("/tmp") / f"edital_{slug}.pdf"
+        tmp.write_bytes(pdf.content)
+        with pdfplumber.open(tmp) as doc:
+            textos = [pg.extract_text() or "" for pg in doc.pages[:400]]
+        salvar(f"edital_{slug}_0.txt", "\n\f\n".join(textos))
+        relatorio.setdefault("editais", []).append(
+            {"url": edital, "paginas": len(textos)}
+        )
 
-    salvar("_relatorio.json", json.dumps(relatorio, ensure_ascii=False, indent=2))
+    salvar(
+        "_relatorio.json",
+        json.dumps(relatorio, ensure_ascii=False, indent=2),
+        sobrescrever=True,
+    )
     print(json.dumps(relatorio, ensure_ascii=False)[:3000])
     return 0
 

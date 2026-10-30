@@ -9,6 +9,7 @@ from coletor.config import Config
 from coletor.db import Repositorio
 from coletor.fontes import fontes_disponiveis
 from coletor.http_cliente import ClienteHttp
+from coletor.pipeline.classificacao import executar_classificacao
 from coletor.pipeline.comum import ResumoEtapa, agora
 from coletor.pipeline.descoberta import executar_descoberta
 from coletor.pipeline.documentos import executar_documentos
@@ -17,8 +18,8 @@ from coletor.pipeline.vinculacao import executar_vinculacao
 
 log = logging.getLogger(__name__)
 
-# A classificação por área (fase 2) e o resumo (fase 4) entram depois de "estruturar".
-ETAPAS = ("descobrir", "vincular", "documentos", "estruturar")
+# O resumo (fase 4) entra depois de "classificar".
+ETAPAS = ("descobrir", "vincular", "documentos", "estruturar", "classificar")
 
 
 class Orquestrador:
@@ -30,7 +31,7 @@ class Orquestrador:
     ) -> None:
         self._config = config
         self._repo = repo
-        self._fontes = fontes_disponiveis(config.max_paginas_listagem)
+        self._fontes = fontes_disponiveis(config.max_paginas_listagem, config.max_paginas_realizados)
         self._criar_http = criar_http or self._http_padrao
 
     def _http_padrao(self, dominios: frozenset[str]) -> ClienteHttp:
@@ -79,6 +80,8 @@ class Orquestrador:
                 ]
             case "estruturar":
                 return [executar_estruturacao(self._repo)]
+            case "classificar":
+                return [executar_classificacao(self._repo)]
         raise ValueError(f"etapa desconhecida: {etapa}")
 
 

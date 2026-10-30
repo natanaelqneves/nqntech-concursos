@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from coletor.pipeline.documentos import ExtracaoFalhou, extrair_texto_pdf
-from coletor.pipeline.vinculacao import classificar_tipo_documento, eh_pdf, inferir_orgao
+from coletor.pipeline.vinculacao import classificar_tipo_documento, eh_pdf
 
 PDFS = Path(__file__).parent / "fixtures" / "pdf"
 
@@ -23,46 +23,6 @@ PDFS = Path(__file__).parent / "fixtures" / "pdf"
 )
 def test_tipo_do_documento_pelo_titulo(titulo, tipo):
     assert classificar_tipo_documento(titulo) == tipo
-
-
-@pytest.mark.parametrize(
-    ("titulo", "nome", "esfera", "uf", "municipio"),
-    [
-        (
-            "Concurso Público para Tribunal de Justiça do Estado da Paraíba",
-            "Tribunal de Justiça do Estado da Paraíba",
-            "ESTADUAL",
-            "PB",
-            None,
-        ),
-        ("Concurso Público para a Prefeitura de Macaé", "Prefeitura de Macaé", "MUNICIPAL", None, "Macaé"),
-        (
-            "Concurso Público para a Empresa de Tecnologia e Informações da Previdência - Dataprev",
-            "Empresa de Tecnologia e Informações da Previdência",
-            "FEDERAL",
-            None,
-            None,
-        ),
-        (
-            "Concurso Público para a Polícia Civil do Estado do Paraná",
-            "Polícia Civil do Estado do Paraná",
-            "ESTADUAL",
-            "PR",
-            None,
-        ),
-        (
-            "Concurso Público para a Prefeitura Municipal do Salvador 2026 - Guarda",
-            "Prefeitura Municipal do Salvador",
-            "MUNICIPAL",
-            None,
-            "Salvador",
-        ),
-    ],
-)
-def test_orgao_inferido_do_titulo(titulo, nome, esfera, uf, municipio):
-    orgao = inferir_orgao(titulo)
-    assert orgao is not None
-    assert (orgao.nome, orgao.esfera, orgao.uf, orgao.municipio) == (nome, esfera, uf, municipio)
 
 
 def test_eh_pdf():

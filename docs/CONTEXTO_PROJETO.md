@@ -395,9 +395,11 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
         do órgão, DF); órgão federal de um estado só vira estadual (TRT da 13ª → PB, TRF da 6ª → MG).
       - Extrator FGV: sem quadro de vagas legível, cargos vêm do anexo de remuneração, dos títulos
         "CARGO: ... - PERFIL: ..."/"CARGO DE NÍVEL ..." ou da abertura do edital, com aviso "confira o edital".
-      - Páginas sem charset no cabeçalho (IBAM, windows-1252) passam a ser lidas pelo `<meta charset>`.
-      - Ensaio com coleta real (165 concursos): 157 com local definido, CNU 2 identificado e nacional; dos cargos
-        lidos, a maioria classificada (o resto em `OUTRAS` é listado no resumo do ensaio para afinar as regras).
+      - Páginas sem charset no cabeçalho (IBAM, windows-1252) passam a ser lidas pelo `<meta charset>`; o IBADE
+        deixou de gerar "cargos" com a unidade de lotação ("UN: EMEF ... - TIPOLOGIA").
+      - Ensaio com coleta real (165 concursos, 20 editais lidos): 158 com local definido (7 sem pista suficiente),
+        CNU 2 identificado e nacional; 589 cargos, 581 (98,6%) com área e 8 em `OUTRAS` (listados no resumo do
+        ensaio para afinar `config/areas.yml`).
       Observações: editais que só trazem o quadro em tabela por localidade ficam sem vagas por cargo (aviso
       "confira o edital"); alguns órgãos sem pista de esfera/UF (ex.: estatais federais pouco conhecidas)
       ficam sem local e não são publicados até uma regra os reconhecer.

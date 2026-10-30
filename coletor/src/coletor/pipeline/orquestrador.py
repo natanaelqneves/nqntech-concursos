@@ -53,8 +53,12 @@ class Orquestrador:
             except Exception as erro:
                 # Falha inesperada numa etapa não impede as seguintes (ex.: estruturar o que já foi lido).
                 log.exception("etapa '%s' falhou", etapa)
-                self._repo.conn.rollback()
                 resumos.append(ResumoEtapa(etapa.upper(), "FALHA", 0, f"{type(erro).__name__}: {erro}"))
+                try:
+                    self._repo.conn.rollback()
+                except Exception:
+                    log.exception("rollback falhou depois da etapa '%s' (conexão perdida?)", etapa)
+                    break
                 try:
                     self._repo.registrar_execucao("GERAL", agora(), "FALHA", 0, f"etapa {etapa}: {erro}")
                 except Exception:

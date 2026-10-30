@@ -58,14 +58,16 @@ class GeradorSiteIT {
         assertThat(saida.resolve("isencoes/cadunico/index.html")).exists();
 
         // Tela inicial: CNU primeiro, depois o nacional (INSS), depois os demais.
+        // (A seção de isenção, antes, tem outra ordem: prazo para pedir mais curto primeiro.)
         String inicio = Files.readString(saida.resolve("index.html"));
-        int cnu = inicio.indexOf("/concurso/exemplo-cnu/");
-        int inss = inicio.indexOf("/concurso/exemplo-inss/");
-        int tjpb = inicio.indexOf("/concurso/exemplo-tjpb/");
+        String abertos = inicio.substring(inicio.indexOf("Inscrições abertas</h2>"));
+        int cnu = abertos.indexOf("/concurso/exemplo-cnu/");
+        int inss = abertos.indexOf("/concurso/exemplo-inss/");
+        int tjpb = abertos.indexOf("/concurso/exemplo-tjpb/");
         assertThat(cnu).isPositive().isLessThan(inss);
         assertThat(inss).isLessThan(tjpb);
-        assertThat(inicio.indexOf("/concurso/exemplo-pcpr-previsto/", inicio.indexOf("Inscrições abertas</h2>")))
-                .as("previsto fora da lista de inscrições abertas").isNegative();
+        assertThat(abertos).as("previsto fora da lista de inscrições abertas")
+                .doesNotContain("/concurso/exemplo-pcpr-previsto/");
 
         // Arquivos de apoio.
         assertThat(saida.resolve("404.html")).exists();

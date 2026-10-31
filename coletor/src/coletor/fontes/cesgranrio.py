@@ -127,8 +127,9 @@ class FonteCESGRANRIO:
     nome = "cesgranrio"
     dominios = frozenset({"cesgranrio.org.br", "www.cesgranrio.org.br"})
 
-    def __init__(self, max_paginas: int = 5) -> None:
+    def __init__(self, max_paginas: int = 15, max_paginas_realizados: int = 0):
         self.max_paginas = max_paginas
+        self.max_paginas_realizados = max_paginas_realizados
 
     def descobrir(self, http: ClienteHttp, pular: frozenset[str] = frozenset()) -> ResultadoDescoberta:
         listados = self._listar(http)

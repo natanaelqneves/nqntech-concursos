@@ -225,7 +225,7 @@ class ExtratorCesgranrio:
     def _periodo_inscricao(texto: str) -> tuple[date | None, date | None]:
         normal = normalizar(texto)
         for m in re.finditer(r"inscric(?:ao|oes)", normal):
-            janela = normal[m.start(): m.start() + 350]
+            janela = normal[m.start() : m.start() + 350]
             if "periodo" in janela or "a partir" in janela or "das" in janela:
                 datas = todas_as_datas(janela)
                 if len(datas) >= 2:
@@ -243,6 +243,6 @@ class ExtratorCesgranrio:
     def _taxas(texto: str) -> list[Decimal]:
         valores: set[Decimal] = set()
         for m in re.finditer(r"valor\s+da\s+taxa\s+de\s+inscricao", texto, re.IGNORECASE):
-            janela = texto[m.start(): m.start() + 200]
+            janela = texto[m.start() : m.start() + 200]
             valores.update(v for v in valores_monetarios(janela) if Decimal(0) < v < Decimal(2000))
         return sorted(valores)

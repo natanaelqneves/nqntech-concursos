@@ -11,7 +11,10 @@ def _servico(nome, estado, saude="", exit_code=0, hosts=()):
         "State": estado,
         "Health": saude,
         "ExitCode": exit_code,
-        "Publishers": [{"URL": h, "TargetPort": 1, "PublishedPort": 1, "Protocol": "tcp"} for h in hosts],
+        "Publishers": [
+            {"URL": h, "TargetPort": 1, "PublishedPort": 1, "Protocol": "tcp"}
+            for h in hosts
+        ],
     }
 
 
@@ -41,7 +44,9 @@ def test_saida_vazia_nao_quebra():
 
 
 def test_porta_em_todas_as_interfaces_e_detectada():
-    servicos = parse_compose_ps(json.dumps([*ITENS[:2], _servico("mailpit", "running", hosts=["0.0.0.0"])]))
+    servicos = parse_compose_ps(
+        json.dumps([*ITENS[:2], _servico("mailpit", "running", hosts=["0.0.0.0"])])
+    )
 
     assert hosts_expostos(servicos) == ["mailpit -> 0.0.0.0"]
 
@@ -52,7 +57,9 @@ def test_portas_em_loopback_nao_sao_expostas():
 
 def test_porta_nao_publicada_e_ignorada():
     item = _servico("postgres", "running", "healthy")
-    item["Publishers"] = [{"URL": "", "TargetPort": 5432, "PublishedPort": 0, "Protocol": "tcp"}]
+    item["Publishers"] = [
+        {"URL": "", "TargetPort": 5432, "PublishedPort": 0, "Protocol": "tcp"}
+    ]
 
     assert hosts_expostos(parse_compose_ps(json.dumps([item]))) == []
 

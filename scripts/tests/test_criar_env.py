@@ -3,7 +3,9 @@ from pathlib import Path
 import criar_env
 import verificar_ambiente
 
-EXEMPLO = (Path(__file__).resolve().parents[2] / ".env.example").read_text(encoding="utf-8")
+EXEMPLO = (Path(__file__).resolve().parents[2] / ".env.example").read_text(
+    encoding="utf-8"
+)
 
 
 def test_troca_todas_as_senhas_de_exemplo_das_linhas_ativas():
@@ -11,7 +13,11 @@ def test_troca_todas_as_senhas_de_exemplo_das_linhas_ativas():
 
     assert not [k for k, v in env.items() if v.startswith("troque-")]
     assert len(env["POSTGRES_PASSWORD"]) >= 24
-    assert env["POSTGRES_PASSWORD"] != env["COLETOR_DB_PASSWORD"] != env["SITE_DB_PASSWORD"]
+    assert (
+        env["POSTGRES_PASSWORD"]
+        != env["COLETOR_DB_PASSWORD"]
+        != env["SITE_DB_PASSWORD"]
+    )
 
 
 def test_nao_ativa_nem_altera_o_bloco_de_producao():
@@ -26,7 +32,9 @@ def test_nao_ativa_nem_altera_o_bloco_de_producao():
 
 
 def test_aplica_email_informado():
-    env = verificar_ambiente.ler_env_texto(criar_env.gerar_conteudo(EXEMPLO, "eu@exemplo.com"))
+    env = verificar_ambiente.ler_env_texto(
+        criar_env.gerar_conteudo(EXEMPLO, "eu@exemplo.com")
+    )
 
     assert env["COLETOR_CONTATO_EMAIL"] == "eu@exemplo.com"
 
@@ -36,7 +44,9 @@ def test_nao_sobrescreve_env_existente(tmp_path, monkeypatch):
     monkeypatch.setattr(criar_env, "RAIZ", tmp_path)
 
     assert criar_env.main([]) == 0
-    assert (tmp_path / ".env").read_text(encoding="utf-8") == "POSTGRES_PASSWORD=minha\n"
+    assert (tmp_path / ".env").read_text(
+        encoding="utf-8"
+    ) == "POSTGRES_PASSWORD=minha\n"
 
 
 def test_rejeita_email_invalido(tmp_path, monkeypatch):

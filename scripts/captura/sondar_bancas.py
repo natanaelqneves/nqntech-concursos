@@ -59,21 +59,30 @@ def main() -> int:
         if item.get("permitido"):
             try:
                 p = sessao.get(url, timeout=25)
-                item.update(status=p.status_code, final=p.url, tipo=p.headers.get("Content-Type"), bytes=len(p.content))
+                item.update(
+                    status=p.status_code,
+                    final=p.url,
+                    tipo=p.headers.get("Content-Type"),
+                    bytes=len(p.content),
+                )
                 if "html" in (p.headers.get("Content-Type") or ""):
                     soup = BeautifulSoup(p.text, "lxml")
                     for t in soup(["script", "style", "noscript", "svg"]):
                         t.decompose()
                     item["texto"] = " ".join(soup.get_text(" ").split())[:1200]
                     item["links"] = len(soup.select("a[href]"))
-                    item["scripts_next"] = "__NEXT_DATA__" in p.text or "/_next/" in p.text
+                    item["scripts_next"] = (
+                        "__NEXT_DATA__" in p.text or "/_next/" in p.text
+                    )
                     (destino / f"{nome}.html").write_text(p.text, encoding="utf-8")
             except requests.RequestException as erro:
                 item["erro"] = str(erro)[:200]
             time.sleep(2)
         resultado[nome] = item
         print(nome, {k: v for k, v in item.items() if k not in ("robots", "texto")})
-    (destino / "_sondagem.json").write_text(json.dumps(resultado, ensure_ascii=False, indent=1), encoding="utf-8")
+    (destino / "_sondagem.json").write_text(
+        json.dumps(resultado, ensure_ascii=False, indent=1), encoding="utf-8"
+    )
     return 0
 
 

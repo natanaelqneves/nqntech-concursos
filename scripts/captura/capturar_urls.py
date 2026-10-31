@@ -16,14 +16,33 @@ from bs4 import BeautifulSoup
 
 UA = "NqnTechConcursos/0.1 (site publico e gratuito de concursos; respeita robots.txt)"
 ALVOS = {
-    "idecan": (["https://concurso.idecan.org.br/editais"], r"^https://concurso\.idecan\.org\.br/editais/\d+$", 4),
-    "aocp": (["https://www.institutoaocp.org.br/concursos/status/inscricoes-abertas",
-              "https://www.institutoaocp.org.br/concursos/status/novos",
-              "https://www.institutoaocp.org.br/concursos/status/em-andamento"],
-             r"^https://www\.institutoaocp\.org\.br/concursos/\d+[^/]*$", 3),
-    "ibam": (["https://www.ibam-concursos.org.br/default.asp?status=1",
-              "https://www.ibam-concursos.org.br/default.asp?status=2"], r"$^", 0),
-    "ibade": (["https://portal.ibade.selecao.site/edital"], r"^https://portal\.ibade\.selecao\.site/edital/[^?#]+$", 3),
+    "idecan": (
+        ["https://concurso.idecan.org.br/editais"],
+        r"^https://concurso\.idecan\.org\.br/editais/\d+$",
+        4,
+    ),
+    "aocp": (
+        [
+            "https://www.institutoaocp.org.br/concursos/status/inscricoes-abertas",
+            "https://www.institutoaocp.org.br/concursos/status/novos",
+            "https://www.institutoaocp.org.br/concursos/status/em-andamento",
+        ],
+        r"^https://www\.institutoaocp\.org\.br/concursos/\d+[^/]*$",
+        3,
+    ),
+    "ibam": (
+        [
+            "https://www.ibam-concursos.org.br/default.asp?status=1",
+            "https://www.ibam-concursos.org.br/default.asp?status=2",
+        ],
+        r"$^",
+        0,
+    ),
+    "ibade": (
+        ["https://portal.ibade.selecao.site/edital"],
+        r"^https://portal\.ibade\.selecao\.site/edital/[^?#]+$",
+        3,
+    ),
 }
 sessao = requests.Session()
 sessao.headers["User-Agent"] = UA
@@ -38,7 +57,10 @@ def permitido(url: str) -> bool:
         p = urllib.robotparser.RobotFileParser()
         try:
             r = obter(f"https://{host}/robots.txt")
-            relatorio.setdefault("_robots", {})[host] = [r.status_code, r.text[:1500] if r.ok else ""]
+            relatorio.setdefault("_robots", {})[host] = [
+                r.status_code,
+                r.text[:1500] if r.ok else "",
+            ]
             p.parse(r.text.splitlines() if r.ok else [])
             if r.status_code in (401, 403) or r.status_code >= 500:
                 p.disallow_all = True
@@ -69,8 +91,15 @@ def salvar(pasta: Path, nome: str, url: str) -> str | None:
     except requests.RequestException as e:
         relatorio[pasta.name].append({"url": url, "erro": str(e)[:200]})
         return None
-    relatorio[pasta.name].append({"url": url, "status": r.status_code, "final": r.url, "bytes": len(r.content),
-                                  "tipo": r.headers.get("Content-Type")})
+    relatorio[pasta.name].append(
+        {
+            "url": url,
+            "status": r.status_code,
+            "final": r.url,
+            "bytes": len(r.content),
+            "tipo": r.headers.get("Content-Type"),
+        }
+    )
     (pasta / nome).write_text(r.text, encoding="utf-8")
     return r.text
 
@@ -91,7 +120,9 @@ def main() -> int:
         relatorio[nome + "_detalhes"] = detalhes[:40]
         for j, url in enumerate(detalhes[:max_detalhes]):
             salvar(pasta, f"detalhe_{j}.html", url)
-    Path("coletor/tests/fixtures/_captura_urls.json").write_text(json.dumps(relatorio, ensure_ascii=False, indent=1))
+    Path("coletor/tests/fixtures/_captura_urls.json").write_text(
+        json.dumps(relatorio, ensure_ascii=False, indent=1)
+    )
     print(json.dumps(relatorio, ensure_ascii=False)[:5000])
     return 0
 

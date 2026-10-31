@@ -31,8 +31,12 @@ def gerar_conteudo(exemplo: str, email: str | None) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Cria o .env de dev com senhas aleatórias.")
-    parser.add_argument("--email", help="seu e-mail (contato publicado no User-Agent do coletor)")
+    parser = argparse.ArgumentParser(
+        description="Cria o .env de dev com senhas aleatórias."
+    )
+    parser.add_argument(
+        "--email", help="seu e-mail (contato publicado no User-Agent do coletor)"
+    )
     args = parser.parse_args(argv)
 
     destino = RAIZ / ".env"
@@ -45,7 +49,9 @@ def main(argv: list[str] | None = None) -> int:
 
     exemplo = (RAIZ / ".env.example").read_text(encoding="utf-8")
     destino.write_text(gerar_conteudo(exemplo, args.email), encoding="utf-8")
-    print(".env criado com senhas locais aleatórias (fica só na sua máquina; está no .gitignore).")
+    print(
+        ".env criado com senhas locais aleatórias (fica só na sua máquina; está no .gitignore)."
+    )
     return 0
 
 

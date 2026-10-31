@@ -1,7 +1,7 @@
 import httpx
 import pytest
 
-from coletor.fontes.cesgranrio import FonteCESGRANRIO, ItemListagem, parse_concurso, parse_listagem
+from coletor.fontes.cesgranrio import FonteCESGRANRIO, parse_concurso, parse_listagem
 from coletor.http_cliente import ClienteHttp, ErroHttp
 
 URL_EXEMPLO = "https://www.cesgranrio.org.br/concurso/concurso-eppgg-bahia-2026/"
@@ -11,10 +11,14 @@ def test_listagem_cesgranrio_extrai_itens_e_situacao(fixture_texto):
     html_listagem = """
     <div class="isotope-wrapper">
         <div class="tmb grid-cat-27">
-            <h3 class="t-entry-title"><a href="/concurso/concurso-eppgg-bahia-2026/">Concurso EPPGG – Bahia 2026</a></h3>
+            <h3 class="t-entry-title">
+                <a href="/concurso/concurso-eppgg-bahia-2026/">Concurso EPPGG – Bahia 2026</a>
+            </h3>
         </div>
         <div class="tmb grid-cat-25">
-            <h3 class="t-entry-title"><a href="/concurso/policia-civil-amapa-2026/">Concurso Polícia Civil do Amapá 2026</a></h3>
+            <h3 class="t-entry-title">
+                <a href="/concurso/policia-civil-amapa-2026/">Concurso Polícia Civil do Amapá 2026</a>
+            </h3>
         </div>
     </div>
     <ul class="pagination">
@@ -60,10 +64,17 @@ def test_pagina_do_concurso_cesgranrio(fixture_texto):
 
 def test_descobrir_percorre_paginas_cesgranrio(fixture_texto):
     paginas = {
-        "/concursos/": '<div class="tmb grid-cat-25"><h3 class="t-entry-title"><a href="/concurso/c1/">C1</a></h3></div><ul class="pagination"><li><a href="/concursos/page/2">2</a></li></ul>',
-        "/concursos/page/2/": '<div class="tmb grid-cat-25"><h3 class="t-entry-title"><a href="/concurso/c2/">C2</a></h3></div>',
-        "/concurso/c1/": '<h1>C1</h1>',
-        "/concurso/c2/": '<h1>C2</h1>',
+        "/concursos/": (
+            '<div class="tmb grid-cat-25"><h3 class="t-entry-title">'
+            '<a href="/concurso/c1/">C1</a></h3></div>'
+            '<ul class="pagination"><li><a href="/concursos/page/2">2</a></li></ul>'
+        ),
+        "/concursos/page/2/": (
+            '<div class="tmb grid-cat-25"><h3 class="t-entry-title">'
+            '<a href="/concurso/c2/">C2</a></h3></div>'
+        ),
+        "/concurso/c1/": "<h1>C1</h1>",
+        "/concurso/c2/": "<h1>C2</h1>",
     }
 
     def responder(request: httpx.Request) -> httpx.Response:
@@ -79,9 +90,9 @@ def test_descobrir_percorre_paginas_cesgranrio(fixture_texto):
         transport=httpx.MockTransport(responder),
         dormir=lambda _: None,
     )
-
+    
     resultado = FonteCESGRANRIO(max_paginas=2).descobrir(http)
-
+    
     urls = {s.url for s in resultado.sinais}
     assert "https://www.cesgranrio.org.br/concurso/c1/" in urls
     assert "https://www.cesgranrio.org.br/concurso/c2/" in urls

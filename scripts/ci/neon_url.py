@@ -29,13 +29,17 @@ class ConexaoNeon:
 
     @property
     def jdbc(self) -> str:
-        return f"jdbc:postgresql://{self.host}:{self.porta}/{self.banco}?sslmode=require"
+        return (
+            f"jdbc:postgresql://{self.host}:{self.porta}/{self.banco}?sslmode=require"
+        )
 
 
 def interpretar(url: str) -> ConexaoNeon:
     url = url.strip().strip("'\"")
     if url.startswith("psql "):
-        url = url[5:].strip().strip("'\"")  # aceita o comando "psql '...'" copiado do painel do Neon
+        url = (
+            url[5:].strip().strip("'\"")
+        )  # aceita o comando "psql '...'" copiado do painel do Neon
     partes = urlsplit(url)
     if partes.scheme not in ("postgresql", "postgres"):
         raise UrlInvalida("a string deve começar com postgresql://")
@@ -44,8 +48,13 @@ def interpretar(url: str) -> ConexaoNeon:
     banco = partes.path.lstrip("/")
     if not banco:
         raise UrlInvalida("falta o nome do banco (ex.: /neondb) na string de conexão")
-    return ConexaoNeon(partes.hostname, partes.port or 5432, unquote(banco), unquote(partes.username),
-                       unquote(partes.password))
+    return ConexaoNeon(
+        partes.hostname,
+        partes.port or 5432,
+        unquote(banco),
+        unquote(partes.username),
+        unquote(partes.password),
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -57,7 +66,9 @@ def main(argv: list[str] | None = None) -> int:
 
     bruta = os.environ.get("NEON_ADMIN_URL", "")
     if not bruta:
-        print("::error title=Secret ausente::Cadastre o secret NEON_ADMIN_URL (veja docs/PENDENCIAS.md)")
+        print(
+            "::error title=Secret ausente::Cadastre o secret NEON_ADMIN_URL (veja docs/PENDENCIAS.md)"
+        )
         return 1
     try:
         conexao = interpretar(bruta)
@@ -72,9 +83,15 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"::add-mask::{conexao.senha}")
     variaveis = {
-        "FLYWAY_URL": conexao.jdbc, "FLYWAY_USER": conexao.usuario, "FLYWAY_PASSWORD": conexao.senha,
-        "PGHOST": conexao.host, "PGPORT": str(conexao.porta), "PGDATABASE": conexao.banco,
-        "PGUSER": conexao.usuario, "PGPASSWORD": conexao.senha, "PGSSLMODE": "require",
+        "FLYWAY_URL": conexao.jdbc,
+        "FLYWAY_USER": conexao.usuario,
+        "FLYWAY_PASSWORD": conexao.senha,
+        "PGHOST": conexao.host,
+        "PGPORT": str(conexao.porta),
+        "PGDATABASE": conexao.banco,
+        "PGUSER": conexao.usuario,
+        "PGPASSWORD": conexao.senha,
+        "PGSSLMODE": "require",
     }
     with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as env:
         env.writelines(f"{chave}={valor}\n" for chave, valor in variaveis.items())

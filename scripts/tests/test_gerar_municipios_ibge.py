@@ -32,7 +32,12 @@ def test_uf_vem_do_codigo_mesmo_sem_hierarquia():
 
 
 @pytest.mark.parametrize(
-    "registro", [{"id": 9912345, "nome": "X"}, {"id": 123, "nome": "X"}, {"id": 2507507, "nome": " "}]
+    "registro",
+    [
+        {"id": 9912345, "nome": "X"},
+        {"id": 123, "nome": "X"},
+        {"id": 2507507, "nome": " "},
+    ],
 )
 def test_registro_invalido(registro):
     with pytest.raises(g.DadosInvalidos):
@@ -40,13 +45,17 @@ def test_registro_invalido(registro):
 
 
 def test_slug_repetido_na_mesma_uf_e_erro():
-    municipios = g.converter([{"id": 2500001, "nome": "Santa Luzia"}, {"id": 2500002, "nome": "Santa-Luzia"}])
+    municipios = g.converter(
+        [{"id": 2500001, "nome": "Santa Luzia"}, {"id": 2500002, "nome": "Santa-Luzia"}]
+    )
     with pytest.raises(g.DadosInvalidos, match="slugs repetidos"):
         g.validar(municipios, completo=False)
 
 
 def test_mesmo_nome_em_ufs_diferentes_e_permitido():
-    municipios = g.converter([{"id": 2513406, "nome": "Santa Luzia"}, {"id": 3157807, "nome": "Santa Luzia"}])
+    municipios = g.converter(
+        [{"id": 2513406, "nome": "Santa Luzia"}, {"id": 3157807, "nome": "Santa Luzia"}]
+    )
     g.validar(municipios, completo=False)
 
 
@@ -71,7 +80,10 @@ def test_main_com_entrada_local_incompleta_falha(tmp_path):
 
 def test_main_com_lista_completa(tmp_path, monkeypatch):
     monkeypatch.setattr(g, "MINIMO_MUNICIPIOS", 1)
-    completos = [{"id": codigo * 100_000 + 1, "nome": f"Cidade {uf}"} for codigo, uf in g.UF_POR_CODIGO.items()]
+    completos = [
+        {"id": codigo * 100_000 + 1, "nome": f"Cidade {uf}"}
+        for codigo, uf in g.UF_POR_CODIGO.items()
+    ]
     entrada = tmp_path / "m.json"
     entrada.write_text(json.dumps(completos), encoding="utf-8")
     saida = tmp_path / "V.sql"
@@ -81,4 +93,6 @@ def test_main_com_lista_completa(tmp_path, monkeypatch):
 
 def test_csv_do_espelho():
     conteudo = "codigo_ibge,nome,latitude,longitude,capital,codigo_uf\n2507507,João Pessoa,-7.1,-34.8,1,25\n"
-    assert g.converter(g.ler_csv_espelho(conteudo))[0] == g.Municipio(2507507, "João Pessoa", "PB", "joao-pessoa")
+    assert g.converter(g.ler_csv_espelho(conteudo))[0] == g.Municipio(
+        2507507, "João Pessoa", "PB", "joao-pessoa"
+    )

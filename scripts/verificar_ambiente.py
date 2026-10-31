@@ -108,9 +108,17 @@ def hosts_expostos(servicos: dict[str, Servico]) -> list[str]:
     ]
 
 
-def executar(comando: list[str], entrada: str | None = None) -> subprocess.CompletedProcess[str]:
+def executar(
+    comando: list[str], entrada: str | None = None
+) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        comando, cwd=RAIZ, input=entrada, capture_output=True, text=True, timeout=120, check=False
+        comando,
+        cwd=RAIZ,
+        input=entrada,
+        capture_output=True,
+        text=True,
+        timeout=120,
+        check=False,
     )
 
 
@@ -122,7 +130,9 @@ def verificar_env() -> tuple[list[Resultado], dict[str, str]]:
     resultados = [Resultado(".env existe", True)]
     faltando = [v for v in VARIAVEIS_OBRIGATORIAS if not env.get(v)]
     resultados.append(
-        Resultado("variáveis obrigatórias preenchidas", not faltando, ", ".join(faltando))
+        Resultado(
+            "variáveis obrigatórias preenchidas", not faltando, ", ".join(faltando)
+        )
     )
     com_exemplo = [k for k, v in env.items() if v.startswith(PREFIXO_VALOR_EXEMPLO)]
     resultados.append(
@@ -145,7 +155,9 @@ def verificar_conteineres() -> tuple[list[Resultado], dict[str, Servico]]:
     resultados: list[Resultado] = []
     for nome in SERVICOS_ESPERADOS:
         if nome not in servicos:
-            resultados.append(Resultado(f"serviço {nome} criado", False, "rode docker compose up -d"))
+            resultados.append(
+                Resultado(f"serviço {nome} criado", False, "rode docker compose up -d")
+            )
 
     if (pg := servicos.get("postgres")) is not None:
         resultados.append(
@@ -164,7 +176,9 @@ def verificar_conteineres() -> tuple[list[Resultado], dict[str, Servico]]:
             )
         )
     if (mp := servicos.get("mailpit")) is not None:
-        resultados.append(Resultado("mailpit rodando", mp.estado == "running", f"estado={mp.estado}"))
+        resultados.append(
+            Resultado("mailpit rodando", mp.estado == "running", f"estado={mp.estado}")
+        )
 
     expostos = hosts_expostos(servicos)
     resultados.append(
@@ -183,17 +197,29 @@ def aguardar_inicializacao(limite_segundos: int) -> None:
         if pg and fw and pg.saude == "healthy" and fw.estado == "exited":
             return
         time.sleep(2)
-    print(f"Aviso: o ambiente não estabilizou em {limite_segundos}s; verificando mesmo assim.")
+    print(
+        f"Aviso: o ambiente não estabilizou em {limite_segundos}s; verificando mesmo assim."
+    )
 
 
 def consultar_banco(env: dict[str, str], sql: str) -> str:
     proc = executar(
         [
-            "docker", "compose", "exec", "-T", "postgres",
-            "psql", "-v", "ON_ERROR_STOP=1", "-qtAX",
-            "-U", env.get("POSTGRES_USER", "concursos_admin"),
-            "-d", env.get("POSTGRES_DB", "concursos"),
-            "-c", sql,
+            "docker",
+            "compose",
+            "exec",
+            "-T",
+            "postgres",
+            "psql",
+            "-v",
+            "ON_ERROR_STOP=1",
+            "-qtAX",
+            "-U",
+            env.get("POSTGRES_USER", "concursos_admin"),
+            "-d",
+            env.get("POSTGRES_DB", "concursos"),
+            "-c",
+            sql,
         ]
     )
     if proc.returncode != 0:
@@ -203,7 +229,11 @@ def consultar_banco(env: dict[str, str], sql: str) -> str:
 
 def verificar_banco(env: dict[str, str]) -> list[Resultado]:
     verificacoes = [
-        ("schema concursos existe", "SELECT count(*) FROM pg_namespace WHERE nspname = 'concursos'", "1"),
+        (
+            "schema concursos existe",
+            "SELECT count(*) FROM pg_namespace WHERE nspname = 'concursos'",
+            "1",
+        ),
         (
             "extensões unaccent e pg_trgm instaladas",
             "SELECT count(*) FROM pg_extension WHERE extname IN ('unaccent', 'pg_trgm')",
@@ -225,7 +255,11 @@ def verificar_banco(env: dict[str, str]) -> list[Resultado]:
     for nome, sql, esperado in verificacoes:
         try:
             obtido = consultar_banco(env, sql)
-            resultados.append(Resultado(nome, obtido == esperado, f"esperado={esperado} obtido={obtido}"))
+            resultados.append(
+                Resultado(
+                    nome, obtido == esperado, f"esperado={esperado} obtido={obtido}"
+                )
+            )
         except (RuntimeError, subprocess.TimeoutExpired) as erro:
             resultados.append(Resultado(nome, False, str(erro)))
     return resultados
@@ -240,7 +274,9 @@ def verificar_mailpit(env: dict[str, str]) -> list[Resultado]:
     try:
         with urllib.request.urlopen(f"{base}/api/v1/info", timeout=5) as resposta:
             versao = json.load(resposta).get("Version", "?")
-        resultados.append(Resultado("interface do Mailpit responde", True, f"{base} (v{versao})"))
+        resultados.append(
+            Resultado("interface do Mailpit responde", True, f"{base} (v{versao})")
+        )
     except (urllib.error.URLError, OSError, ValueError) as erro:
         return [Resultado("interface do Mailpit responde", False, f"{base}: {erro}")]
 
@@ -260,8 +296,12 @@ def verificar_mailpit(env: dict[str, str]) -> list[Resultado]:
     recebido = False
     for _ in range(10):
         try:
-            with urllib.request.urlopen(f"{base}/api/v1/messages?limit=50", timeout=5) as resposta:
-                assuntos = {m.get("Subject") for m in json.load(resposta).get("messages", [])}
+            with urllib.request.urlopen(
+                f"{base}/api/v1/messages?limit=50", timeout=5
+            ) as resposta:
+                assuntos = {
+                    m.get("Subject") for m in json.load(resposta).get("messages", [])
+                }
             if assunto in assuntos:
                 recebido = True
                 break
@@ -281,7 +321,9 @@ def imprimir(titulo: str, resultados: list[Resultado]) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Verifica o ambiente de dev do NqnTech Concursos.")
+    parser = argparse.ArgumentParser(
+        description="Verifica o ambiente de dev do NqnTech Concursos."
+    )
     parser.add_argument("--aguardar", type=int, default=0, metavar="SEGUNDOS")
     args = parser.parse_args(argv)
     if args.aguardar > 0:
@@ -316,7 +358,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"RESULTADO: {len(falhas)} falha(s). Corrija e rode de novo.")
         return 1
     sufixo = f" ({len(avisos)} aviso(s))" if avisos else ""
-    print(f"RESULTADO: ambiente OK{sufixo}. Mailpit: http://127.0.0.1:{env.get('MAILPIT_UI_PORT') or 8025}")
+    print(
+        f"RESULTADO: ambiente OK{sufixo}. Mailpit: http://127.0.0.1:{env.get('MAILPIT_UI_PORT') or 8025}"
+    )
     return 0
 
 

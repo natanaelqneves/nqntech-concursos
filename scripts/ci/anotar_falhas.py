@@ -32,7 +32,11 @@ def falhas_junit(caminhos: list[str]) -> list[tuple[str, str]]:
                 for tipo in ("failure", "error"):
                     for problema in caso.findall(tipo):
                         nome = f"{caso.get('classname', '')}.{caso.get('name', '')}"
-                        detalhe = (problema.get("message") or "") + "\n" + (problema.text or "")
+                        detalhe = (
+                            (problema.get("message") or "")
+                            + "\n"
+                            + (problema.text or "")
+                        )
                         falhas.append((nome, detalhe.strip()[-MAX_MENSAGEM:]))
     return falhas
 
@@ -42,8 +46,10 @@ def erros_do_log(caminho: str) -> list[tuple[str, str]]:
         linhas = open(caminho, encoding="utf-8", errors="replace").read().splitlines()
     except OSError:
         return []
-    erros = [linha for linha in linhas if linha.startswith("[ERROR]") and len(linha) > 8]
-    return [("maven", "\n".join(erros[:40])[-MAX_MENSAGEM * 2:])] if erros else []
+    erros = [
+        linha for linha in linhas if linha.startswith("[ERROR]") and len(linha) > 8
+    ]
+    return [("maven", "\n".join(erros[:40])[-MAX_MENSAGEM * 2 :])] if erros else []
 
 
 def main() -> int:

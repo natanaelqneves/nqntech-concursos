@@ -98,12 +98,14 @@ def parse_concurso(html: str, url: str, situacao_site: str) -> dict:
         href = str(link["href"])
         texto_link = colapsar_espacos(link.get_text(" "))
         if href.lower().endswith(".pdf") or "edital" in texto_link.lower():
-            arquivos.append({
-                "titulo": texto_link or "Documento do Concurso",
-                "url": urljoin(url, href),
-                "data": None,
-                "pdf": href.lower().endswith(".pdf"),
-            })
+            arquivos.append(
+                {
+                    "titulo": texto_link or "Documento do Concurso",
+                    "url": urljoin(url, href),
+                    "data": None,
+                    "pdf": href.lower().endswith(".pdf"),
+                }
+            )
 
     # Link para sistema de inscrição/Portal do Candidato
     link_inscricao = None

@@ -56,7 +56,9 @@ class Municipio:
 
 
 def slugificar(texto: str) -> str:
-    sem_acento = unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode("ascii")
+    sem_acento = (
+        unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode("ascii")
+    )
     return re.sub(r"[^a-z0-9]+", "-", sem_acento.lower()).strip("-")
 
 
@@ -97,7 +99,10 @@ def _literal(texto: str) -> str:
 
 
 def gerar_sql(municipios: list[Municipio], origem: str) -> str:
-    linhas = ",\n".join(f"       ({m.codigo}, {_literal(m.nome)}, '{m.uf}', '{m.slug}')" for m in municipios)
+    linhas = ",\n".join(
+        f"       ({m.codigo}, {_literal(m.nome)}, '{m.uf}', '{m.slug}')"
+        for m in municipios
+    )
     return (
         "-- GERADO por scripts/captura/gerar_municipios_ibge.py (workflow captura-ibge). Não editar à mão.\n"
         f"-- Origem: {origem}. {len(municipios)} municípios.\n"
@@ -115,7 +120,10 @@ def _obter(url: str, tentativas: int = 3) -> bytes:
             with urllib.request.urlopen(pedido, timeout=30) as resposta:
                 return resposta.read()
         except (urllib.error.URLError, TimeoutError) as erro:
-            print(f"::warning title=Municípios IBGE::{url} falhou ({erro}), tentativa {tentativa}", file=sys.stderr)
+            print(
+                f"::warning title=Municípios IBGE::{url} falhou ({erro}), tentativa {tentativa}",
+                file=sys.stderr,
+            )
             if tentativa == tentativas:
                 raise
             time.sleep(5 * tentativa)
@@ -123,7 +131,10 @@ def _obter(url: str, tentativas: int = 3) -> bytes:
 
 
 def ler_csv_espelho(conteudo: str) -> list[dict]:
-    return [{"id": linha["codigo_ibge"], "nome": linha["nome"]} for linha in csv.DictReader(io.StringIO(conteudo))]
+    return [
+        {"id": linha["codigo_ibge"], "nome": linha["nome"]}
+        for linha in csv.DictReader(io.StringIO(conteudo))
+    ]
 
 
 def baixar() -> tuple[list[dict], str]:
@@ -135,13 +146,18 @@ def baixar() -> tuple[list[dict], str]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--entrada", type=Path, help="JSON já baixado da API do IBGE (sem internet)")
+    parser.add_argument(
+        "--entrada", type=Path, help="JSON já baixado da API do IBGE (sem internet)"
+    )
     parser.add_argument("--saida", type=Path, required=True)
     args = parser.parse_args(argv)
 
     try:
         if args.entrada:
-            registros, origem = json.loads(args.entrada.read_text(encoding="utf-8")), str(args.entrada.name)
+            registros, origem = (
+                json.loads(args.entrada.read_text(encoding="utf-8")),
+                str(args.entrada.name),
+            )
         else:
             registros, origem = baixar()
         municipios = converter(registros)
@@ -151,7 +167,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"::error title=Municípios IBGE::{erro}", file=sys.stderr)
         return 1
     args.saida.write_text(gerar_sql(municipios, origem), encoding="utf-8")
-    print(f"::notice title=Municípios IBGE::{len(municipios)} municípios de {origem} gravados em {args.saida}")
+    print(
+        f"::notice title=Municípios IBGE::{len(municipios)} municípios de {origem} gravados em {args.saida}"
+    )
     return 0
 
 

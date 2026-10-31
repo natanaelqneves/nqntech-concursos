@@ -1,188 +1,247 @@
-"""Fonte Cesgranrio: concursos em andamento, concluídos e inscrições abertas em https://www.cesgranrio.org.br/concursos/.
-
-Estrutura observada:
-- Listagem baseada em WordPress / Uncode Theme (Isotope grid).
-- Cards em `.tmb`, com links `a[href*='/concurso/']` e títulos em `h3.t-entry-title`.
-- Categorias mapeadas pelas classes da grid:
-  - `grid-cat-25`: EM ANDAMENTO
-  - `grid-cat-27`: INSCRIÇÕES ABERTAS
-  - `grid-cat-26`: CONCLUÍDOS
-- Paginação no rodape via `ul.pagination a[href*='/concursos/page/']`.
-"""
-
 from __future__ import annotations
 
-import logging
 import re
-from dataclasses import dataclass
-from urllib.parse import urljoin, urlsplit
-
+from datetime import date
+from decimal import Decimal
 from bs4 import BeautifulSoup
+import requests
 
-from coletor.fontes.base import ResultadoDescoberta, SinalDescoberta
-from coletor.http_cliente import ClienteHttp, ErroHttp
-from coletor.texto import colapsar_espacos, normalizar
-
-log = logging.getLogger(__name__)
+from coletor.extratores.base import CargoExtraido, EditalExtraido
+from coletor.extratores.secoes import (
+    atribuir_disciplinas,
+    calendario,
+    extrair_isencoes,
+    quadros_de_disciplinas,
+    redacao_por_cargo,
+)
+from coletor.texto import (
+    colapsar_espacos,
+    data_por_extenso,
+    normalizar,
+    titulo_portugues,
+    todas_as_datas,
+    valores_monetarios,
+)
 
 BASE = "https://www.cesgranrio.org.br"
-LISTAGEM = f"{BASE}/concursos/"
+LISTAGEM = f"{BASE}/concursos?id=index-205112&ucat=27"
 
-# Concursos de vestibular não são concursos públicos para cargos.
-_TITULOS_IGNORADOS = re.compile(r"\b(vestibular|pisa para escolas|certificacao)\b", re.IGNORECASE)
+_NUMERO_EDITAL = re.compile(r"EDITAL\s+N\s*[º°o.]*\s*(\d{1,4})(?:\s*/\s*|\s*-\s*)(\d{4})", re.IGNORECASE)
+_ORGAO_CABECALHO = (
+    re.compile(
+        r"CONCURSO P[ÚU]BLICO\s+PARA\s+"
+        r"(?:A\s+SELE[ÇC][ÃA]O\s+DE\s+PESSOAL\s+DO|PROVIMENTO\s+DE\s+VAGAS\s+D[OA])\s+(.+)",
+        re.IGNORECASE,
+    ),
+    re.compile(r"SELE[ÇC][ÃA]O\s+P[ÚU]BLICA\s+D[OA]\s+(.+)", re.IGNORECASE),
+)
 
-
-@dataclass(frozen=True)
-class ItemListagem:
-    titulo: str
-    url: str
-    situacao: str
-
-
-def parse_listagem(html: str) -> tuple[list[ItemListagem], int]:
-    """Retorna a lista de concursos encontrados na página e o número total de páginas da listagem."""
-    soup = BeautifulSoup(html, "lxml")
-    cards = soup.select(".tmb")
-    if not cards:
-        raise ErroHttp("Listagem da Cesgranrio sem cards de concurso (o layout do site mudou?)")
-
-    itens: list[ItemListagem] = []
-    for card in cards:
-        link_title = card.select_one("h3.t-entry-title a[href]")
-        if not link_title:
-            continue
-
-        titulo = colapsar_espacos(link_title.get_text(" "))
-        url = canonizar(urljoin(BASE, str(link_title["href"])))
-
-        # Ignorar vestibulares ou certificações
-        if _TITULOS_IGNORADOS.search(normalizar(titulo)):
-            continue
-
-        # Mapeamento de situação baseado nas classes do card
-        classes = card.get("class", [])
-        if "grid-cat-27" in classes:
-            situacao = "INSCRICOES_ABERTAS"
-        elif "grid-cat-25" in classes:
-            situacao = "EM_ANDAMENTO"
-        else:
-            situacao = "ENCERRADO"
-
-        itens.append(ItemListagem(titulo=titulo, url=url, situacao=situacao))
-
-    # Descobrir última página
-    paginas = [1]
-    for link in soup.select("ul.pagination a[href*='/concursos/page/']"):
-        m = re.search(r"/page/(\d+)", str(link["href"]))
-        if m:
-            paginas.append(int(m.group(1)))
-
-    return itens, max(paginas)
+_VALOR_MONETARIO = r"R\$\s*\d{1,3}(?:\.\d{3})*,\d{2}"
+_ESCOLARIDADE_MAP = {
+    "superior": "SUPERIOR",
+    "medio": "MEDIO",
+    "tecnico": "TECNICO",
+    "fundamental": "FUNDAMENTAL",
+}
 
 
-def parse_concurso(html: str, url: str, situacao_site: str) -> dict:
-    """Extrai o conteúdo detalhado da página de um concurso específico da Cesgranrio."""
-    soup = BeautifulSoup(html, "lxml")
-    principal = soup.find("main") or soup.select_one(".page-wrapper") or soup
+def listar_concursos(sessao: requests.Session, max_paginas: int = 5) -> list[dict]:
+    """
+    Varre as páginas de listagem de concursos abertos da Cesgranrio,
+    mapeando os cards estruturados (.tmb) e controlando a paginação.
+    """
+    concursos = []
+    urls_visitadas = set()
+    url_atual = LISTAGEM
 
-    titulo_tag = principal.select_one("h1, h2.h2, h3.t-entry-title")
-    titulo = colapsar_espacos(titulo_tag.get_text(" ")) if titulo_tag else None
-
-    # Descrição do concurso
-    corpo = principal.select_one(".post-content, .entry-content, .t-entry-excerpt")
-    descricao = colapsar_espacos(corpo.get_text(" ")) if corpo else None
-
-    # Extração de arquivos (editais, retificações, cronogramas em PDF)
-    arquivos = []
-    for link in principal.select("a[href]"):
-        href = str(link["href"])
-        texto_link = colapsar_espacos(link.get_text(" "))
-        if href.lower().endswith(".pdf") or "edital" in texto_link.lower():
-            arquivos.append(
-                {
-                    "titulo": texto_link or "Documento do Concurso",
-                    "url": urljoin(url, href),
-                    "data": None,
-                    "pdf": href.lower().endswith(".pdf"),
-                }
-            )
-
-    # Link para sistema de inscrição/Portal do Candidato
-    link_inscricao = None
-    for link in principal.select("a[href]"):
-        href = str(link["href"])
-        if "concursos.cesgranrio.org.br" in href or "inscricao" in href.lower():
-            link_inscricao = href
+    pagina = 1
+    while url_atual and pagina <= max_paginas:
+        if url_atual in urls_visitadas:
             break
+        urls_visitadas.add(url_atual)
 
-    return {
-        "fonte": "cesgranrio",
-        "titulo": titulo,
-        "situacao_site": situacao_site,
-        "descricao": descricao,
-        "link_inscricao": link_inscricao,
-        "arquivos": arquivos,
-    }
-
-
-def canonizar(url: str) -> str:
-    partes = urlsplit(url)
-    return f"{partes.scheme}://{partes.netloc.lower()}{partes.path.rstrip('/')}/"
-
-
-class FonteCESGRANRIO:
-    nome = "cesgranrio"
-    dominios = frozenset({"cesgranrio.org.br", "www.cesgranrio.org.br"})
-
-    def __init__(self, max_paginas: int = 5, max_paginas_realizados: int = 0) -> None:
-        self._max_paginas = max_paginas
-
-    def descobrir(self, http: ClienteHttp, pular: frozenset[str] = frozenset()) -> ResultadoDescoberta:
-        listados = self._listar(http)
-        itens = [item for item in listados if item.url not in pular]
-
-        log.info(
-            "Cesgranrio: %d concursos encontrados; %d para processar",
-            len(listados),
-            len(itens),
-        )
-
-        sinais: list[SinalDescoberta] = []
-        falhas: list[str] = []
-
-        for item in itens:
-            try:
-                payload = parse_concurso(http.obter_texto(item.url), item.url, item.situacao)
-                sinais.append(
-                    SinalDescoberta(
-                        titulo=payload["titulo"] or item.titulo,
-                        url=item.url,
-                        payload=payload,
-                    )
-                )
-            except ErroHttp as erro:
-                log.warning("Cesgranrio: falha ao ler %s: %s", item.url, erro)
-                falhas.append(f"{item.url}: {erro}")
-
-        return ResultadoDescoberta(tuple(sinais), tuple(falhas))
-
-    def _listar(self, http: ClienteHttp) -> list[ItemListagem]:
-        primeira_html = http.obter_texto(LISTAGEM)
-        itens, ultima_pagina = parse_listagem(primeira_html)
-
-        max_pag = min(ultima_pagina, self._max_paginas)
-        for pagina in range(2, max_pag + 1):
-            url_pag = f"{LISTAGEM}page/{pagina}/"
-            try:
-                html = http.obter_texto(url_pag)
-                novos_itens, _ = parse_listagem(html)
-                itens.extend(novos_itens)
-            except ErroHttp as erro:
-                log.warning("Cesgranrio: falha ao carregar pagina %d (%s)", pagina, erro)
+        try:
+            resp = sessao.get(url_atual, timeout=20)
+            if not resp.ok:
                 break
 
-        vistos: dict[str, ItemListagem] = {}
-        for item in itens:
-            vistos.setdefault(item.url, item)
+            soup = BeautifulSoup(resp.text, "lxml")
+            cards = soup.select(".tmb")
+            if not cards:
+                break
 
-        return list(vistos.values())
+            encontrou_novos = False
+            for card in cards:
+                link_elem = card.select_one("h3.t-entry-title a")
+                if not link_elem:
+                    continue
+
+                titulo = link_elem.get_text(strip=True)
+                link = link_elem.get("href")
+                if link and not link.startswith("http"):
+                    link = BASE + link
+
+                categorias = [cat.get_text(strip=True) for cat in card.select(".t-entry-category a")]
+
+                resumo_elem = card.select_one(".t-entry-excerpt p")
+                resumo = resumo_elem.get_text(strip=True) if resumo_elem else ""
+
+                item = {
+                    "titulo": titulo,
+                    "url": link,
+                    "categorias": categorias,
+                    "resumo": resumo,
+                }
+                if item not in concursos:
+                    concursos.append(item)
+                    encontrou_novos = True
+
+            if not encontrou_novos:
+                break
+
+            # Avança para a próxima página de paginação
+            pagina += 1
+            proxima_link = soup.select_one(f"a.page-numbers:-soup-contains('{pagina}')")
+            if not proxima_link:
+                url_atual = f"{BASE}/concursos/page/{pagina}/?id=index-205112&ucat=27"
+            else:
+                url_atual = proxima_link.get("href")
+                if url_atual and not url_atual.startswith("http"):
+                    url_atual = BASE + url_atual
+
+        except Exception:
+            break
+
+    return concursos
+
+
+class ExtratorCesgranrio:
+    def extrair(self, texto: str) -> EditalExtraido:
+        avisos: list[str] = []
+
+        numero, ano = self._numero_edital(texto)
+        if numero is None:
+            avisos.append("número do edital não encontrado")
+
+        orgao = self._orgao(texto)
+
+        cargos = self._cargos(texto)
+        if not cargos:
+            avisos.append("quadro de cargos/vagas não encontrado: confira o edital")
+
+        inicio, fim = self._periodo_inscricao(texto)
+        if inicio is None or fim is None:
+            avisos.append("período de inscrição não encontrado")
+
+        isencoes = extrair_isencoes(texto)
+
+        prova = self._data_prova(texto)
+        eventos = calendario(texto, isencoes, (inicio, fim), prova)
+        if prova is None:
+            prova = next((e.inicio for e in eventos if e.evento.startswith("Prova objetiva")), None)
+        if prova is None:
+            avisos.append("data da prova não encontrada")
+
+        taxas = self._taxas(texto)
+        if not taxas:
+            avisos.append("taxa de inscrição não encontrada")
+
+        avisos.extend(isencoes.avisos)
+
+        cargos, faltou_quadro = atribuir_disciplinas(cargos, quadros_de_disciplinas(texto))
+        if faltou_quadro:
+            avisos.append("disciplinas de algum cargo não identificadas: confira o edital")
+
+        cargos, redacao_incerta = redacao_por_cargo(texto, cargos)
+        if redacao_incerta:
+            avisos.append("prova discursiva/redação por cargo não identificada: confira o edital")
+
+        return EditalExtraido(
+            orgao=orgao,
+            numero_edital=numero,
+            ano=ano,
+            cargos=tuple(cargos),
+            inscricao_inicio=inicio,
+            inscricao_fim=fim,
+            data_prova=prova,
+            taxa_min=min(taxas) if taxas else None,
+            taxa_max=max(taxas) if taxas else None,
+            isencoes=isencoes.tipos,
+            isencao_inicio=isencoes.inicio,
+            isencao_fim=isencoes.fim,
+            eventos=eventos,
+            avisos=tuple(avisos),
+        )
+
+    @staticmethod
+    def _numero_edital(texto: str) -> tuple[str | None, int | None]:
+        m = _NUMERO_EDITAL.search(texto[:5000])
+        if m is None:
+            return None, None
+        return f"{int(m.group(1)):02d}/{m.group(2)}", int(m.group(2))
+
+    @staticmethod
+    def _orgao(texto: str) -> str | None:
+        cabecalho = colapsar_espacos(texto[:2000])
+        for padrao in _ORGAO_CABECALHO:
+            if m := padrao.search(cabecalho):
+                nome = m.group(1).split("-")[0].split(".")[0]
+                return titulo_portugues(nome.strip(" -–,"))
+        return None
+
+    @staticmethod
+    def _cargos(texto: str) -> list[CargoExtraido]:
+        cargos: list[CargoExtraido] = []
+        padrao_cargo = re.compile(
+            r"CARGO\s*\d*\s*[:–-]\s*(?P<nome>[^\n–-]+)(?:\s*[-–]\s*(?P<esp>[^\n]+))?",
+            re.IGNORECASE,
+        )
+
+        for m in padrao_cargo.finditer(texto):
+            nome = titulo_portugues(m.group("nome").strip())
+            especialidade = titulo_portugues(m.group("esp").strip()) if m.group("esp") else None
+            if len(nome) < 3 or "conforme" in nome.lower():
+                continue
+
+            cargos.append(
+                CargoExtraido(
+                    nome=nome,
+                    especialidade=especialidade,
+                )
+            )
+
+        vistos = set()
+        cargos_unicos = []
+        for c in cargos:
+            chave = (c.nome.lower(), (c.especialidade or "").lower())
+            if chave not in vistos:
+                vistos.add(chave)
+                cargos_unicos.append(c)
+
+        return cargos_unicos
+
+    @staticmethod
+    def _periodo_inscricao(texto: str) -> tuple[date | None, date | None]:
+        normal = normalizar(texto)
+        for m in re.finditer(r"inscric(?:ao|oes)", normal):
+            janela = normal[m.start(): m.start() + 350]
+            if "periodo" in janela or "a partir" in janela or "das" in janela:
+                datas = todas_as_datas(janela)
+                if len(datas) >= 2:
+                    return datas[0], datas[1]
+        return None, None
+
+    @staticmethod
+    def _data_prova(texto: str) -> date | None:
+        normal = normalizar(texto)
+        if m := re.search(r"provas?\s+objetivas?\s+ser(?:a|ao)\s+aplicadas?\s+em\s+([^.;\n]{1,60})", normal):
+            return data_por_extenso(m.group(1))
+        return None
+
+    @staticmethod
+    def _taxas(texto: str) -> list[Decimal]:
+        valores: set[Decimal] = set()
+        for m in re.finditer(r"valor\s+da\s+taxa\s+de\s+inscricao", texto, re.IGNORECASE):
+            janela = texto[m.start(): m.start() + 200]
+            valores.update(v for v in valores_monetarios(janela) if Decimal(0) < v < Decimal(2000))
+        return sorted(valores)

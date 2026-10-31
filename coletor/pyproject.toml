@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "Coletor do NqnTech Concursos: descobre concursos públicos, lê editais e grava no PostgreSQL"
 requires-python = ">=3.13"
 dependencies = [
+    "requests>=2.31,<3",
     "httpx>=0.28,<1",
     "beautifulsoup4>=4.13,<5",
     "lxml>=5.3",

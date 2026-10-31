@@ -12,14 +12,13 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass
-from datetime import date, datetime
 from urllib.parse import urljoin, urlsplit
 
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup
 
 from coletor.fontes.base import ResultadoDescoberta, SinalDescoberta
 from coletor.http_cliente import ClienteHttp, ErroHttp
-from coletor.texto import colapsar_espacos, normalizar
+from coletor.texto import colapsar_espacos
 
 log = logging.getLogger(__name__)
 
@@ -51,7 +50,7 @@ def parse_listagem(html: str) -> PaginaListagem:
 
     # O portal da Consulpam agrupa os concursos em blocos precedidos por tags h2.tag
     itens: list[ItemListagem] = []
-    vistos: set[str] = _set = set()
+    vistos: set[str] = set()
 
     # Varre todas as tabelas ou blocos de listagem na página de concursos
     for bloco in soup.select("div.bloco, table"):

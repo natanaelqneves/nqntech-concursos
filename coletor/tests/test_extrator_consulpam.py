@@ -5,8 +5,6 @@ from __future__ import annotations
 from datetime import date
 from decimal import Decimal
 
-import pytest
-
 from coletor.extratores.consulpam import ExtratorConsulpam
 
 
@@ -62,3 +60,16 @@ def test_extrator_consulpam_texto_vazio_gerando_avisos():
 def test_extrator_consulpam_datas_incoerentes():
     html_incoerente = """
     <html>
+        <body>
+            <h1>PREFEITURA MUNICIPAL DE TESTE-CE</h1>
+            <h2>EDITAL Nº 001/2026</h2>
+            <p>Inscrições de 10 de Novembro a 01 de Novembro de 2026.</p>
+        </body>
+    </html>
+    """
+
+    edital = ExtratorConsulpam().extrair(html_incoerente)
+
+    assert edital.inscricao_inicio is None
+    assert edital.inscricao_fim is None
+    assert "período de inscrição incoerente (fim antes do início): confira o edital" in edital.avisos

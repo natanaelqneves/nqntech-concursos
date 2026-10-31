@@ -131,9 +131,10 @@ class ExtratorConsulpam:
         # Procura por menções a cargos ou linhas descritivas no edital
         for linha in texto.split("\n"):
             linha_limpa = linha.strip()
-            if "cargo" in linha_limpa.lower() or "função" in linha_limpa.lower():
-                if len(linha_limpan := titulo_portugues(linha_limpa)) < 100:
-                    cargos.append(CargoExtraido(nome=linha_limpan))
+            if ("cargo" in linha_limpa.lower() or "função" in linha_limpa.lower()) and len(
+                linha_limpan := titulo_portugues(linha_limpa)
+            ) < 100:
+                cargos.append(CargoExtraido(nome=linha_limpan))
         return cargos[:20]  # Limita para evitar falsos positivos excessivos caso o texto seja longo
 
     @staticmethod

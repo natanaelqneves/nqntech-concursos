@@ -3,8 +3,9 @@ from __future__ import annotations
 import re
 from datetime import date
 from decimal import Decimal
-from bs4 import BeautifulSoup
+
 import requests
+from bs4 import BeautifulSoup
 
 from coletor.extratores.base import CargoExtraido, EditalExtraido
 from coletor.extratores.secoes import (

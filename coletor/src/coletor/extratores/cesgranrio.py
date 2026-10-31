@@ -125,7 +125,6 @@ class ExtratorCesgranrio:
         for m in padrao_cargo.finditer(texto):
             nome = titulo_portugues(m.group("nome").strip())
             especialidade = titulo_portugues(m.group("esp").strip()) if m.group("esp") else None
-            
             if len(nome) < 3 or "conforme" in nome.lower():
                 continue
 
@@ -171,4 +170,3 @@ class ExtratorCesgranrio:
             janela = texto[m.start() : m.start() + 200]
             valores.update(v for v in valores_monetarios(janela) if Decimal(0) < v < Decimal(2000))
         return sorted(valores)
-        

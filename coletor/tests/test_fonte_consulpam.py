@@ -3,6 +3,7 @@
 import httpx
 
 from coletor.fontes.consulpam import FonteConsulpam, parse_concurso, parse_listagem
+from coletor.http_cliente import ClienteHttp
 
 URL_LISTAGEM = "https://consulpam.com.br/index.php?menu=concursos"
 URL_DETALHE = "https://consulpam.com.br/index.php?menu=concursos&acao=ver&id=888"

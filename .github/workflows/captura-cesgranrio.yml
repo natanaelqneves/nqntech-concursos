@@ -1,0 +1,29 @@
+# Utilitário: captura páginas reais da Cesgranrio como fixtures de teste.
+name: captura-cesgranrio
+on:
+  push:
+    branches: [captura/cesgranrio]
+    paths: [scripts/captura/**, .github/workflows/captura-cesgranrio.yml]
+permissions:
+  contents: write
+concurrency:
+  group: captura-cesgranrio
+  cancel-in-progress: false
+jobs:
+  capturar:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: "3.13"
+      - run: pip install requests beautifulsoup4 lxml pdfplumber
+      - run: python scripts/captura/capturar_cesgranrio.py
+      - name: Gravar fixtures na branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f coletor/tests/fixtures/cesgranrio
+          git commit -m "captura: fixtures Cesgranrio [skip ci]" || echo "nada novo"
+          git push

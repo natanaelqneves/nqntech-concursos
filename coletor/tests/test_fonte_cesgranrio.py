@@ -69,8 +69,11 @@ def test_descobrir_percorre_paginas_cesgranrio(fixture_texto):
             '<a href="/concurso/c1/">C1</a></h3></div>'
             '<ul class="pagination"><li><a href="/concursos/page/2">2</a></li></ul>'
         ),
-        "/concursos/page/2/": ('<div class="tmb grid-cat-25"><h3 class="t-entry-title">''<a href="/concurso/c2/">C2</a></h3></div>'
+            "/concursos/page/2/": (
+                '<div class="tmb grid-cat-25"><h3 class="t-entry-title">'
+                '<a href="/concurso/c2/">C2</a></h3></div>'
         ),
+
         "/concurso/c1/": "<h1>C1</h1>",
         "/concurso/c2/": "<h1>C2</h1>",
     }

@@ -1,15 +1,6 @@
-"""Extrator por regras para editais da Cesgranrio.
-
-Mapeia os padrões conhecidos da Cesgranrio:
-- Identificação do edital e órgão no cabeçalho.
-- Leitura do Quadro de Vagas e Remuneração.
-- Integração com o módulo genérico de seções (isenções, calendários, disciplinas e redação).
-"""
-
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
 
@@ -33,8 +24,10 @@ from coletor.texto import (
 _NUMERO_EDITAL = re.compile(r"EDITAL\s+N\s*[º°o.]*\s*(\d{1,4})(?:\s*/\s*|\s*-\s*)(\d{4})", re.IGNORECASE)
 _ORGAO_CABECALHO = (
     re.compile(
-        r"CONCURSO P[ÚU]BLICO\s+PARA\s+(?:A\s+SELE[ÇC][ÃA]O\s+DE\s+PESSOAL\s+DO|PROVIMENTO\s+DE\s+VAGAS\s+D[OA])\s+(.+)",
-        re.IGNORECASE),
+        r"CONCURSO P[ÚU]BLICO\s+PARA\s+"
+        r"(?:A\s+SELE[ÇC][ÃA]O\s+DE\s+PESSOAL\s+DO|PROVIMENTO\s+DE\s+VAGAS\s+D[OA])\s+(.+)",
+        re.IGNORECASE,
+    ),
     re.compile(r"SELE[ÇC][ÃA]O\s+P[ÚU]BLICA\s+D[OA]\s+(.+)", re.IGNORECASE),
 )
 
@@ -51,27 +44,22 @@ class ExtratorCesgranrio:
     def extrair(self, texto: str) -> EditalExtraido:
         avisos: list[str] = []
 
-        # 1. Identificar Número do Edital e Órgão
         numero, ano = self._numero_edital(texto)
         if numero is None:
             avisos.append("número do edital não encontrado")
 
         orgao = self._orgao(texto)
 
-        # 2. Extrair Cargos e Vagas
         cargos = self._cargos(texto)
         if not cargos:
             avisos.append("quadro de cargos/vagas não encontrado: confira o edital")
 
-        # 3. Período de Inscrição
         inicio, fim = self._periodo_inscricao(texto)
         if inicio is None or fim is None:
             avisos.append("período de inscrição não encontrado")
 
-        # 4. Isenção de Taxa (Regras genéricas de CadÚnico, Doador, etc.)
         isencoes = extrair_isencoes(texto)
 
-        # 5. Data da Prova e Calendário
         prova = self._data_prova(texto)
         eventos = calendario(texto, isencoes, (inicio, fim), prova)
         if prova is None:
@@ -79,14 +67,12 @@ class ExtratorCesgranrio:
         if prova is None:
             avisos.append("data da prova não encontrada")
 
-        # 6. Taxas de Inscrição
         taxas = self._taxas(texto)
         if not taxas:
             avisos.append("taxa de inscrição não encontrada")
 
         avisos.extend(isencoes.avisos)
 
-        # 7. Disciplinas e Redação (via secoes.py)
         cargos, faltou_quadro = atribuir_disciplinas(cargos, quadros_de_disciplinas(texto))
         if faltou_quadro:
             avisos.append("disciplinas de algum cargo não identificadas: confira o edital")
@@ -131,7 +117,6 @@ class ExtratorCesgranrio:
     @staticmethod
     def _cargos(texto: str) -> list[CargoExtraido]:
         cargos: list[CargoExtraido] = []
-        # Padrão típico de tabela Cesgranrio: CARGO: <NOME> - <ESPECIALIDADE>
         padrao_cargo = re.compile(
             r"CARGO\s*\d*\s*[:–-]\s*(?P<nome>[^\n–-]+)(?:\s*[-–]\s*(?P<esp>[^\n]+))?",
             re.IGNORECASE,
@@ -140,8 +125,7 @@ class ExtratorCesgranrio:
         for m in padrao_cargo.finditer(texto):
             nome = titulo_portugues(m.group("nome").strip())
             especialidade = titulo_portugues(m.group("esp").strip()) if m.group("esp") else None
-
-            # Evitar termos genéricos capturados incorretamente
+            
             if len(nome) < 3 or "conforme" in nome.lower():
                 continue
 
@@ -152,7 +136,6 @@ class ExtratorCesgranrio:
                 )
             )
 
-        # Remove duplicados mantendo a ordem
         vistos = set()
         cargos_unicos = []
         for c in cargos:
@@ -167,7 +150,7 @@ class ExtratorCesgranrio:
     def _periodo_inscricao(texto: str) -> tuple[date | None, date | None]:
         normal = normalizar(texto)
         for m in re.finditer(r"inscric(?:ao|oes)", normal):
-            janela = normal[m.start(): m.start() + 350]
+            janela = normal[m.start() : m.start() + 350]
             if "periodo" in janela or "a partir" in janela or "das" in janela:
                 datas = todas_as_datas(janela)
                 if len(datas) >= 2:
@@ -185,6 +168,7 @@ class ExtratorCesgranrio:
     def _taxas(texto: str) -> list[Decimal]:
         valores: set[Decimal] = set()
         for m in re.finditer(r"valor\s+da\s+taxa\s+de\s+inscricao", texto, re.IGNORECASE):
-            janela = texto[m.start(): m.start() + 200]
+            janela = texto[m.start() : m.start() + 200]
             valores.update(v for v in valores_monetarios(janela) if Decimal(0) < v < Decimal(2000))
         return sorted(valores)
+        

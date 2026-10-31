@@ -2,6 +2,7 @@ from coletor.fontes.base import DadosEstruturados, Fonte, ResultadoDescoberta, S
 from coletor.fontes.fgv import FonteFGV
 from coletor.fontes.ibade import FonteIBADE
 from coletor.fontes.ibam import FonteIBAM
+from coletor.fontes.cesgranrio import FonteCESGRANRIO
 
 __all__ = ["DadosEstruturados", "Fonte", "ResultadoDescoberta", "SinalDescoberta", "fontes_disponiveis"]
 
@@ -12,5 +13,6 @@ def fontes_disponiveis(max_paginas_listagem: int = 15, max_paginas_realizados: i
         FonteFGV(max_paginas=max_paginas_listagem, max_paginas_realizados=max_paginas_realizados),
         FonteIBAM(),
         FonteIBADE(),
+        FonteCESGRANRIO(max_paginas, max_paginas_realizados)
     ]
     return {fonte.nome: fonte for fonte in fontes}

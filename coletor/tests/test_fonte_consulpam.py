@@ -1,11 +1,8 @@
 """Testes unitários para a fonte Consulpam."""
 
-from __future__ import annotations
-
 import httpx
 
 from coletor.fontes.consulpam import FonteConsulpam, parse_concurso, parse_listagem
-from coletor.http_cliente import ClienteHttp
 
 URL_LISTAGEM = "https://consulpam.com.br/index.php?menu=concursos"
 URL_DETALHE = "https://consulpam.com.br/index.php?menu=concursos&acao=ver&id=888"
@@ -20,8 +17,14 @@ def test_listagem_consulpam():
                     <tr>
                         <td><img src="img.jpg"/></td>
                         <td>
-                            <h3 class="tit"><a href="index.php?menu=concursos&acao=ver&id=888">PREFEITURA MUNICIPAL DE SÃO JOÃO DO PIAUÍ-PI</a></h3>
-                            <div class="resumoDesc">- INSCRIÇÕES DE 21 DE OUTUBRO A 09 DE NOVEMBRO DE 2026.</div>
+                            <h3 class="tit">
+                                <a href="index.php?menu=concursos&acao=ver&id=888">
+                                    PREFEITURA MUNICIPAL DE SÃO JOÃO DO PIAUÍ-PI
+                                </a>
+                            </h3>
+                            <div class="resumoDesc">
+                                - INSCRIÇÕES DE 21 DE OUTUBRO A 09 DE NOVEMBRO DE 2026.
+                            </div>
                         </td>
                     </tr>
                 </table>
@@ -66,7 +69,11 @@ def test_descobrir_consulpam_mock():
                 <table>
                     <tr>
                         <td>
-                            <h3 class="tit"><a href="index.php?menu=concursos&acao=ver&id=888">PREFEITURA MUNICIPAL DE SÃO JOÃO DO PIAUÍ-PI</a></h3>
+                            <h3 class="tit">
+                                <a href="index.php?menu=concursos&acao=ver&id=888">
+                                    PREFEITURA MUNICIPAL DE SÃO JOÃO DO PIAUÍ-PI
+                                </a>
+                            </h3>
                             <div class="resumoDesc">- INSCRIÇÕES ABERTAS.</div>
                         </td>
                     </tr>
@@ -82,7 +89,11 @@ def test_descobrir_consulpam_mock():
     def responder(request: httpx.Request) -> httpx.Response:
         path = request.url.path + (f"?{request.url.query.decode()}" if request.url.query else "")
         if path in paginas:
-            return httpx.Response(200, text=paginas[path], headers={"Content-Type": "text/html; charset=utf-8"})
+            return httpx.Response(
+                200,
+                text=paginas[path],
+                headers={"Content-Type": "text/html; charset=utf-8"},
+            )
         return httpx.Response(
             200,
             text="<html><body><h1>Detalhe Concurso</h1><a href='edital.pdf'>Edital</a></body></html>",

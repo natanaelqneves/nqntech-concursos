@@ -11,15 +11,32 @@ URL_LISTAGEM = "https://consulpam.com.br/index.php?menu=concursos"
 URL_DETALHE = "https://consulpam.com.br/index.php?menu=concursos&acao=ver&id=888"
 
 
-def test_listagem_consulpam(fixture_texto):
-    pagina = parse_listagem(fixture_texto("consulpam/listagem.html"))
+def test_listagem_consulpam():
+    html_listagem_exemplo = """
+    <html>
+        <body>
+            <div class="bloco">
+                <table>
+                    <tr>
+                        <td><img src="img.jpg"/></td>
+                        <td>
+                            <h3 class="tit"><a href="index.php?menu=concursos&acao=ver&id=888">PREFEITURA MUNICIPAL DE SÃO JOÃO DO PIAUÍ-PI</a></h3>
+                            <div class="resumoDesc">- INSCRIÇÕES DE 21 DE OUTUBRO A 09 DE NOVEMBRO DE 2026.</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </body>
+    </html>
+    """
+    pagina = parse_listagem(html_listagem_exemplo)
 
     assert len(pagina.itens) > 0
     urls = [i.url for i in pagina.itens]
     assert URL_DETALHE in urls
 
 
-def test_pagina_do_concurso_consulpam(fixture_texto):
+def test_pagina_do_concurso_consulpam():
     html_exemplo = """
     <html>
         <body>
@@ -41,9 +58,25 @@ def test_pagina_do_concurso_consulpam(fixture_texto):
     assert "arquivos/edital_003.pdf" in dados["arquivos"][0]["url"]
 
 
-def test_descobrir_consulpam_mock(fixture_texto):
+def test_descobrir_consulpam_mock():
+    html_listagem_exemplo = """
+    <html>
+        <body>
+            <div class="bloco">
+                <table>
+                    <tr>
+                        <td>
+                            <h3 class="tit"><a href="index.php?menu=concursos&acao=ver&id=888">PREFEITURA MUNICIPAL DE SÃO JOÃO DO PIAUÍ-PI</a></h3>
+                            <div class="resumoDesc">- INSCRIÇÕES ABERTAS.</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </body>
+    </html>
+    """
     paginas = {
-        "/index.php?menu=concursos": fixture_texto("consulpam/listagem.html"),
+        "/index.php?menu=concursos": html_listagem_exemplo,
     }
 
     def responder(request: httpx.Request) -> httpx.Response:

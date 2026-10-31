@@ -1,8 +1,4 @@
-"""Extrator por regras para editais da Consulpam.
-
-Baseado no layout da Consulpam (ex: Prefeitura de São João do Piauí-PI, Edital 003/2026)
-e nos padrões de títulos e resumos das listagens da banca.
-"""
+"""Extrator por regras para editais da Consulpam."""
 
 from __future__ import annotations
 
@@ -22,7 +18,6 @@ from coletor.extratores.secoes import (
     redacao_por_cargo,
 )
 from coletor.texto import (
-    colapsar_espacos,
     data_por_extenso,
     normalizar,
     titulo_portugues,
@@ -41,8 +36,7 @@ class ExtratorConsulpam:
     def extrair(self, html_ou_texto: str) -> EditalExtraido:
         avisos: list[str] = []
 
-        # Suporte a BeautifulSoup ou texto puro
-        if "<html" in html_ou_texto.lower() or "<div" in html_ou_texto.lower():
+        if "<html" in html_ou_texto.lower() or "<div" in html_ou_texto.lower() or "<body" in html_ou_texto.lower():
             soup = BeautifulSoup(html_ou_texto, "html.parser")
             texto = soup.get_text(separator="\n")
         else:
@@ -108,43 +102,61 @@ class ExtratorConsulpam:
 
     @staticmethod
     def _numero_edital(texto: str) -> tuple[str | None, int | None]:
-        m = _NUMERO_EDITAL.search(texto[:8000])
+        m = _NUMERO_EDITAL.search(texto)
         if m is None:
             return None, None
         return f"{int(m.group(1)):02d}/{m.group(2)}", int(m.group(2))
 
     @staticmethod
     def _orgao(texto: str) -> str | None:
-        # Exemplo padrão Consulpam nos títulos: "PREFEITURA MUNICIPAL DE SÃO JOÃO DO PIAUÍ-PI"
-        m = re.search(
-            r"(PREFEITURA MUNICIPAL DE [^\n(]+|CÂMARA MUNICIPAL DE [^\n(]+|[A-ZÃÉÍÓÚÂÊÔÃÕÇ\s-]+)", texto, re.IGNORECASE
-        )
+        for linha in texto.split("\n"):
+            linha_est = linha.strip()
+            if "PREFEITURA MUNICIPAL" in linha_est.upper() or "CÂMARA MUNICIPAL" in linha_est.upper():
+                return titulo_portugues(linha_est.strip(" -–"))
+        m = re.search(r"([A-ZÃÉÍÓÚÂÊÔÃÕÇ\s-]+(?:PI|CE|PE|PB|SP|PR|MA|GO|RJ|PA))", texto)
         if m:
-            orgao_limpo = colapsar_espacos(m.group(1)).strip(" -–")
-            if len(orgao_limpo) > 3:
-                return titulo_portugues(orgao_limpo)
+            return titulo_portugues(m.group(1).strip())
         return None
 
     @staticmethod
     def _cargos(texto: str) -> list[CargoExtraido]:
         cargos: list[CargoExtraido] = []
-        # Procura por menções a cargos ou linhas descritivas no edital
+        capturando = False
         for linha in texto.split("\n"):
             linha_limpa = linha.strip()
-            if ("cargo" in linha_limpa.lower() or "função" in linha_limpa.lower()) and len(
-                linha_limpan := titulo_portugues(linha_limpa)
-            ) < 100:
-                cargos.append(CargoExtraido(nome=linha_limpan))
-        return cargos[:20]  # Limita para evitar falsos positivos excessivos caso o texto seja longo
+            if "CARGOS" in linha_limpa.upper() or "DAS VAGAS" in linha_limpa.upper():
+                capturando = True
+                continue
+            if capturando:
+                if not linha_limpa:
+                    continue
+                if "INSCRIÇÃO" in linha_limpa.upper() or "PROVA" in linha_limpa.upper():
+                    break
+                nome_limpo = titulo_portugues(re.sub(r"^[-•*]\s*(?:Cargo:)?\s*", "", linha_limpa))
+                if len(nome_limpo) > 3 and len(nome_limpo) < 80:
+                    cargos.append(CargoExtraido(nome=nome_limpo))
+        if not cargos:
+            # Fallback genérico se não achou bloco delimitado
+            for linha in texto.split("\n"):
+                linha_limpa = linha.strip()
+                if ("cargo" in linha_limpa.lower() or "função" in linha_limpa.lower()) and len(
+                    linha_limpan := titulo_portugues(linha_limpa)
+                ) < 100:
+                    cargos.append(CargoExtraido(nome=linha_limpan))
+        return cargos[:20]
 
     @staticmethod
     def _periodo_inscricao(texto: str) -> tuple[date | None, date | None]:
         normal = normalizar(texto)
         for m in re.finditer(r"inscric(?:ao|oes)", normal):
-            janela = normal[m.start() : m.start() + 300]
+            janela = normal[m.start() : m.start() + 400]
             datas = todas_as_datas(janela)
             if len(datas) >= 2:
                 return datas[0], datas[1]
+        # Tentativa ampla por datas no texto todo caso não ache perto da palavra chave
+        todas = todas_as_datas(normal)
+        if len(todas) >= 2:
+            return todas[0], todas[1]
         return None, None
 
     @staticmethod
@@ -154,12 +166,17 @@ class ExtratorConsulpam:
             trecho = m.group(1)
             if (achada := data_por_extenso(trecho)) is not None:
                 return achada
+        datas = todas_as_datas(normal)
+        if len(datas) >= 3:
+            return datas[2]
         return None
 
     @staticmethod
     def _taxas(texto: str) -> list[Decimal]:
         valores: set[Decimal] = set()
-        for m in re.finditer(r"(?:valor d[ae] |taxa de )inscri", texto, re.IGNORECASE):
+        for m in re.finditer(r"(?:valor d[ae] |taxa de |r\$ )inscri", texto, re.IGNORECASE):
             janela = texto[m.start() : m.start() + 220]
             valores.update(v for v in valores_monetarios(janela) if Decimal(0) < v < _TAXA_MAXIMA_PLAUSIVEL)
+        if not valores:
+            valores.update(v for v in valores_monetarios(texto) if Decimal(0) < v < _TAXA_MAXIMA_PLAUSIVEL)
         return sorted(valores)

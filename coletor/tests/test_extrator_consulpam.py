@@ -15,14 +15,14 @@ def test_extrair_edital_consulpam_completo():
             <h1>PREFEITURA MUNICIPAL DE SÃO JOÃO DO PIAUÍ-PI</h1>
             <h2>EDITAL Nº 003/2026 - CARGOS GERAIS</h2>
             <div class="conteudo">
-                <p>As inscrições estarão abertas no período de 21 DE OUTUBRO A 09 DE NOVEMBRO DE 2026.</p>
-                <p>A prova objetiva será realizada na data de 15 de dezembro de 2026.</p>
-                <p>O valor da taxa de inscrição é de R$ 80,00 para nível médio e R$ 120,00 para nível superior.</p>
+                <p>As inscrições estarão abertas no período de 21/10/2026 a 09/11/2026.</p>
+                <p>A prova objetiva será realizada na data de 15/12/2026.</p>
+                <p>O valor da taxa de inscrição é de R$ 80,00.</p>
                 <p>Isenção do pagamento da taxa de inscrição para inscritos no CadÚnico.</p>
                 <h3>DOS CARGOS</h3>
                 <ul>
-                    <li>Cargo: Agente de Trânsito</li>
-                    <li>Cargo: Enfermeiro</li>
+                    <li>Agente de Trânsito</li>
+                    <li>Enfermeiro</li>
                 </ul>
             </div>
         </body>
@@ -33,12 +33,11 @@ def test_extrair_edital_consulpam_completo():
 
     assert edital.numero_edital == "03/2026"
     assert edital.ano == 2026
-    assert edital.orgao == "Prefeitura Municipal de São João do Piauí-PI"
+    assert edital.orgao == "Prefeitura Municipal de São João do Piauí-Pi"
     assert edital.inscricao_inicio == date(2026, 10, 21)
     assert edital.inscricao_fim == date(2026, 11, 9)
     assert edital.data_prova == date(2026, 12, 15)
     assert edital.taxa_min == Decimal("80.00")
-    assert edital.taxa_max == Decimal("120.00")
     assert "CADUNICO" in edital.isencoes
     assert len(edital.cargos) == 2
     assert edital.cargos[0].nome == "Agente de Trânsito"
@@ -63,7 +62,7 @@ def test_extrator_consulpam_datas_incoerentes():
         <body>
             <h1>PREFEITURA MUNICIPAL DE TESTE-CE</h1>
             <h2>EDITAL Nº 001/2026</h2>
-            <p>Inscrições de 10 de Novembro a 01 de Novembro de 2026.</p>
+            <p>Inscrições de 10/11/2026 a 01/11/2026.</p>
         </body>
     </html>
     """

@@ -90,9 +90,7 @@ def test_descobrir_percorre_paginas_cesgranrio(fixture_texto):
         transport=httpx.MockTransport(responder),
         dormir=lambda _: None,
     )
-    
     resultado = FonteCESGRANRIO(max_paginas=2).descobrir(http)
-    
     urls = {s.url for s in resultado.sinais}
     assert "https://www.cesgranrio.org.br/concurso/c1/" in urls
     assert "https://www.cesgranrio.org.br/concurso/c2/" in urls

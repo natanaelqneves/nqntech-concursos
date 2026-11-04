@@ -1,4 +1,4 @@
-"""Sondagem 2: API de busca do DOE-SP e formulário de pesquisa do SIGPub (diários municipais)."""
+"""Sondagem 3: texto completo de uma publicação do DOE-SP e resultado da busca do SIGPub."""
 
 from __future__ import annotations
 
@@ -12,35 +12,38 @@ import requests
 
 UA = "NqnTechConcursos/0.1 (site publico e gratuito de concursos; respeita robots.txt)"
 DESTINO = Path("coletor/tests/fixtures/diarios")
-SP = "https://do-api-web-search.doe.sp.gov.br/v2/advanced-search/publications"
+SLUG = "executivo/universidade-estadual-paulista/edital-n-145-2026stgp-dtad-de-27-de-outubro-de-2026-202610271344421162237843"
+ID = "bd936be7-8232-4819-2f9e-08df2e3de7b6"
 
 
 def main() -> int:
     s = requests.Session()
     s.headers["User-Agent"] = UA
     rel: dict = {}
-    variantes = {
-        "sp_periodo": {"Terms[0]": "edital de abertura", "FromDate": "2026-10-28", "ToDate": "2026-11-04",
-                       "PageNumber": 1, "PageSize": 20, "periodStartingDate": "personalized"},
-        "sp_concurso": {"Terms[0]": "concurso público", "FromDate": "2026-10-28", "ToDate": "2026-11-04",
-                        "PageNumber": 1, "PageSize": 20, "periodStartingDate": "personalized", "SortField": "Date"},
+    urls = {
+        "sp_pagina": f"https://doe.sp.gov.br/{SLUG}",
+        "sp_api_slug": f"https://do-api-web-search.doe.sp.gov.br/v2/publications/{SLUG}",
+        "sp_api_id": f"https://do-api-web-search.doe.sp.gov.br/v2/publications/{ID}",
+        "sp_api2_slug": f"https://do-api.doe.sp.gov.br/v2/publications/{SLUG}",
+        "sigpub_busca": "https://www.diariomunicipal.com.br/famup/pesquisar?busca_avancada%5Btexto%5D=edital+de+abertura+concurso+p%C3%BAblico",
     }
-    for nome, params in variantes.items():
+    for nome, url in urls.items():
         time.sleep(3)
-        r = s.get(SP, params=params, timeout=60)
-        rel[nome] = {"url": r.url, "status": r.status_code, "inicio": r.text[:3000]}
+        try:
+            r = s.get(url, timeout=60)
+        except requests.RequestException as erro:
+            rel[nome] = {"erro": str(erro)[:200]}
+            continue
+        corpo = re.sub(r"<script.*?</script>|<style.*?</style>", "", r.text, flags=re.S)
+        rel[nome] = {"status": r.status_code, "tipo": r.headers.get("Content-Type"),
+                     "texto": " ".join(re.sub(r"<[^>]+>", " ", corpo).split())[:2500],
+                     "links": sorted(set(re.findall(r'href="([^"#]+)"', r.text)))[:60],
+                     "apis": sorted(set(re.findall(r'https://[a-z0-9.-]*doe\.sp\.gov\.br[^"\'\s]*', r.text)))[:20]}
         if r.ok:
-            (DESTINO / f"{nome}.json").write_text(r.text, encoding="utf-8")
-    for caminho in ["https://doe.sp.gov.br/busca-avancada", "https://www.diariomunicipal.com.br/famup/pesquisar"]:
-        time.sleep(3)
-        r = s.get(caminho, timeout=60)
-        nome = re.sub(r"\W+", "_", caminho.split("//")[1])[:50]
-        (DESTINO / f"{nome}.html").write_text(r.text, encoding="utf-8")
-        forms = re.findall(r"<form[^>]*>.*?</form>", r.text, flags=re.S | re.I)
-        rel[nome] = {"status": r.status_code, "forms": [re.sub(r"\s+", " ", f)[:2500] for f in forms][:3],
-                     "scripts": re.findall(r'src="([^"]+\.js[^"]*)"', r.text)[:15]}
-    (DESTINO / "_relatorio2.json").write_text(json.dumps(rel, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(json.dumps(rel, ensure_ascii=False, indent=1)[:20000])
+            ext = "json" if "json" in (r.headers.get("Content-Type") or "") else "html"
+            (DESTINO / f"{nome}.{ext}").write_text(r.text, encoding="utf-8")
+    (DESTINO / "_relatorio3.json").write_text(json.dumps(rel, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(json.dumps({k: {x: v.get(x) for x in ("status", "tipo", "erro")} for k, v in rel.items()}, indent=1))
     return 0
 
 

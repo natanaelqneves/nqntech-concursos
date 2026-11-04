@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from datetime import date
 
-from coletor.classificacao.orgao import inferir_orgao
+from coletor.classificacao.orgao import OrgaoInferido, inferir_orgao
 from coletor.db import Repositorio
 from coletor.extratores import extrator_para_banca
 from coletor.extratores.base import EditalExtraido
@@ -22,6 +22,21 @@ DIAS_FORA_DA_LISTA_PARA_ENCERRAR = 10
 # Bancas que declaram Content-Signal ai-train=no: o texto delas não vai a provedores de IA (só regras), venha o PDF
 # da coleta ou da importação manual.
 BANCAS_SEM_IA = frozenset({"IDECAN"})
+
+
+def orgao_do_edital(edital: EditalExtraido) -> OrgaoInferido | None:
+    """Órgão do edital: a inferência pelo nome, completada pelo local que a IA leu (esfera, UF, município)."""
+    if not edital.orgao:
+        return None
+    inferido = inferir_orgao(edital.orgao)
+    if inferido is None and not (edital.esfera or edital.uf):
+        return None
+    return OrgaoInferido(
+        nome=inferido.nome if inferido else edital.orgao,
+        esfera=(inferido.esfera if inferido else None) or edital.esfera,
+        uf=(inferido.uf if inferido else None) or (None if edital.esfera == "FEDERAL" else edital.uf),
+        municipio=(inferido.municipio if inferido else None) or edital.municipio,
+    )
 
 
 def situacao_por_datas(edital: EditalExtraido, referencia: date) -> str:
@@ -57,10 +72,11 @@ def executar_estruturacao(repo: Repositorio, ia: ExtratorIA | None = None) -> Re
             if edital is None:
                 continue
             repo.aplicar_edital(concurso["id"], concurso["documento_id"], edital, situacao_por_datas(edital, dia))
-            if concurso.get("orgao_id") is None and edital.orgao:
-                orgao = inferir_orgao(edital.orgao)
-                if orgao is not None:
-                    repo.definir_orgao_se_ausente(concurso["id"], orgao)
+            orgao = orgao_do_edital(edital)
+            if orgao is not None and concurso.get("orgao_id") is None:
+                repo.definir_orgao_se_ausente(concurso["id"], orgao)
+            elif orgao is not None and orgao.uf and not concurso.get("orgao_uf") and edital.esfera != "FEDERAL":
+                repo.trocar_orgao(concurso["id"], orgao)
             estruturados += 1
             log.info(
                 "[%d/%d] concurso %d estruturado: %d cargos, avisos=%s",

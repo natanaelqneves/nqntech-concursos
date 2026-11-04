@@ -578,6 +578,11 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       subpasta por sigla de banca; link oficial na descrição do arquivo. Mesmas regras de `importar-pdfs`; o PDF
       só passa pela pasta temporária do runner e é movido no Drive para `processados/` ou `recusados/`. PDFs no
       repositório foram descartados (público e contrário à seção 5.3).
+- [x] IA com os dados que a persistência usa (04/11/2026): esquema versão 2 com `esfera`, `uf` e `municipio` do
+      órgão e `uf_lotacao` por cargo; o órgão gravado combina a inferência pelo nome com o local lido pela IA (UF de
+      órgão federal é descartada; "horário de Brasília" não é DF); concurso com órgão sem UF ganha o órgão completo.
+      Importação manual: título = órgão lido no cabeçalho do edital (não o nome do arquivo). Reinício da coleta dos
+      abertos/previstos: `scripts/sql/resetar_abertos.sql` (mantém EM_ANDAMENTO e ENCERRADO).
 - [ ] Fase 6 (diários oficiais): sondagem do Querido Diário em 04/11/2026 a partir do GitHub Actions falhou no
       handshake TLS (`SSLV3_ALERT_HANDSHAKE_FAILURE`, recusa do servidor); nada contornado, tentar de novo depois.
       DOU: o INLABS indicou a base de dados abertos em in.gov.br/acesso-a-informacao/dados-abertos/base-de-dados;

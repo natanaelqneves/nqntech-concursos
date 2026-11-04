@@ -133,6 +133,9 @@ def combinar(regras: EditalExtraido | None, ia: EditalExtraido) -> EditalExtraid
         isencao_inicio=regras.isencao_inicio if regras.isencoes else ia.isencao_inicio,
         isencao_fim=regras.isencao_fim if regras.isencoes else ia.isencao_fim,
         eventos=regras.eventos or ia.eventos,
+        esfera=regras.esfera or ia.esfera,
+        uf=regras.uf or ia.uf,
+        municipio=regras.municipio or ia.municipio,
     )
     # Mantém só os avisos de lacunas que continuam abertas, mais os da validação da IA.
     resolvidos = {

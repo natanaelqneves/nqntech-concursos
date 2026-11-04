@@ -145,6 +145,18 @@ class Repositorio:
         self.conn.commit()
         return [FonteCadastrada(**linha) for linha in linhas]
 
+    def fonte_manual(self, sigla_banca: str) -> FonteCadastrada | None:
+        linha = self.conn.execute(
+            "SELECT id, nome, banca_id FROM fonte WHERE tipo = 'MANUAL' AND nome = %s",
+            (f"manual-{sigla_banca.strip().lower()}",),
+        ).fetchone()
+        self.conn.commit()
+        return FonteCadastrada(**linha) if linha else None
+
+    def documento_por_url(self, url: str) -> int | None:
+        linha = self.conn.execute("SELECT id FROM documento WHERE url_origem = %s", (url,)).fetchone()
+        return linha["id"] if linha else None
+
     def urls_sem_oportunidade(self, fonte_id: int, hoje: date, folga_dias: int, releitura_dias: int) -> frozenset[str]:
         """Sinais da fonte cuja página não precisa ser relida hoje: inscrição vencida sem isenção em curso e página lida
         há menos de `releitura_dias` (gravar_sinal atualiza visto_em a cada leitura)."""

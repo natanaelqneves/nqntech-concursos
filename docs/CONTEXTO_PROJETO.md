@@ -508,4 +508,8 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
         contra os seeds (só oportunidades, ordem da tela inicial, nenhum link interno quebrado).
 - [x] Modernização (04/11/2026): tema claro padrão com escuro opcional e AdSense liberado (PR #13); Camada 2 com IA
       (Gemini + Groq, PR #14), seção 6. Bancas com robots.txt que proíbe a coleta (FCC, Cesgranrio) continuam fora:
-      entram pelos diários oficiais (fase 6). Cebraspe: só se o robots.txt e os termos permitirem a API JSON.
+      entram pelos diários oficiais (fase 6). Cebraspe entrou (PR #15): API JSON pública do app de concursos,
+      só as fases "novos" e "inscricoes-abertas"; baixa só o "Edital nº 1 – Abertura" (de preferência o
+      "atualizado conforme retificações"); suspensos/cancelados ficam fora; nomes abreviados ("PC PE 26") são
+      completados pelo órgão lido do edital (regras/IA). Sem as chaves de IA a Cebraspe fica com dados mínimos
+      (não há extrator de regras para ela).

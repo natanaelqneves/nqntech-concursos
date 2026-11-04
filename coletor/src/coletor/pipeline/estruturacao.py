@@ -9,6 +9,7 @@ from __future__ import annotations
 import logging
 from datetime import date
 
+from coletor.classificacao.orgao import inferir_orgao
 from coletor.db import Repositorio
 from coletor.extratores import extrator_para_banca
 from coletor.extratores.base import EditalExtraido
@@ -53,6 +54,10 @@ def executar_estruturacao(repo: Repositorio, ia: ExtratorIA | None = None) -> Re
             if edital is None:
                 continue
             repo.aplicar_edital(concurso["id"], concurso["documento_id"], edital, situacao_por_datas(edital, dia))
+            if concurso.get("orgao_id") is None and edital.orgao:
+                orgao = inferir_orgao(edital.orgao)
+                if orgao is not None:
+                    repo.definir_orgao_se_ausente(concurso["id"], orgao)
             estruturados += 1
             log.info(
                 "[%d/%d] concurso %d estruturado: %d cargos, avisos=%s",

@@ -403,7 +403,7 @@ class Repositorio:
     # --- estruturação ----------------------------------------------------------------------------
     def concursos_para_estruturar(self) -> list[Linha]:
         return self.conn.execute(
-            """SELECT c.id, b.sigla AS banca, e.id AS documento_id, e.texto_extraido, e.hash_sha256
+            """SELECT c.id, c.orgao_id, b.sigla AS banca, e.id AS documento_id, e.texto_extraido, e.hash_sha256
                FROM concurso c
                         JOIN banca b ON b.id = c.banca_id
                         JOIN LATERAL (SELECT d.id, d.texto_extraido, d.hash_sha256 FROM documento d
@@ -480,6 +480,15 @@ class Repositorio:
                 "INSERT INTO concurso_evento (concurso_id, ordem, evento, inicio, fim) VALUES (%s, %s, %s, %s, %s)",
                 (concurso_id, ordem, evento.evento[:200], evento.inicio, fim),
             )
+
+    def definir_orgao_se_ausente(self, concurso_id: int, orgao: OrgaoInferido) -> bool:
+        """Órgão lido do edital, só quando a fonte não informou (ex.: Cebraspe, com nomes abreviados)."""
+        with self.transacao():
+            orgao_id = self.garantir_orgao(orgao)
+            cursor = self.conn.execute(
+                "UPDATE concurso SET orgao_id = %s WHERE id = %s AND orgao_id IS NULL", (orgao_id, concurso_id)
+            )
+            return cursor.rowcount > 0
 
     def atualizar_situacoes_por_data(self, hoje: date, dias_sem_ver: int) -> int:
         with self.transacao():

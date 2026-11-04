@@ -2,6 +2,7 @@ from coletor.fontes.aocp import FonteAOCP
 from coletor.fontes.base import DadosEstruturados, Fonte, ResultadoDescoberta, SinalDescoberta
 from coletor.fontes.cebraspe import FonteCebraspe
 from coletor.fontes.comperve import FonteComperve
+from coletor.fontes.doe_sp import FonteDOESP
 from coletor.fontes.fgv import FonteFGV
 from coletor.fontes.ibade import FonteIBADE
 from coletor.fontes.ibam import FonteIBAM
@@ -18,5 +19,6 @@ def fontes_disponiveis(max_paginas_listagem: int = 15, max_paginas_realizados: i
         FonteCebraspe(),
         FonteAOCP(),
         FonteComperve(),
+        FonteDOESP(),
     ]
     return {fonte.nome: fonte for fonte in fontes}

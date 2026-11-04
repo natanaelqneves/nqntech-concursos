@@ -583,7 +583,15 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       órgão federal é descartada; "horário de Brasília" não é DF); concurso com órgão sem UF ganha o órgão completo.
       Importação manual: título = órgão lido no cabeçalho do edital (não o nome do arquivo). Reinício da coleta dos
       abertos/previstos: `scripts/sql/resetar_abertos.sql` (mantém EM_ANDAMENTO e ENCERRADO).
-- [ ] Fase 6 (diários oficiais): sondagem do Querido Diário em 04/11/2026 a partir do GitHub Actions falhou no
+- [x] Fase 6, primeiro diário oficial (04/11/2026): DOE-SP (`doe-sp`, V18) pela API pública de busca
+      (`do-api-web-search.doe.sp.gov.br`, termos de abertura nos últimos 7 dias, até 5 páginas por termo); só
+      editais de concurso/processo seletivo com abertura de inscrições (descarta contratos, convocações,
+      homologações, retificações). Sem PDF: o texto vem no sinal e a vinculação grava direto no documento
+      (e o tira do sinal). Sem banca (banca_id nulo): só a IA estrutura. Sondagem `captura-diarios`: DOU, Querido
+      Diário, DOE-MG, DOE-PR, DOE-CE, DOE-BA, DOE-PB, DODF e DOE-ES recusaram/erro de TLS a partir do Actions;
+      DOERJ, DOE-RS, DOE-SC, DOE-PE, DOE-GO, DOE-PA e SIGPub (diários municipais por associação) respondem e são
+      os próximos (SIGPub carrega a busca por JavaScript: falta achar a rota).
+- [ ] Fase 6 (demais diários oficiais): sondagem do Querido Diário em 04/11/2026 a partir do GitHub Actions falhou no
       handshake TLS (`SSLV3_ALERT_HANDSHAKE_FAILURE`, recusa do servidor); nada contornado, tentar de novo depois.
       DOU: o INLABS indicou a base de dados abertos em in.gov.br/acesso-a-informacao/dados-abertos/base-de-dados;
       sondagem de 04/11/2026 a partir do GitHub Actions: o servidor fecha a conexão já no robots.txt (bloqueio a

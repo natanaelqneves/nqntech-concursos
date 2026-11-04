@@ -570,6 +570,9 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       CSS/fonte carregados, menu completo e navegável, tema escuro lembrado, colunas da grade (1/2/3), cartão
       clicável inteiro, ficha do concurso, prazos no navegador e link "pular para o conteúdo"; pedidos a outros
       domínios são bloqueados. Capturas de tela das páginas principais ficam no artefato `capturas-site` (7 dias).
+      Cartões do mesmo tamanho: grade CSS com `grid-auto-rows: 1fr` (todas as linhas com a altura do cartão mais
+      cheio), sempre as mesmas 4 informações (vagas, salário, prova, nível; "—" quando falta) e título em até 3
+      linhas (nome completo no `title` e na página do concurso). Teste no navegador confere alturas iguais.
 - [ ] Fase 6 (diários oficiais): sondagem do Querido Diário em 04/11/2026 a partir do GitHub Actions falhou no
       handshake TLS (`SSLV3_ALERT_HANDSHAKE_FAILURE`, recusa do servidor); nada contornado, tentar de novo depois.
       DOU: o INLABS indicou a base de dados abertos em in.gov.br/acesso-a-informacao/dados-abertos/base-de-dados;

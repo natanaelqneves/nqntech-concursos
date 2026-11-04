@@ -21,8 +21,8 @@
     </nav>
 
     <p th:if="${concursos.isEmpty()}" class="vazio">Nenhum concurso aberto ou previsto aqui no momento.</p>
-    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3" id="resultados">
-        <div class="col" th:each="c : ${concursos}"><article th:replace="~{base :: cartao(${c})}"></article></div>
+    <div class="grade-cartoes" id="resultados">
+            <th:block th:each="c : ${concursos}"><article th:replace="~{base :: cartao(${c})}"></article></th:block>
     </div>
 </main>
 <footer th:replace="~{base :: rodape}"></footer>

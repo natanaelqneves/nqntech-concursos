@@ -169,15 +169,40 @@ def test_grade_de_cartoes_se_adapta_a_largura(pagina: Page) -> None:
     assert canhoto.is_visible() and re.search(r"\d|a definir", canhoto.inner_text())
 
 
+def test_cartoes_do_mesmo_tamanho(pagina: Page) -> None:
+    _abrir(pagina, "/inscricoes-abertas/")
+    alturas = pagina.evaluate(
+        "[...document.querySelectorAll('.grade-cartoes article.cartao')].map(c => Math.round(c.getBoundingClientRect().height))")
+    if len(alturas) < 2:
+        pytest.skip("seeds com menos de 2 concursos abertos")
+    assert max(alturas) - min(alturas) <= 1, f"cartões com alturas diferentes: {alturas}"
+    # Os dados ficam no pé do cartão, na mesma altura em todos.
+    pes = pagina.evaluate("""[...document.querySelectorAll('.grade-cartoes article.cartao')].map(c =>
+        Math.round(c.getBoundingClientRect().bottom - c.querySelector('.cartao__dados').getBoundingClientRect().top))""")
+    assert max(pes) - min(pes) <= 1, f"dados desalinhados: {pes}"
+
+
+def test_pronto_para_o_adsense(pagina: Page) -> None:
+    _abrir(pagina, "/")
+    conta = pagina.locator("meta[name='google-adsense-account']").get_attribute("content")
+    assert conta and conta.startswith("ca-pub-")
+    assert pagina.locator("script[src*='adsbygoogle.js']").count() == 1
+    ads = pagina.request.get(BASE + "/ads.txt")
+    assert ads.ok and f"google.com, {conta.removeprefix('ca-')}, DIRECT" in ads.text()
+    _abrir(pagina, "/privacidade/")
+    assert "AdSense" in pagina.locator("main").inner_text()
+
+
 def test_cartao_inteiro_abre_o_concurso(pagina: Page) -> None:
     _abrir(pagina, "/")
     cartao = pagina.locator("article.cartao").first
     destino = cartao.locator("a.stretched-link").get_attribute("href")
+    cartao.scroll_into_view_if_needed()
     caixa = cartao.bounding_box()
     assert caixa is not None
-    # Clique na área de dados (fora do título): o link esticado cobre o cartão todo.
-    pagina.mouse.click(caixa["x"] + caixa["width"] - 12, caixa["y"] + caixa["height"] - 12)
-    pagina.wait_for_load_state("networkidle")
+    # Clique perto do canto de baixo, na área de dados (longe do título): o link esticado cobre o cartão todo.
+    with pagina.expect_navigation(wait_until="networkidle"):
+        pagina.mouse.click(caixa["x"] + caixa["width"] - 12, caixa["y"] + caixa["height"] - 12)
     assert pagina.url.endswith(destino)
 
 

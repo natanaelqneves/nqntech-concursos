@@ -95,13 +95,21 @@
                 th:text="${'Isenção até ' + fmt.data(c.isencaoFim())}">Isenção</li>
         </ul>
         <h3 class="cartao__titulo">
-            <a class="stretched-link" th:href="${'/concurso/' + c.slug() + '/'}" th:text="${c.nomeExibicao()}">Órgão</a>
+            <a class="stretched-link" th:href="${'/concurso/' + c.slug() + '/'}" th:title="${c.nomeExibicao()}"
+               th:text="${c.nomeExibicao()}">Órgão</a>
         </h3>
+        <!-- Sempre as mesmas quatro informações, na mesma posição, para os cartões ficarem iguais. -->
         <dl class="cartao__dados">
-            <div th:if="${c.totalVagas() != null and c.totalVagas() > 0}"><dt>Vagas</dt><dd th:text="${fmt.numero(c.totalVagas())}">0</dd></div>
-            <div th:if="${c.salarioMax() != null}"><dt>Salário até</dt><dd th:text="${fmt.reais(c.salarioMax())}">R$</dd></div>
-            <div th:if="${c.dataProva() != null and c.dataProva() != m.data()}"><dt>Prova</dt><dd th:text="${fmt.data(c.dataProva())}">--</dd></div>
-            <div th:if="${!c.escolaridades().isEmpty()}"><dt>Nível</dt><dd th:text="${fmt.niveis(c.escolaridades())}">Superior</dd></div>
+            <div><dt>Vagas</dt>
+                <dd th:if="${c.totalVagas() != null and c.totalVagas() > 0}" th:text="${fmt.numero(c.totalVagas())}">0</dd>
+                <dd th:unless="${c.totalVagas() != null and c.totalVagas() > 0}"><span aria-hidden="true">—</span><span class="visually-hidden">não informado</span></dd></div>
+            <div><dt>Salário até</dt>
+                <dd th:if="${c.salarioMax() != null}" th:text="${fmt.reais(c.salarioMax())}">R$</dd>
+                <dd th:unless="${c.salarioMax() != null}"><span aria-hidden="true">—</span><span class="visually-hidden">não informado</span></dd></div>
+            <div><dt>Prova</dt><dd th:text="${fmt.data(c.dataProva())}">a definir</dd></div>
+            <div><dt>Nível</dt>
+                <dd th:if="${!c.escolaridades().isEmpty()}" th:text="${fmt.niveis(c.escolaridades())}">Superior</dd>
+                <dd th:if="${c.escolaridades().isEmpty()}"><span aria-hidden="true">—</span><span class="visually-hidden">não informado</span></dd></div>
         </dl>
     </div>
 </article>

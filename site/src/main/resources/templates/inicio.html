@@ -41,8 +41,8 @@
             <p class="nota">CNU e nacionais primeiro; depois, pela prova mais próxima.</p>
             <p th:if="${abertos.isEmpty()}" class="vazio">Nenhum concurso com inscrições abertas no momento.
                 <a href="/isencao-em-prazo/">Veja os com isenção em prazo.</a></p>
-            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
-                <div class="col" th:each="c : ${abertos}"><article th:replace="~{base :: cartao(${c})}"></article></div>
+            <div class="grade-cartoes">
+            <th:block th:each="c : ${abertos}"><article th:replace="~{base :: cartao(${c})}"></article></th:block>
             </div>
         </section>
     </div>

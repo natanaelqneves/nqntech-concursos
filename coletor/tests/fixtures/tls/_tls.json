@@ -1,0 +1,72 @@
+{
+ "www.fumarc.com.br": {
+  "verificacao_padrao": "HTTPSConnectionPool(host='www.fumarc.com.br', port=443): Max retries exceeded with url: /robots.txt (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1035)')))",
+  "certificados_enviados": 1,
+  "cadeia": [
+   "0 s:C = BR, ST = Minas Gerais, L = Belo Horizonte, O = SOCIEDADE MINEIRA DE CULTURA, CN = *.fumarc.com.br"
+  ],
+  "certificado": "subject=C = BR, ST = Minas Gerais, L = Belo Horizonte, O = SOCIEDADE MINEIRA DE CULTURA, CN = *.fumarc.com.br\nissuer=C = BE, O = GlobalSign nv-sa, CN = GlobalSign RSA OV SSL CA 2018\nnotBefore=Jul 15 12:31:25 2026 GMT\nnotAfter=Jan 30 12:31:25 2027 GMT\nAuthority Information Access: \n    CA Issuers - URI:http://secure.globalsign.com/cacert/gsrsaovsslca2018.crt\n    OCSP - URI:http://ocsp.globalsign.com/gsrsaovsslca2018\nX509v3 Subject Alternative Name: \n    DNS:*.fumarc.com.br, DNS:fumarc.com.br\n",
+  "aia": "http://secure.globalsign.com/cacert/gsrsaovsslca2018.crt",
+  "intermediario": "subject=C = BE, O = GlobalSign nv-sa, CN = GlobalSign RSA OV SSL CA 2018\nissuer=OU = GlobalSign Root CA - R3, O = GlobalSign, CN = GlobalSign\nnotBefore=Nov 21 00:00:00 2018 GMT\nnotAfter=Nov 21 00:00:00 2028 GMT\nAuthority Information Access: \n    OCSP - URI:http://ocsp2.globalsign.com/rootr3\n",
+  "com_intermediario": {
+   "status": 200,
+   "robots": "User-agent: *\r\n\r\nDisallow: /_layouts/\r\nDisallow: /_vti_bin/\r\nDisallow: /_catalogs/\r\n#Disallow: /Documentos Compartilhados/\r\n\r\n# Inicio Concursos nao publicados\r\nDisallow: /?concurso=36\r\nDisallow: /?concurso=45\r\n# Fim Concursos nao publicados\r\n\r\nSitemap: https://fumarc.com.br:443/sitemap.xml\r\n"
+  },
+  "home": {
+   "status": 200,
+   "tipo": "text/html",
+   "bytes": 135336
+  }
+ },
+ "fumarc.com.br": {
+  "verificacao_padrao": "HTTPSConnectionPool(host='fumarc.com.br', port=443): Max retries exceeded with url: /robots.txt (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1035)')))",
+  "certificados_enviados": 1,
+  "cadeia": [
+   "0 s:C = BR, ST = Minas Gerais, L = Belo Horizonte, O = SOCIEDADE MINEIRA DE CULTURA, CN = *.fumarc.com.br"
+  ],
+  "certificado": "subject=C = BR, ST = Minas Gerais, L = Belo Horizonte, O = SOCIEDADE MINEIRA DE CULTURA, CN = *.fumarc.com.br\nissuer=C = BE, O = GlobalSign nv-sa, CN = GlobalSign RSA OV SSL CA 2018\nnotBefore=Jul 15 12:31:25 2026 GMT\nnotAfter=Jan 30 12:31:25 2027 GMT\nAuthority Information Access: \n    CA Issuers - URI:http://secure.globalsign.com/cacert/gsrsaovsslca2018.crt\n    OCSP - URI:http://ocsp.globalsign.com/gsrsaovsslca2018\nX509v3 Subject Alternative Name: \n    DNS:*.fumarc.com.br, DNS:fumarc.com.br\n",
+  "aia": "http://secure.globalsign.com/cacert/gsrsaovsslca2018.crt",
+  "intermediario": "subject=C = BE, O = GlobalSign nv-sa, CN = GlobalSign RSA OV SSL CA 2018\nissuer=OU = GlobalSign Root CA - R3, O = GlobalSign, CN = GlobalSign\nnotBefore=Nov 21 00:00:00 2018 GMT\nnotAfter=Nov 21 00:00:00 2028 GMT\nAuthority Information Access: \n    OCSP - URI:http://ocsp2.globalsign.com/rootr3\n",
+  "com_intermediario": {
+   "erro": "HTTPSConnectionPool(host='www.fumarc.com.br', port=443): Max retries exceeded with url: /SitePages/Home.aspx (Caused by ConnectTimeoutError(<HTTPSConnection(host='www.fumarc.com.br', port=443) at 0x7f8b22120910>, 'Connection to www.fumarc.com.br timed out. (connect timeout=25)'))"
+  }
+ },
+ "www.comperve.ufrn.br": {
+  "verificacao_padrao": "HTTPSConnectionPool(host='www.comperve.ufrn.br', port=443): Max retries exceeded with url: /robots.txt (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1035)')))",
+  "certificados_enviados": 1,
+  "cadeia": [
+   "0 s:C = BR, ST = RIO GRANDE DO NORTE, L = NATAL, O = UNIVERSIDADE FEDERAL DO RIO GRANDE DO NORTE, CN = *.comperve.ufrn.br"
+  ],
+  "certificado": "subject=C = BR, ST = RIO GRANDE DO NORTE, L = NATAL, O = UNIVERSIDADE FEDERAL DO RIO GRANDE DO NORTE, CN = *.comperve.ufrn.br\nissuer=C = BE, O = GlobalSign nv-sa, CN = GlobalSign RSA OV SSL CA 2018\nnotBefore=Oct 31 16:36:16 2025 GMT\nnotAfter=Dec  2 16:36:15 2026 GMT\nAuthority Information Access: \n    CA Issuers - URI:http://secure.globalsign.com/cacert/gsrsaovsslca2018.crt\n    OCSP - URI:http://ocsp.globalsign.com/gsrsaovsslca2018\nX509v3 Subject Alternative Name: \n    DNS:*.comperve.ufrn.br, DNS:comperve.ufrn.br\n",
+  "aia": "http://secure.globalsign.com/cacert/gsrsaovsslca2018.crt",
+  "intermediario": "subject=C = BE, O = GlobalSign nv-sa, CN = GlobalSign RSA OV SSL CA 2018\nissuer=OU = GlobalSign Root CA - R3, O = GlobalSign, CN = GlobalSign\nnotBefore=Nov 21 00:00:00 2018 GMT\nnotAfter=Nov 21 00:00:00 2028 GMT\nAuthority Information Access: \n    OCSP - URI:http://ocsp2.globalsign.com/rootr3\n",
+  "com_intermediario": {
+   "status": 404,
+   "robots": ""
+  },
+  "home": {
+   "status": 200,
+   "tipo": "text/html; charset=UTF-8",
+   "bytes": 19394
+  }
+ },
+ "comperve.ufrn.br": {
+  "verificacao_padrao": "HTTPSConnectionPool(host='comperve.ufrn.br', port=443): Max retries exceeded with url: /robots.txt (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1035)')))",
+  "certificados_enviados": 1,
+  "cadeia": [
+   "0 s:C = BR, ST = RIO GRANDE DO NORTE, L = NATAL, O = UNIVERSIDADE FEDERAL DO RIO GRANDE DO NORTE, CN = *.comperve.ufrn.br"
+  ],
+  "certificado": "subject=C = BR, ST = RIO GRANDE DO NORTE, L = NATAL, O = UNIVERSIDADE FEDERAL DO RIO GRANDE DO NORTE, CN = *.comperve.ufrn.br\nissuer=C = BE, O = GlobalSign nv-sa, CN = GlobalSign RSA OV SSL CA 2018\nnotBefore=Oct 31 16:36:16 2025 GMT\nnotAfter=Dec  2 16:36:15 2026 GMT\nAuthority Information Access: \n    CA Issuers - URI:http://secure.globalsign.com/cacert/gsrsaovsslca2018.crt\n    OCSP - URI:http://ocsp.globalsign.com/gsrsaovsslca2018\nX509v3 Subject Alternative Name: \n    DNS:*.comperve.ufrn.br, DNS:comperve.ufrn.br\n",
+  "aia": "http://secure.globalsign.com/cacert/gsrsaovsslca2018.crt",
+  "intermediario": "subject=C = BE, O = GlobalSign nv-sa, CN = GlobalSign RSA OV SSL CA 2018\nissuer=OU = GlobalSign Root CA - R3, O = GlobalSign, CN = GlobalSign\nnotBefore=Nov 21 00:00:00 2018 GMT\nnotAfter=Nov 21 00:00:00 2028 GMT\nAuthority Information Access: \n    OCSP - URI:http://ocsp2.globalsign.com/rootr3\n",
+  "com_intermediario": {
+   "status": 404,
+   "robots": ""
+  },
+  "home": {
+   "status": 200,
+   "tipo": "text/html; charset=UTF-8",
+   "bytes": 19394
+  }
+ }
+}

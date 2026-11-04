@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import os
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
+
+from coletor.ia.provedores import ConfigIA
 
 # Só vale com instalação editável (pip install -e): instalado no site-packages, __file__ aponta para lá.
 _RAIZ_CODIGO_FONTE = Path(__file__).resolve().parents[3]
@@ -63,6 +65,7 @@ class Config:
     max_paginas_listagem: int
     # Páginas do bloco "realizados" da FGV (encerrados). Desligado (0): o site só mostra oportunidades abertas.
     max_paginas_realizados: int = 0
+    ia: ConfigIA = field(default_factory=ConfigIA)
 
     @property
     def user_agent(self) -> str:
@@ -100,6 +103,15 @@ def carregar_config(env: Mapping[str, str] | None = None) -> Config:
             max_documentos_por_execucao=int(env.get("COLETOR_MAX_DOCUMENTOS", "60")),
             max_paginas_listagem=int(env.get("COLETOR_MAX_PAGINAS", "15")),
             max_paginas_realizados=int(env.get("COLETOR_MAX_PAGINAS_REALIZADOS", "0")),
+            ia=ConfigIA(
+                gemini_chave=env.get("GEMINI_API_KEY") or None,
+                gemini_modelo=env.get("COLETOR_GEMINI_MODELO") or ConfigIA.gemini_modelo,
+                groq_chave=env.get("GROQ_API_KEY") or None,
+                groq_modelo=env.get("COLETOR_GROQ_MODELO") or ConfigIA.groq_modelo,
+                max_chamadas=int(env.get("COLETOR_IA_MAX_CHAMADAS", "30")),
+                intervalo_s=float(env.get("COLETOR_IA_INTERVALO_S", "4")),
+                max_caracteres=int(env.get("COLETOR_IA_MAX_CARACTERES", "24000")),
+            ),
         )
     except ValueError as erro:
         raise ConfigInvalida(f"valor numérico inválido: {erro}") from erro

@@ -12,6 +12,7 @@ from datetime import date
 from coletor.db import Repositorio
 from coletor.extratores import extrator_para_banca
 from coletor.extratores.base import EditalExtraido
+from coletor.ia.extrator import ExtratorIA, combinar, precisa_de_ia
 from coletor.pipeline.comum import ResumoEtapa, agora, hoje
 
 log = logging.getLogger(__name__)
@@ -25,22 +26,38 @@ def situacao_por_datas(edital: EditalExtraido, referencia: date) -> str:
     return "EM_ANDAMENTO"
 
 
-def executar_estruturacao(repo: Repositorio) -> ResumoEtapa:
+def executar_estruturacao(repo: Repositorio, ia: ExtratorIA | None = None) -> ResumoEtapa:
+    """Regras da banca primeiro; a IA (se configurada) só entra quando a banca não tem extrator ou faltaram dados
+    principais (cargos/vagas, inscrições, taxa, isenção). Cada edital vai à IA no máximo uma vez (cache)."""
     inicio = agora()
+    dia = hoje()
     pendentes = repo.concursos_para_estruturar()
     repo.conn.commit()
     estruturados = 0
+    usos_ia = 0
     falhas: list[str] = []
-    for concurso in pendentes:
+    for numero, concurso in enumerate(pendentes, start=1):
+        texto = concurso["texto_extraido"] or ""
         extrator = extrator_para_banca(concurso["banca"])
-        if extrator is None:
-            continue
         try:
-            edital = extrator.extrair(concurso["texto_extraido"] or "")
-            repo.aplicar_edital(concurso["id"], concurso["documento_id"], edital, situacao_por_datas(edital, hoje()))
+            regras = extrator.extrair(texto) if extrator else None
+            edital = regras
+            if ia is not None and precisa_de_ia(regras):
+                resultado = ia.extrair(texto, concurso["hash_sha256"], dia)
+                usos_ia += resultado.origem not in ("cache", "triagem", "falha")
+                if resultado.edital is not None:
+                    edital = combinar(regras, resultado.edital)
+                    log.info("concurso %d: IA (%s) completou a leitura", concurso["id"], resultado.origem)
+                elif resultado.motivo:
+                    log.info("concurso %d: sem IA (%s: %s)", concurso["id"], resultado.origem, resultado.motivo)
+            if edital is None:
+                continue
+            repo.aplicar_edital(concurso["id"], concurso["documento_id"], edital, situacao_por_datas(edital, dia))
             estruturados += 1
             log.info(
-                "concurso %d estruturado: %d cargos, avisos=%s",
+                "[%d/%d] concurso %d estruturado: %d cargos, avisos=%s",
+                numero,
+                len(pendentes),
                 concurso["id"],
                 len(edital.cargos),
                 list(edital.avisos) or "-",
@@ -48,6 +65,8 @@ def executar_estruturacao(repo: Repositorio) -> ResumoEtapa:
         except Exception as erro:
             log.exception("falha ao estruturar o concurso %d", concurso["id"])
             falhas.append(f"concurso {concurso['id']}: {erro}")
+    if ia is not None:
+        log.info("estruturação: %d editais pendentes, %d chamadas novas de IA", len(pendentes), usos_ia)
 
     alterados = repo.atualizar_situacoes_por_data(hoje(), DIAS_FORA_DA_LISTA_PARA_ENCERRAR)
     if alterados:

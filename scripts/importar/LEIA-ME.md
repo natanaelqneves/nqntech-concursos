@@ -36,3 +36,7 @@ bancas e **não grava nada** no banco: gera `buscas/concursos-sugeridos-AAAA-MM-
 
 Basta `GEMINI_API_KEY` no `.env`. A busca do Google tem cota diária gratuita; acima dela o Google cobra (ver o
 painel do AI Studio). Depois de conferir, baixe os PDFs no navegador e use `importar_pdfs`.
+
+Para receber por e-mail ao rodar no PC: coloque `SMTP_USUARIO`, `SMTP_SENHA` (senha de app do Gmail) e
+`BUSCA_EMAIL_DESTINO` no `.env` e rode `python -m coletor buscar-concursos --email`. No GitHub, o workflow
+`buscar` faz isso todo dia (secrets em docs/PENDENCIAS.md).

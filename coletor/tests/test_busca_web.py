@@ -58,3 +58,16 @@ def test_busca_usa_google_search_e_para_no_limite(tmp_path):
     csv_, md = gravar(sugestoes, tmp_path, date(2026, 11, 4))
     assert "TRT-4" in md.read_text(encoding="utf-8") and "⚠️ não oficial" in md.read_text(encoding="utf-8")
     assert csv_.read_text(encoding="utf-8-sig").startswith("banca;orgao")
+
+
+def test_email_monta_relatorio_com_anexo_e_nao_vaza_senha(tmp_path):
+    from coletor.ia.email_relatorio import ConfigEmail, EmailNaoConfigurado, montar_mensagem
+
+    with pytest.raises(EmailNaoConfigurado):
+        ConfigEmail.do_ambiente({"SMTP_USUARIO": "a@b.c"})
+    env = {"SMTP_USUARIO": "a@b.c", "SMTP_SENHA": "segredo-smtp", "BUSCA_EMAIL_DESTINO": "d@e.f"}
+    config = ConfigEmail.do_ambiente(env)
+    assert config.host == "smtp.gmail.com" and config.porta == 587 and "segredo-smtp" not in repr(config)
+    csv_, md = gravar([], tmp_path, date(2026, 11, 4))
+    mensagem = montar_mensagem(config, "Assunto", md, csv_)
+    assert mensagem["To"] == "d@e.f" and [p.get_filename() for p in mensagem.iter_attachments()] == [csv_.name]

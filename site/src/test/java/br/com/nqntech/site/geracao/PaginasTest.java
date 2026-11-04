@@ -60,7 +60,8 @@ class PaginasTest {
                 .contains("Confira sempre o")
                 .contains("\"@type\":\"WebSite\"")
                 .contains("href=\"/inscricoes-abertas/\"", "href=\"/isencao-em-prazo/\"", "href=\"/brasil/\"",
-                        "href=\"/isencoes/\"", "href=\"/sobre/\"", "aria-controls=\"menu-principal\"")
+                        "href=\"/isencoes/\"", "href=\"/sobre/\"")
+                .doesNotContain("abrir-menu")
                 .contains("index, follow")
                 .doesNotContain("href=\"/concursos/\"");
     }

@@ -1,0 +1,30 @@
+# Busca assistida: o Gemini (com a Busca Google) sugere concursos abertos das bancas sem coleta automática e o
+# relatório vai por e-mail. Não acessa o site das bancas e não grava no banco: quem confere e baixa é o admin.
+name: buscar
+on:
+  schedule:
+    - cron: "23 10 * * *" # 07:23 em Fortaleza
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: buscar
+  cancel-in-progress: false
+jobs:
+  buscar:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      SMTP_USUARIO: ${{ secrets.SMTP_USUARIO }}
+      SMTP_SENHA: ${{ secrets.SMTP_SENHA }}
+      BUSCA_EMAIL_DESTINO: ${{ secrets.BUSCA_EMAIL_DESTINO }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: coletor/pyproject.toml
+      - run: pip install -e coletor
+      - run: python -m coletor buscar-concursos --email

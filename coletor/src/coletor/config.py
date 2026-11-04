@@ -106,6 +106,10 @@ def carregar_config(env: Mapping[str, str] | None = None) -> Config:
             ia=ConfigIA(
                 gemini_chave=env.get("GEMINI_API_KEY") or None,
                 gemini_modelo=env.get("COLETOR_GEMINI_MODELO") or ConfigIA.gemini_modelo,
+                gemini_modelos=tuple(
+                    m.strip() for m in (env.get("COLETOR_GEMINI_MODELOS") or "").split(",") if m.strip()
+                )
+                or ((env["COLETOR_GEMINI_MODELO"],) if env.get("COLETOR_GEMINI_MODELO") else ConfigIA.gemini_modelos),
                 groq_chave=env.get("GROQ_API_KEY") or None,
                 groq_modelo=env.get("COLETOR_GROQ_MODELO") or ConfigIA.groq_modelo,
                 openrouter_chave=env.get("OPENROUTER_API_KEY") or None,

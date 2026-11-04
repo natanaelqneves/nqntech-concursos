@@ -596,7 +596,8 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       inteiro (sem conteúdo programático) atrás de trechos de cronograma/inscrição/remuneração/isenção e pede só os
       campos que faltam; nunca troca o que a primeira leitura achou. Ficha do concurso mostra "Salário até" e o
       prazo de isenção; o que o edital não traz aparece como "a definir"/"confira no edital". Teto de IA no diario
-      passou a 60 chamadas.
+      passou a 60 chamadas. Extração alterna entre modelos Gemini (3.8 Flash, 3.6 Flash, 3.1 e 3.5 Flash Lite; cada um
+      com cota própria) antes de Groq e OpenRouter; 404 tira o modelo da rodada.
 - [ ] Fase 6 (demais diários oficiais): sondagem do Querido Diário em 04/11/2026 a partir do GitHub Actions falhou no
       handshake TLS (`SSLV3_ALERT_HANDSHAKE_FAILURE`, recusa do servidor); nada contornado, tentar de novo depois.
       DOU: o INLABS indicou a base de dados abertos em in.gov.br/acesso-a-informacao/dados-abertos/base-de-dados;

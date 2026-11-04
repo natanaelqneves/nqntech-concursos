@@ -564,6 +564,12 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       quebra no celular; textos corridos continuam justificados. Código morto dos filtros de `/concursos/` saiu do JS.
       CSS, JS e ícone entram no HTML com `?v=<hash do conteúdo>` (`VersaoAssets`): o `_headers` guarda `/assets/*` por
       um dia no navegador e, sem isso, quem já tinha visitado via o HTML novo com o CSS antigo (PR #34).
+      Responsivo testado (PR #35): menu em linha única só a partir de 1200px (abaixo, quebra em linhas sob a
+      marca), alvos de toque de 44px, nomes longos quebram sem rolagem lateral. A CI gera o site dos seeds e roda
+      `site/testes-navegador/` (Playwright + Chromium) em 320, 390, 768, 1024, 1280 e 1920px: sem rolagem lateral,
+      CSS/fonte carregados, menu completo e navegável, tema escuro lembrado, colunas da grade (1/2/3), cartão
+      clicável inteiro, ficha do concurso, prazos no navegador e link "pular para o conteúdo"; pedidos a outros
+      domínios são bloqueados. Capturas de tela das páginas principais ficam no artefato `capturas-site` (7 dias).
 - [ ] Fase 6 (diários oficiais): sondagem do Querido Diário em 04/11/2026 a partir do GitHub Actions falhou no
       handshake TLS (`SSLV3_ALERT_HANDSHAKE_FAILURE`, recusa do servidor); nada contornado, tentar de novo depois.
       DOU: o INLABS indicou a base de dados abertos em in.gov.br/acesso-a-informacao/dados-abertos/base-de-dados;

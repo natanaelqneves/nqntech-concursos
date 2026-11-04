@@ -1,0 +1,3 @@
+# Testes do site no navegador (CI). Versões fixas; o Dependabot propõe as atualizações.
+pytest==9.1.1
+playwright==1.63.0

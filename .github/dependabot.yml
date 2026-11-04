@@ -5,6 +5,10 @@ updates:
     directory: /coletor
     schedule: {interval: weekly, day: monday}
     open-pull-requests-limit: 5
+  - package-ecosystem: pip
+    directory: /site/testes-navegador
+    schedule: {interval: weekly, day: monday}
+    open-pull-requests-limit: 2
   - package-ecosystem: github-actions
     directory: /
     schedule: {interval: weekly, day: monday}

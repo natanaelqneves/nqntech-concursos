@@ -11,6 +11,7 @@ import codecs
 import hashlib
 import logging
 import re
+import ssl
 import time
 import urllib.robotparser
 from collections.abc import Callable
@@ -18,6 +19,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 
+import certifi
 import httpx
 
 log = logging.getLogger(__name__)
@@ -49,6 +51,22 @@ def decodificar_html(corpo: bytes, charset_cabecalho: str | None) -> str:
 def _charset_do_meta(corpo: bytes) -> str | None:
     achado = _META_CHARSET.search(corpo[:4096])
     return achado.group(1).decode("ascii") if achado else None
+
+
+_CERTIFICADOS = Path(__file__).parent / "certificados"
+
+
+def contexto_tls() -> ssl.SSLContext:
+    """Bundle do certifi mais os intermediários públicos de `certificados/`, com verificação completa.
+
+    Alguns servidores de bancas (COMPERVE, FUMARC) não enviam o certificado intermediário. Os navegadores
+    completam a cadeia sozinhos; aqui o intermediário oficial entra só como elo para a cadeia chegar a uma raiz
+    do certifi (sem PARTIAL_CHAIN, ele não vira âncora de confiança). Nunca se desliga a verificação.
+    """
+    contexto = ssl.create_default_context(cafile=certifi.where())
+    for pem in sorted(_CERTIFICADOS.glob("*.pem")):
+        contexto.load_verify_locations(cadata=pem.read_text(encoding="ascii"))
+    return contexto
 
 
 class ErroHttp(Exception):
@@ -98,6 +116,7 @@ class ClienteHttp:
             headers={"User-Agent": user_agent, "Accept-Language": "pt-BR,pt;q=0.9"},
             timeout=httpx.Timeout(timeout_s, connect=15.0),
             follow_redirects=False,
+            verify=contexto_tls(),
             transport=transport,
         )
 

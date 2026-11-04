@@ -6,7 +6,7 @@
     <title th:text="${meta.titulo()}">Título</title>
     <meta name="description" th:content="${meta.descricao()}">
     <link th:if="${!#strings.isEmpty(meta.canonica())}" rel="canonical" th:href="${meta.canonica()}">
-    <meta name="robots" th:content="${meta.url() == '/404.html'} ? 'noindex, follow' : 'index, follow, max-snippet:-1, max-image-preview:large'">
+    <meta name="robots" th:content="${!meta.indexar()} ? 'noindex, follow' : 'index, follow, max-snippet:-1, max-image-preview:large'">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="pt_BR">
     <meta name="twitter:card" content="summary">
@@ -64,6 +64,7 @@
         <ul class="rodape__links">
             <li><a href="/sobre/">Sobre</a></li>
             <li><a href="/privacidade/">Privacidade</a></li>
+            <li><a href="/contato/">Contato</a></li>
             <li><a href="https://github.com/natanaelqneves/nqntech-concursos">Código aberto</a></li>
         </ul>
         <p class="mb-0">Informação gratuita. Textos do site sob CC BY 4.0.</p>

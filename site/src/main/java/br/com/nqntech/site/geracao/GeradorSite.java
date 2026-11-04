@@ -101,7 +101,7 @@ public class GeradorSite {
                 Ordenacao.isencaoEmPrazo(concursos, hoje), false, List.of()));
 
         for (Concurso c : concursos) {
-            PaginaGerada.adicionar(arquivos, urls, paginas.concurso(c, tipos));
+            PaginaGerada.adicionar(arquivos, c.dadosInsuficientes() ? new ArrayList<>() : urls, paginas.concurso(c, tipos));
         }
 
         // Navegação geográfica: nacionais entram em todos os recortes; estaduais também nos municípios da UF.
@@ -181,6 +181,8 @@ public class GeradorSite {
                 "De onde vêm as informações, como o site é atualizado e quais são os limites."));
         PaginaGerada.adicionar(arquivos, urls, paginas.texto("/privacidade/", "privacidade", "Privacidade",
                 "Que dados o NqnTech Concursos trata e como."));
+        PaginaGerada.adicionar(arquivos, urls, paginas.texto("/contato/", "contato", "Contato",
+                "Como falar com o NqnTech Concursos: correções de dados, dúvidas e pedidos de privacidade."));
         arquivos.put("404.html", paginas.naoEncontrada());
 
         arquivos.put("busca.json", BuscaJson.gerar(concursos, fmt));

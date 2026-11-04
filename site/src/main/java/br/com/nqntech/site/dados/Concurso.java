@@ -76,6 +76,16 @@ public record Concurso(
 
     public record Marco(String rotulo, LocalDate data) {}
 
+    /**
+     * Ficha sem nenhum dado útil além do nome (vagas, salário, prova, nível e cargos ausentes). Fica no site para
+     * quem chega pelo link, mas fora do índice e do sitemap: páginas vazias contam como conteúdo de baixo valor
+     * para o Google e o AdSense.
+     */
+    public boolean dadosInsuficientes() {
+        return totalVagas == null && salarioMax == null && dataProva == null
+                && (escolaridades == null || escolaridades.isEmpty()) && (cargos == null || cargos.isEmpty());
+    }
+
     public boolean temDisciplinas() {
         return cargos.stream().anyMatch(c -> !c.disciplinas().isEmpty());
     }

@@ -3,12 +3,17 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
+
+import httpx
 
 from coletor.config import Config
 from coletor.db import Repositorio
 from coletor.fontes import fontes_disponiveis
 from coletor.http_cliente import ClienteHttp
+from coletor.ia import ExtratorIA, criar_provedores
+from coletor.ia.provedores import Rodizio
 from coletor.pipeline.classificacao import executar_classificacao
 from coletor.pipeline.comum import ResumoEtapa, agora
 from coletor.pipeline.descoberta import executar_descoberta
@@ -33,6 +38,19 @@ class Orquestrador:
         self._repo = repo
         self._fontes = fontes_disponiveis(config.max_paginas_listagem, config.max_paginas_realizados)
         self._criar_http = criar_http or self._http_padrao
+
+    @contextmanager
+    def _extrator_ia(self) -> Iterator[ExtratorIA | None]:
+        if not self._config.ia.ativa:
+            yield None
+            return
+        config = self._config.ia
+        with httpx.Client(timeout=config.timeout_s) as http:
+            provedores = criar_provedores(config, http)
+            log.info("IA ativa: %s (teto de %d chamadas nesta execução)", [p.nome for p in provedores],
+                     config.max_chamadas)  # fmt: skip
+            rodizio = Rodizio(provedores, config.max_chamadas, config.intervalo_s)
+            yield ExtratorIA(rodizio, self._repo.ler_cache_ia, self._repo.gravar_cache_ia, config.max_caracteres)
 
     def _http_padrao(self, dominios: frozenset[str]) -> ClienteHttp:
         return ClienteHttp(dominios, self._config.user_agent, intervalo_s=self._config.intervalo_dominio_s)
@@ -83,7 +101,8 @@ class Orquestrador:
                     )
                 ]
             case "estruturar":
-                return [executar_estruturacao(self._repo)]
+                with self._extrator_ia() as ia:
+                    return [executar_estruturacao(self._repo, ia)]
             case "classificar":
                 return [executar_classificacao(self._repo)]
             case "resumir":

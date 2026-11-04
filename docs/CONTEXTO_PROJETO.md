@@ -263,6 +263,24 @@ A coleta inicial é limitada por execução (ex.: 60 editais/dia) e drena o acú
   andamento" vira `ENCERRADO` depois de 10 dias sem aparecer.
 - As etapas que passam minutos só na rede reconectam ao banco antes de gravar (o Neon derruba conexão parada).
 
+**Camada 2: extração com IA** (`coletor/ia/`, decisão de 04/11/2026). Só entra quando as regras não bastam
+(banca sem extrator, ou faltaram cargos/vagas, inscrições, taxa ou isenção):
+1. **triagem** heurística das primeiras páginas: só edital de abertura (descarta gabarito, resultado, convocação,
+   retificação parcial, PDF escaneado);
+2. **recorte**: abertura + títulos de cargos/vagas, remuneração, inscrições, taxa, isenção, provas e cronograma
+   (~15 a 24 mil caracteres, em vez de até 400 mil); o conteúdo programático nunca vai;
+3. **cache** em `extracao_ia` (V12) pelo SHA-256 do PDF + versão do esquema: cada edital vai à IA uma vez;
+   descartes da triagem também ficam guardados; falhas do provedor não (tentam de novo no dia seguinte);
+4. **provedores em fallback**: Gemini (principal) e Groq (reserva), com Structured Outputs em JSON Schema estrito,
+   temperatura 0, intervalo mínimo entre chamadas, teto por execução (`COLETOR_IA_MAX_CHAMADAS`, padrão 30) e
+   429 tirando o provedor da rodada. **Uma chave por provedor**: multiplicar chaves para fugir do limite viola os
+   termos de uso e não é feito;
+5. **validação** de tudo (datas plausíveis e coerentes, salário/taxa/vagas em faixa, tipos de isenção do catálogo):
+   valor fora vira null com "confira o edital";
+6. **combinação**: regras vencem onde acharam o dado; a IA só preenche lacunas. Calendário, disciplinas e
+   discursiva continuam pelas regras comuns (`extratores/secoes.py`), sem custo de tokens.
+Sem chave configurada, a IA fica desligada e o coletor funciona como antes.
+
 ---
 
 ## 7. Site (SEO e acessibilidade)
@@ -488,3 +506,6 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
         variável `SITE_URL` do repositório (domínio próprio) ou o `*.workers.dev` da conta, lido da API.
       - testes: unitários (JSON, URL segura, formatos, ordenação, renderização com dados hostis) e integração
         contra os seeds (só oportunidades, ordem da tela inicial, nenhum link interno quebrado).
+- [x] Modernização (04/11/2026): tema claro padrão com escuro opcional e AdSense liberado (PR #13); Camada 2 com IA
+      (Gemini + Groq, PR #14), seção 6. Bancas com robots.txt que proíbe a coleta (FCC, Cesgranrio) continuam fora:
+      entram pelos diários oficiais (fase 6). Cebraspe: só se o robots.txt e os termos permitirem a API JSON.

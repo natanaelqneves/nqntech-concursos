@@ -403,10 +403,10 @@ class Repositorio:
     # --- estruturação ----------------------------------------------------------------------------
     def concursos_para_estruturar(self) -> list[Linha]:
         return self.conn.execute(
-            """SELECT c.id, b.sigla AS banca, e.id AS documento_id, e.texto_extraido
+            """SELECT c.id, b.sigla AS banca, e.id AS documento_id, e.texto_extraido, e.hash_sha256
                FROM concurso c
                         JOIN banca b ON b.id = c.banca_id
-                        JOIN LATERAL (SELECT d.id, d.texto_extraido FROM documento d
+                        JOIN LATERAL (SELECT d.id, d.texto_extraido, d.hash_sha256 FROM documento d
                                       WHERE d.concurso_id = c.id AND d.tipo = 'EDITAL' AND d.status_extracao = 'OK'
                                       ORDER BY d.data_publicacao DESC NULLS LAST, d.id DESC LIMIT 1) e ON true
                WHERE c.edital_documento_id IS DISTINCT FROM e.id"""
@@ -437,9 +437,32 @@ class Repositorio:
                     concurso_id,
                 ),
             )
-            self.conn.execute("DELETE FROM cargo WHERE concurso_id = %s", (concurso_id,))
-            self._inserir_cargos(concurso_id, edital.cargos)
+            # Sem cargos lidos, mantém os que já existiam (vindos da página da banca ou de leitura anterior).
+            if edital.cargos:
+                self.conn.execute("DELETE FROM cargo WHERE concurso_id = %s", (concurso_id,))
+                self._inserir_cargos(concurso_id, edital.cargos)
             self._substituir_isencoes_e_calendario(concurso_id, edital)
+
+    # --- cache da IA (camada 2) ----------------------------------------------------------------------
+    def ler_cache_ia(self, sha256: str, versao: str) -> dict[str, Any] | None:
+        linha = self.conn.execute(
+            "SELECT resposta, motivo FROM extracao_ia WHERE hash_sha256 = %s AND versao = %s", (sha256, versao)
+        ).fetchone()
+        self.conn.commit()
+        return None if linha is None else {"resposta": linha["resposta"], "motivo": linha["motivo"]}
+
+    def gravar_cache_ia(
+        self, sha256: str, versao: str, origem: str, resposta: dict[str, Any] | None, motivo: str
+    ) -> None:
+        with self.transacao():
+            self.conn.execute(
+                """INSERT INTO extracao_ia (hash_sha256, versao, origem, resposta, motivo)
+                   VALUES (%s, %s, %s, %s, %s)
+                   ON CONFLICT (hash_sha256, versao) DO UPDATE
+                      SET origem = EXCLUDED.origem, resposta = EXCLUDED.resposta, motivo = EXCLUDED.motivo,
+                          criado_em = now()""",
+                (sha256, versao, origem[:120], None if resposta is None else Jsonb(resposta), motivo[:500]),
+            )
 
     def _substituir_isencoes_e_calendario(self, concurso_id: int, edital: EditalExtraido) -> None:
         # Reestruturar um edital substitui o conjunto inteiro (como os cargos).

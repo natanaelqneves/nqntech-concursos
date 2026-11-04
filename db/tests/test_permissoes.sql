@@ -101,6 +101,7 @@ SELECT pg_temp.deve_permitir('site_app', 'SELECT max(fim) FROM concursos.execuca
 SELECT pg_temp.deve_negar('site_app', 'SELECT texto_extraido FROM concursos.documento');
 SELECT pg_temp.deve_negar('site_app', 'SELECT * FROM concursos.documento');
 SELECT pg_temp.deve_negar('site_app', 'SELECT payload FROM concursos.sinal_descoberta');
+SELECT pg_temp.deve_negar('site_app', 'SELECT resposta FROM concursos.extracao_ia');
 SELECT pg_temp.deve_negar('site_app', 'UPDATE concursos.concurso SET titulo = titulo');
 SELECT pg_temp.deve_negar('site_app', $q$INSERT INTO concursos.orgao (nome) VALUES ('x')$q$);
 SELECT pg_temp.deve_negar('site_app', 'DELETE FROM concursos.cargo');

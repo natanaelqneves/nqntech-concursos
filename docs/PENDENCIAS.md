@@ -144,6 +144,21 @@ Nenhum dos dois vai para o `wrangler.jsonc` nem para o código (repositório pú
 - [ ] O `ads.txt` já está publicado na raiz do site. Se trocar para domínio próprio, adicione o novo domínio em
       **Sites** no AdSense (a aprovação é por domínio).
 
+## Extração com IA (Camada 2) — ~10 min
+
+Sem estas chaves, o coletor continua só com as regras (nada quebra).
+
+- [ ] **Gemini:** entre em https://aistudio.google.com com sua conta Google → **Get API key → Create API key**.
+      Copie a chave.
+- [ ] **Groq (reserva):** entre em https://console.groq.com → **API Keys → Create API Key**. Copie a chave.
+- [ ] GitHub → **Settings → Secrets and variables → Actions → New repository secret**:
+  - `GEMINI_API_KEY` = chave do Gemini
+  - `GROQ_API_KEY` = chave do Groq
+- [ ] (Opcional) aba **Variables**: `COLETOR_IA_MAX_CHAMADAS` (padrão 30 por dia).
+- Uma chave de cada provedor só. Criar várias chaves para somar cotas viola os termos de uso.
+- Na faixa gratuita do Gemini, o Google pode usar o conteúdo enviado para melhorar os modelos. Aqui só vão trechos
+  de editais públicos, sem dado pessoal.
+
 ## Próximas fases (só para você se planejar)
 
 - **Fase 7 (alertas):** conta no serviço de e-mail transacional escolhido e hospedagem da API.

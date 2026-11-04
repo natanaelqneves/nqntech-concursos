@@ -429,6 +429,22 @@ def test_edital_tjpb_grava_isencoes_calendario_e_disciplinas(parametros_coletor,
     conn.close()
 
 
+def test_cache_da_ia_como_coletor_app(parametros_coletor, conn_admin):
+    sha = "f" * 64
+    conn_admin.execute("DELETE FROM concursos.extracao_ia WHERE hash_sha256 = %s", (sha,))
+    conn = psycopg.connect(**parametros_coletor, row_factory=dict_row)
+    conn.execute("SET search_path = concursos")
+    repo = Repositorio(conn)
+    assert repo.ler_cache_ia(sha, "1") is None
+    repo.gravar_cache_ia(sha, "1", "triagem", None, "retificação parcial")
+    assert repo.ler_cache_ia(sha, "1") == {"resposta": None, "motivo": "retificação parcial"}
+    repo.gravar_cache_ia(sha, "1", "gemini/x", {"orgao": "TJPB"}, "ok")
+    assert repo.ler_cache_ia(sha, "1")["resposta"] == {"orgao": "TJPB"}
+    assert repo.ler_cache_ia(sha, "2") is None  # versão nova do esquema = cache novo
+    conn.close()
+    conn_admin.execute("DELETE FROM concursos.extracao_ia WHERE hash_sha256 = %s", (sha,))
+
+
 def test_catalogo_isencoes_igual_ao_banco(conn_admin):
     """config/isencoes.yml é a fonte dos textos; a migration V11 precisa gravar exatamente o mesmo."""
     arquivo = Path(__file__).resolve().parents[2] / "config" / "isencoes.yml"

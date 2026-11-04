@@ -1,0 +1,68 @@
+{
+ "sp_pagina": {
+  "status": 200,
+  "tipo": "text/html; charset=utf-8",
+  "texto": "Diário Oficial do Estado de São Paulo © 2026 | Diário Oficial do Estado de São Paulo | Todos os Direitos Reservados Desde maio de 1891 Comunicar Erros Ouvidoria Transparência SIC Privacidade",
+  "links": [
+   "/",
+   "/OpenSans.css",
+   "/_next/static/css/163051d160558ff7.css",
+   "/autenticidade",
+   "/busca-avancada",
+   "/favicon.png",
+   "URL",
+   "https://fonts.googleapis.com",
+   "https://fonts.gstatic.com",
+   "https://pro.fontawesome.com/releases/v5.10.0/css/all.css",
+   "https://saopaulo.sp.gov.br/barra-govsp/css/topo-padrao-govsp.min.css",
+   "https://www.saopaulo.sp.gov.br/fale-conosco/comunicar-erros/"
+  ],
+  "apis": [
+   "https://doe.sp.gov.br/",
+   "https://doe.sp.gov.br/logo.png"
+  ]
+ },
+ "sp_api_slug": {
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "texto": "{\"id\":\"bd936be7-8232-4819-2f9e-08df2e3de7b6\",\"journalId\":\"ca96256b-6ca1-407f-866e-567ef9430123\",\"sectionId\":\"78002893-b04d-46fc-af68-b6bd9299e44a\",\"firstLevelSectionId\":\"43e6eab1-caa1-41ba-ac1c-659cb871e265\",\"secondLevelSectionId\":\"5fb21e72-8a94-42b5-bfa0-5b4121f9adc4\",\"title\":\"EDITAL Nº 145/2026STGP/DTAD, DE 27 DE OUTUBRO DE 2026\",\"slug\":\"executivo/universidade-estadual-paulista/edital-n-145-2026stgp-dtad-de-27-de-outubro-de-2026-202610271344421162237843\",\"date\":\"2026-10-28\",\"journal\":\"Executivo\",\"section\":\"Divisão Técnica Administrativa\",\"firstLevelSectionName\":\"Atos de Gestão e Despesas\",\"secondLevelSectionName\":\"Universidade Estadual Paulista\",\"publicationType\":\"Edital\",\"editionPages\":[],\"content\":\" EDITAL N&ordm; 145 / 202 6 - STGP/DTAd PROCESSO FOA N&ordm; 681 /202 6 \\n Acham-se abertas, nos termos do Despacho n&ordm; 278 /2026 -RUNESP de 2 1 / 09 /202 6 (Publicado no DOE de 22 /09/2026 &ndash; p&aacute;ginas 132/133 e retificado no DOE de 16/10/2026 p&aacute;gina 94 ) , com base na Resolu&ccedil;&atilde;o UNESP n&ordm; 30/2025 e Portaria UNESP n&ordm; 118/2025 , as inscri&ccedil;&otilde;es do concurso p&uacute;blico de Provas e T&iacute;tulos para contrata&ccedil;&atilde;o de 1 ( um ) PROFESSOR SUBSTITUTO , por prazo determinado e de no m&aacute;ximo 5 ( cinco ) meses , para o per&iacute;odo letivo de 202 7 , em car&aacute;ter emergencial, para atender excepcional interesse p&uacute;blico, em 12 horas semanais de trabalho, sob o regime jur&iacute;dico da CLT e legisla&ccedil;&atilde;o complementar, na &aacute;rea de conhecimento: Odontologia e sub&aacute;rea: Cl&iacute;nica Odontol&oacute;gica, no Departamento de Dent&iacute;stica e Endodontia, na disciplina de Odontologia para Pacientes com Defici&ecirc;ncia da Faculdade de Odontologia do C&acirc;mpus de Ara&ccedil;atuba. \\n O contratado exercer&aacute;, exclusivamente, as atividades de doc&ecirc;ncia em cursos de gradua&ccedil;&atilde;o nos per&iacute;odos diurno e/ou noturno, dependendo das necessidades do Departamento. \\n \\n 1. REMUNERA&Ccedil;&Atilde;O \\n 1.1. O sal&aacute;rio de Professor Substituto &eacute; de R$ 2.106,04 , correspondente &agrave; refer&ecirc;ncia MS- 2 (mestrado) , em 12 horas semanais, acrescido de benef&iacute;cios regulamentados internamente. \\n 1.2. Caso o candidato tenha t&iacute;tulo superior ao exigido, o sal&aacute;rio ser&aacute; correspondente &agrave; titula&ccedil;&atilde;o, na seguinte conformidad e: \\n \\n \\n \\n \\n \\n Sal&aacute;rio \\n Refer&ecirc;ncia \\n Titula",
+  "links": [],
+  "apis": []
+ },
+ "sp_api_id": {
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "texto": "{\"id\":\"bd936be7-8232-4819-2f9e-08df2e3de7b6\",\"journalId\":\"ca96256b-6ca1-407f-866e-567ef9430123\",\"sectionId\":\"78002893-b04d-46fc-af68-b6bd9299e44a\",\"firstLevelSectionId\":\"43e6eab1-caa1-41ba-ac1c-659cb871e265\",\"secondLevelSectionId\":\"5fb21e72-8a94-42b5-bfa0-5b4121f9adc4\",\"title\":\"EDITAL Nº 145/2026STGP/DTAD, DE 27 DE OUTUBRO DE 2026\",\"slug\":\"executivo/universidade-estadual-paulista/edital-n-145-2026stgp-dtad-de-27-de-outubro-de-2026-202610271344421162237843\",\"date\":\"2026-10-28\",\"journal\":\"Executivo\",\"section\":\"Divisão Técnica Administrativa\",\"firstLevelSectionName\":\"Atos de Gestão e Despesas\",\"secondLevelSectionName\":\"Universidade Estadual Paulista\",\"publicationType\":\"Edital\",\"editionPages\":[],\"content\":\" EDITAL N&ordm; 145 / 202 6 - STGP/DTAd PROCESSO FOA N&ordm; 681 /202 6 \\n Acham-se abertas, nos termos do Despacho n&ordm; 278 /2026 -RUNESP de 2 1 / 09 /202 6 (Publicado no DOE de 22 /09/2026 &ndash; p&aacute;ginas 132/133 e retificado no DOE de 16/10/2026 p&aacute;gina 94 ) , com base na Resolu&ccedil;&atilde;o UNESP n&ordm; 30/2025 e Portaria UNESP n&ordm; 118/2025 , as inscri&ccedil;&otilde;es do concurso p&uacute;blico de Provas e T&iacute;tulos para contrata&ccedil;&atilde;o de 1 ( um ) PROFESSOR SUBSTITUTO , por prazo determinado e de no m&aacute;ximo 5 ( cinco ) meses , para o per&iacute;odo letivo de 202 7 , em car&aacute;ter emergencial, para atender excepcional interesse p&uacute;blico, em 12 horas semanais de trabalho, sob o regime jur&iacute;dico da CLT e legisla&ccedil;&atilde;o complementar, na &aacute;rea de conhecimento: Odontologia e sub&aacute;rea: Cl&iacute;nica Odontol&oacute;gica, no Departamento de Dent&iacute;stica e Endodontia, na disciplina de Odontologia para Pacientes com Defici&ecirc;ncia da Faculdade de Odontologia do C&acirc;mpus de Ara&ccedil;atuba. \\n O contratado exercer&aacute;, exclusivamente, as atividades de doc&ecirc;ncia em cursos de gradua&ccedil;&atilde;o nos per&iacute;odos diurno e/ou noturno, dependendo das necessidades do Departamento. \\n \\n 1. REMUNERA&Ccedil;&Atilde;O \\n 1.1. O sal&aacute;rio de Professor Substituto &eacute; de R$ 2.106,04 , correspondente &agrave; refer&ecirc;ncia MS- 2 (mestrado) , em 12 horas semanais, acrescido de benef&iacute;cios regulamentados internamente. \\n 1.2. Caso o candidato tenha t&iacute;tulo superior ao exigido, o sal&aacute;rio ser&aacute; correspondente &agrave; titula&ccedil;&atilde;o, na seguinte conformidad e: \\n \\n \\n \\n \\n \\n Sal&aacute;rio \\n Refer&ecirc;ncia \\n Titula",
+  "links": [],
+  "apis": []
+ },
+ "sp_api2_slug": {
+  "erro": "HTTPSConnectionPool(host='do-api.doe.sp.gov.br', port=443): Max retries exceeded with url: /v2/publications/executivo/universidade-estadual-paulista/edital-n-145-2026stgp-dtad-de-27-de-outubro-de-2026"
+ },
+ "sigpub_busca": {
+  "status": 200,
+  "tipo": "text/html; charset=UTF-8",
+  "texto": "Diário Oficial dos Municípios SIGPub - Sistema Gerenciador de Publicações Legais Edição do dia Nenhuma edição publicada nesta data Baixar a edição Arquivo PDF Baixar a versão certificada Requer software de leitura As edições publicadas são arquivos em PDF assinados com certificado digital , o que assegura a autenticidade, a integridade e a validade jurídica do documento eletrônico. A assinatura usa o padrão XML DSIG: para abrir a edição certificada é preciso um leitor próprio. Verificar assinatura digital Baixar a edição Arquivo PDF assinado digitalmente As edições publicadas são arquivos em PDF assinados com certificado digital , o que assegura a autenticidade, a integridade e a validade jurídica do documento eletrônico. Esta data também tem edição extraordinária. Acesso Seguro Área restrita para usuários do Diário Oficial Eletrônico Diário Oficial dos Municípios Menu Menu &times; O Diário Oficial O que é Como funciona Benefícios Legislação O Que Pode Ser Publicado Faça sua Adesão Busca completa por publicações A busca cobre todas as matérias publicadas desde 2009. Informe ao menos um filtro além do período: palavra-chave, título, município ou órgão. Com a palavra-chave preenchida, deixar o município e o órgão em branco procura no diário inteiro. Palavra-chave no texto Título da matéria Município (entidade) Todos os municípios Consorcio Publico Intermunicpal de Segurança Pública da Paraíba – UNISEG Federação das Associações de Municípios da Paraíba - FAMUP Município de Aguiar Município de Areia de Baraúnas Município de Caaporã Município de Cabaceiras Município de Conceição Município de Condado Município de Ibiara Município de Jericó Município de Juarez Távora Município de Junco do Seridó Município de Lagoa Município de Livramento Município de Nova Palmeira Município de Olho d&#039;Água Município de Patos Município de Pedra Branca Município de Remígio Município de Salgadinho Município de Santa Luzia Município de Santana de Mangueira Município de Santa Teresinha Município de São José de Piranhas Município de São Mamede Município de Serra Redonda Município de Sossêgo Municipio de Vista Serrana Prefeitura de São João do Rio do Peixe Prefeitura de São José de Princesa Prefeitura de São José dos Cordeiros Prefeitura Municipal de Água Branca Prefeitura Municipal de Alagoa Grande Prefeitura Municipal de Alagoa Nova Prefeitura Municipal de Alhandra Prefeitura Municipal de Aparecida Prefeitura Municipal de Arara Prefeitura Municipal de Areial Prefeitura Municipal d",
+  "links": [
+   "//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css",
+   "/dist/css/externo.min.css",
+   "/dist/css/navegacao.min.css",
+   "/dist/lib/css/lib.min.css",
+   "/dist/lib/npm/sweetalert2.min.css",
+   "/favicon.ico",
+   "http://www.voxtecnologia.com.br",
+   "https://autenticacao.diariomunicipal.com.br/selected-system/sigpub-famup",
+   "https://fonts.googleapis.com",
+   "https://fonts.googleapis.com/css2?family=Inter:wght@200;300;500;600;700&display=swap",
+   "https://fonts.gstatic.com",
+   "https://www.diariomunicipal.com.br/famup/",
+   "https://www.diariomunicipal.com.br/famup/adesao",
+   "https://www.diariomunicipal.com.br/famup/atos",
+   "https://www.diariomunicipal.com.br/famup/beneficios",
+   "https://www.diariomunicipal.com.br/famup/como-funciona",
+   "https://www.diariomunicipal.com.br/famup/legislacao",
+   "https://www.diariomunicipal.com.br/famup/o-que-e"
+  ],
+  "apis": []
+ }
+}

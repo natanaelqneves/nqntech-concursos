@@ -35,6 +35,7 @@ def main() -> int:
     relatorio: dict = {}
     robo_api, relatorio["robots_api"] = robots(s, "apis.cebraspe.org.br")
     _, relatorio["robots_site"] = robots(s, "www.cebraspe.org.br")
+    robo_cdn, relatorio["robots_cdn"] = robots(s, "cdn.cebraspe.org.br")
     identificador = None
     for fase in FASES:
         url = f"{API}/tipo/concursos/fase/{fase}"
@@ -52,10 +53,10 @@ def main() -> int:
             if isinstance(dados, list) and dados:
                 item["chaves"] = sorted(dados[0].keys()) if isinstance(dados[0], dict) else None
                 item["exemplo"] = dados[0]
-                identificador = identificador or next(
-                    (d.get(k) for d in dados for k in ("identificador", "slug", "id") if isinstance(d, dict) and d.get(k)),
-                    None,
-                )
+                eventos = [e for grupo in dados if isinstance(grupo, dict) for e in grupo.get("eventos") or []]
+                identificadores = [e.get("eventoURL") for e in eventos if e.get("eventoURL")]
+                item["identificadores"] = identificadores
+                identificador = identificador or (identificadores[0] if identificadores else None)
     if identificador is not None:
         url = f"{API}/{identificador}"
         relatorio["detalhe"] = {"url": url, "permitido": robo_api.can_fetch(UA, url)}
@@ -67,6 +68,13 @@ def main() -> int:
                 (DESTINO / "detalhe.json").write_text(r.text, encoding="utf-8")
                 d = r.json()
                 relatorio["detalhe"]["chaves"] = sorted(d.keys()) if isinstance(d, dict) else None
+                arquivos = [a for a in (d.get("arquivosEdital") or []) if isinstance(a, dict)] if isinstance(d, dict) else []
+                relatorio["detalhe"]["arquivos"] = arquivos[:5]
+                for arquivo in arquivos[:1]:
+                    link = next((v for v in arquivo.values() if isinstance(v, str) and v.lower().endswith(".pdf")), None)
+                    if link:
+                        alvo = link if link.startswith("http") else "https://cdn.cebraspe.org.br/" + link.lstrip("/")
+                        relatorio["detalhe"]["pdf"] = {"url": alvo, "permitido": robo_cdn.can_fetch(UA, alvo)}
     (DESTINO / "_sondagem.json").write_text(json.dumps(relatorio, ensure_ascii=False, indent=1), encoding="utf-8")
     print(json.dumps(relatorio, ensure_ascii=False, indent=1)[:8000])
     return 0

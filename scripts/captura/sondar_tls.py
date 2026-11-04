@@ -1,136 +1,84 @@
-"""Diagnóstico TLS (roda no GitHub Actions): por que FUMARC e COMPERVE falham na verificação do certificado.
-
-Para cada host: o que o servidor envia (cadeia), emissor e validade do certificado do site, e o endereço "CA Issuers"
-(AIA) do intermediário que falta. Baixa esse intermediário (é público, publicado pela própria autoridade
-certificadora) e testa a conexão de novo COM verificação, usando o bundle padrão + esse intermediário. Nunca desliga
-a verificação: se ainda falhar, o problema não é só cadeia incompleta.
-"""
+"""Sondagem FUMARC e COMPERVE (2ª rodada), com verificação TLS ATIVA usando o bundle padrão + o intermediário
+GlobalSign RSA OV SSL CA 2018 que esses servidores deixam de enviar (baixado na 1ª rodada, público)."""
 
 from __future__ import annotations
 
 import json
-import socket
-import ssl
-import subprocess
+import re
 import sys
-import tempfile
-import urllib.request
+import time
+import urllib.robotparser
 from pathlib import Path
+from urllib.parse import urljoin, urlsplit
 
 import certifi
 import requests
 
-HOSTS = ["www.fumarc.com.br", "fumarc.com.br", "www.comperve.ufrn.br", "comperve.ufrn.br"]
 UA = "NqnTechConcursos/0.1 (site publico e gratuito de concursos; respeita robots.txt)"
 DESTINO = Path("coletor/tests/fixtures/tls")
-
-
-def cadeia(host: str) -> str:
-    saida = subprocess.run(
-        ["openssl", "s_client", "-connect", f"{host}:443", "-servername", host, "-showcerts"],
-        input=b"",
-        capture_output=True,
-        timeout=30,
-    )
-    return saida.stdout.decode(errors="replace")
-
-
-def certificado_do_site(host: str) -> str:
-    """PEM do certificado do site, obtido sem validar (só para ler o AIA; nada é trafegado nesta conexão)."""
-    contexto = ssl.create_default_context()
-    contexto.check_hostname = False
-    contexto.verify_mode = ssl.CERT_NONE
-    with (
-        socket.create_connection((host, 443), timeout=20) as sock,
-        contexto.wrap_socket(sock, server_hostname=host) as tls,
-    ):
-        return ssl.DER_cert_to_PEM_cert(tls.getpeercert(binary_form=True))
-
-
-def info(pem: str) -> str:
-    with tempfile.NamedTemporaryFile("w", suffix=".pem", delete=False) as f:
-        f.write(pem)
-    return subprocess.run(
-        [
-            "openssl",
-            "x509",
-            "-noout",
-            "-subject",
-            "-issuer",
-            "-dates",
-            "-ext",
-            "authorityInfoAccess,subjectAltName",
-            "-in",
-            f.name,
-        ],
-        capture_output=True,
-        text=True,
-    ).stdout
+INTERMEDIARIO = DESTINO / "intermediario_www_fumarc_com_br.pem"
+ALVOS = [
+    "https://www.comperve.ufrn.br/conteudo/concursos.php",
+    "https://www.comperve.ufrn.br/conteudo/concursos/cref_202601/informacoes.php",
+    "https://www.fumarc.com.br/sites/app/ClientSideAssets/1e6dd93b-1f99-440b-a6c4-5c6af3330182/concursos-web-part_a63cd5f36174102910a8ad528ad46729.js",
+]
 
 
 def main() -> int:
-    DESTINO.mkdir(parents=True, exist_ok=True)
+    bundle = DESTINO / "_bundle.pem"
+    bundle.write_text(Path(certifi.where()).read_text() + "\n" + INTERMEDIARIO.read_text(), encoding="utf-8")
+    s = requests.Session()
+    s.headers["User-Agent"] = UA
+    s.verify = str(bundle)
+    robots: dict[str, urllib.robotparser.RobotFileParser] = {}
     relatorio: dict = {}
-    for host in HOSTS:
-        item: dict = {}
-        relatorio[host] = item
-        try:
-            requests.get(f"https://{host}/robots.txt", timeout=20, headers={"User-Agent": UA})
-            item["verificacao_padrao"] = "ok"
+
+    def permitido(url: str) -> bool:
+        host = urlsplit(url).netloc
+        if host not in robots:
+            p = urllib.robotparser.RobotFileParser()
+            r = s.get(f"https://{host}/robots.txt", timeout=20)
+            p.parse(r.text.splitlines() if r.ok else [])
+            p.disallow_all = r.status_code in (401, 403) or r.status_code >= 500
+            robots[host] = p
+        return robots[host].can_fetch(UA, url)
+
+    def baixar(nome: str, url: str) -> requests.Response | None:
+        item: dict = {"url": url, "permitido": permitido(url)}
+        relatorio[nome] = item
+        if not item["permitido"]:
+            return None
+        time.sleep(3)
+        r = s.get(url, timeout=30, headers={"Accept": "application/json;odata=nometadata, text/html;q=0.9, */*;q=0.5"})
+        item.update(status=r.status_code, tipo=r.headers.get("Content-Type"), bytes=len(r.content))
+        return r
+
+    for url in ALVOS:
+        nome = re.sub(r"[^a-z0-9]+", "_", urlsplit(url).path.lower()).strip("_")[-60:]
+        r = baixar(nome, url)
+        if r is None or not r.ok:
             continue
-        except requests.exceptions.SSLError as erro:
-            item["verificacao_padrao"] = str(erro)[:300]
-        except requests.RequestException as erro:
-            item["erro_conexao"] = str(erro)[:300]
-            continue
-        texto = cadeia(host)
-        item["certificados_enviados"] = texto.count("BEGIN CERTIFICATE")
-        item["cadeia"] = [
-            l.strip() for l in texto.splitlines() if l.strip().startswith(("0 s:", "1 s:", "2 s:", "   i:", "  i:"))
-        ][:10]
-        try:
-            pem = certificado_do_site(host)
-        except OSError as erro:
-            item["erro_leitura"] = str(erro)[:200]
-            continue
-        detalhes = info(pem)
-        item["certificado"] = detalhes
-        aia = next(
-            (l.split("URI:", 1)[1].strip() for l in detalhes.splitlines() if "CA Issuers" in l and "URI:" in l), None
-        )
-        item["aia"] = aia
-        if not aia:
-            continue
-        try:
-            der = urllib.request.urlopen(aia, timeout=20).read()
-        except OSError as erro:
-            item["erro_aia"] = str(erro)[:200]
-            continue
-        try:
-            intermediario = ssl.DER_cert_to_PEM_cert(der)
-        except ValueError:
-            intermediario = der.decode(errors="replace")  # já veio em PEM
-        item["intermediario"] = info(intermediario)
-        nome = host.replace(".", "_")
-        (DESTINO / f"intermediario_{nome}.pem").write_text(intermediario, encoding="utf-8")
-        bundle = DESTINO / f"_bundle_{nome}.pem"
-        bundle.write_text(Path(certifi.where()).read_text() + "\n" + intermediario, encoding="utf-8")
-        try:
-            r = requests.get(f"https://{host}/robots.txt", timeout=20, headers={"User-Agent": UA}, verify=str(bundle))
-            item["com_intermediario"] = {"status": r.status_code, "robots": r.text[:1500] if r.ok else ""}
-            home = requests.get(f"https://{host}/", timeout=25, headers={"User-Agent": UA}, verify=str(bundle))
-            item["home"] = {
-                "status": home.status_code,
-                "tipo": home.headers.get("Content-Type"),
-                "bytes": len(home.content),
-            }
-            if home.ok:
-                (DESTINO / f"home_{nome}.html").write_text(home.text, encoding="utf-8")
-        except requests.RequestException as erro:
-            item["com_intermediario"] = {"erro": str(erro)[:300]}
-        bundle.unlink()
-    (DESTINO / "_tls.json").write_text(json.dumps(relatorio, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(json.dumps(relatorio, ensure_ascii=False, indent=1)[:6000])
+        if url.endswith(".js"):
+            rotas = sorted(
+                set(re.findall(r"[\"'`]((?:https?://[^\"'`\s]{4,200})|(?:/[^\"'`\s]{2,200}))[\"'`]", r.text))
+            )
+            relatorio[nome]["rotas"] = [x for x in rotas if re.search(r"_api|lists|getbytitle|concurso|json", x, re.I)][
+                :80
+            ]
+            relatorio[nome]["trechos"] = re.findall(r".{0,120}(?:_api|getbytitle).{0,200}", r.text)[:15]
+        else:
+            (DESTINO / f"{nome}.html").write_text(r.text, encoding="utf-8")
+    # Rotas SharePoint usadas pelo módulo de concursos (se o robots permitir).
+    for rota in relatorio.get(next((k for k in relatorio if k.endswith("js")), ""), {}).get("rotas", [])[:10]:
+        alvo = urljoin("https://www.fumarc.com.br/", rota)
+        if "_api" in alvo:
+            nome = "fumarc_api_" + re.sub(r"[^a-z0-9]+", "_", alvo.lower())[-50:]
+            r = baixar(nome, alvo)
+            if r is not None and r.ok and "json" in (r.headers.get("Content-Type") or ""):
+                (DESTINO / f"{nome}.json").write_text(r.text[:2_000_000], encoding="utf-8")
+    bundle.unlink()
+    (DESTINO / "_tls2.json").write_text(json.dumps(relatorio, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(json.dumps(relatorio, ensure_ascii=False, indent=1)[:8000])
     return 0
 
 

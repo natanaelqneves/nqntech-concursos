@@ -1,3 +1,4 @@
+# Rodada 3: documentos e inscrições da COMPERVE.
 """Sondagem FUMARC e COMPERVE (2ª rodada), com verificação TLS ATIVA usando o bundle padrão + o intermediário
 GlobalSign RSA OV SSL CA 2018 que esses servidores deixam de enviar (baixado na 1ª rodada, público)."""
 

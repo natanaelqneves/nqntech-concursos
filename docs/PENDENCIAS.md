@@ -167,6 +167,11 @@ Sem estas chaves, o coletor continua só com as regras (nada quebra).
 2. **AOCP e IDECAN (opcional):** envie o e-mail (AOCP: candidato@institutoaocp.org.br; IDECAN: formulário Fale Conosco do site) pedindo liberação do User-Agent `NqnTechConcursos/0.1` (rascunho
    na conversa). Se liberarem, a AOCP volta com um `UPDATE fonte SET ativa = true` depois de nova sondagem.
 
+## Importar PDFs manualmente (bancas sem coleta automática)
+
+Passo a passo em `scripts/importar/LEIA-ME.md`: `.env` na raiz com host do Neon e senha do `coletor_app`, depois
+`scripts\importar\importar_pdfs.bat PASTA SIGLA [LINK]`.
+
 ## Próximas fases (só para você se planejar)
 
 - **Fase 7 (alertas):** conta no serviço de e-mail transacional escolhido e hospedagem da API.

@@ -46,16 +46,19 @@ def test_busca_usa_google_search_e_para_no_limite(tmp_path):
 
     def responder(request: httpx.Request) -> httpx.Response:
         pedidos.append(json.loads(request.content))
-        if len(pedidos) == 2:
-            return httpx.Response(429)
+        if len(pedidos) >= 2:
+            return httpx.Response(429, json={"error": {"message": "Quota exceeded: requests per day"}})
         return httpx.Response(200, json={"candidates": [{"content": {"parts": [{"text": RESPOSTA}]},
                                                          "groundingMetadata": METADADOS}]})  # fmt: skip
 
-    busca = BuscaGemini("k", "m", httpx.Client(transport=httpx.MockTransport(responder)))
+    esperas = []
+    busca = BuscaGemini("k", "m", httpx.Client(transport=httpx.MockTransport(responder)), dormir=esperas.append)
     sugestoes, falhas = buscar_bancas(busca, ["FCC", "VUNESP", "IBFC"], date(2026, 11, 4))
     assert pedidos[0]["tools"] == [{"google_search": {}}]
-    assert len(pedidos) == 2 and len(sugestoes) == 2 and "429" in falhas[0]
-    csv_, md = gravar(sugestoes, tmp_path, date(2026, 11, 4))
+    assert len(pedidos) == 3 and len(esperas) == 1  # VUNESP: 429, espera, 429 de novo → para
+    assert len(sugestoes) == 2 and "requests per day" in falhas[0]
+    csv_, md = gravar(sugestoes, tmp_path, date(2026, 11, 4), falhas)
+    assert "Falhas da busca" in md.read_text(encoding="utf-8")
     assert "TRT-4" in md.read_text(encoding="utf-8") and "⚠️ não oficial" in md.read_text(encoding="utf-8")
     assert csv_.read_text(encoding="utf-8-sig").startswith("banca;orgao")
 

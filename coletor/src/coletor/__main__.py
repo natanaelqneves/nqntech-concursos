@@ -104,10 +104,10 @@ def buscar_concursos(args: argparse.Namespace) -> int:
         log.error("defina GEMINI_API_KEY no .env (a busca usa o Gemini com a Busca Google)")
         return 2
     bancas = [b.upper() for b in (args.bancas or DOMINIOS_BANCAS)]
-    modelo = os.environ.get("COLETOR_GEMINI_MODELO") or ConfigIA.gemini_modelo
+    modelo = os.environ.get("COLETOR_BUSCA_MODELO") or os.environ.get("COLETOR_GEMINI_MODELO") or ConfigIA.gemini_modelo
     with httpx.Client(timeout=180) as http:
         sugestoes, falhas = buscar_bancas(BuscaGemini(chave, modelo, http), bancas, hoje())
-    csv_, md = gravar(sugestoes, Path(args.saida), hoje())
+    csv_, md = gravar(sugestoes, Path(args.saida), hoje(), falhas)
     for falha in falhas:
         log.warning("%s", falha)
     log.info("%d sugestões (%d oficiais). Relatórios: %s e %s", len(sugestoes),
@@ -115,6 +115,8 @@ def buscar_concursos(args: argparse.Namespace) -> int:
     if config_email is not None:
         oficiais = sum(s.oficial for s in sugestoes)
         assunto = f"Concursos sugeridos {hoje():%d/%m/%Y}: {len(sugestoes)} ({oficiais} em sites oficiais)"
+        if falhas:
+            assunto += f" – {len(falhas)} falha(s)"
         try:
             enviar(config_email, montar_mensagem(config_email, assunto, md, csv_))
         except (OSError, smtplib.SMTPException) as erro:

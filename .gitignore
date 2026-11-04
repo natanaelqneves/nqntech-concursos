@@ -3,6 +3,8 @@
 .env.*
 !.env.example
 *.pem
+# Exceção: certificados intermediários PÚBLICOS de autoridades (sem chave privada), usados na verificação TLS.
+!coletor/src/coletor/certificados/*.pem
 *.key
 *.p12
 *.jks

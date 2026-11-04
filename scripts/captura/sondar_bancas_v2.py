@@ -34,6 +34,10 @@ BANCAS = {
     "comperve": ["https://www.comperve.ufrn.br/", "https://comperve.ufrn.br/"],
 }
 _ROTAS = re.compile(r"""["'`]((?:https?://[^"'`\s]{4,200})|(?:/[A-Za-z0-9_./?=&%-]{2,160}))["'`]""")
+# Páginas e scripts de terceiros podem conter chaves públicas (mapas, analytics): o push protection do GitHub
+# recusa o commit. Só o relatório é gravado, com parâmetros de chave removidos das URLs.
+SALVAR_HTML = False
+_CHAVE = re.compile(r"((?:key|token|apikey|api_key|secret|sig)=)[^&\"'\s]+", re.IGNORECASE)
 _INTERESSE = re.compile(r"api|json|ajax|banner|concurso|edital|inscri|wp-json|graphql", re.IGNORECASE)
 
 
@@ -81,7 +85,8 @@ def main() -> int:
             if not (r.ok and "html" in tipo):
                 continue
             nome = re.sub(r"[^a-z0-9]+", "_", url.lower()).strip("_")[:80]
-            (DESTINO / f"{banca}__{nome}.html").write_text(r.text, encoding="utf-8")
+            if SALVAR_HTML:
+                (DESTINO / f"{banca}__{nome}.html").write_text(r.text, encoding="utf-8")
             titulo = re.search(r"<title[^>]*>(.*?)</title>", r.text, re.IGNORECASE | re.DOTALL)
             item["titulo"] = " ".join(titulo.group(1).split())[:150] if titulo else None
             scripts = re.findall(r"<script[^>]+src=[\"']([^\"']+)", r.text, re.IGNORECASE)
@@ -103,8 +108,6 @@ def main() -> int:
                     continue
                 time.sleep(2)
                 if js.ok:
-                    arquivo = re.sub(r"[^a-zA-Z0-9.]+", "_", urlsplit(alvo).path)[-80:]
-                    (DESTINO / f"{banca}__js_{arquivo}").write_text(js.text[:2_000_000], encoding="utf-8")
                     rotas |= {m for m in _ROTAS.findall(js.text) if _INTERESSE.search(m)}
             item["rotas"] = sorted(rotas)[:150]
             item["rotas_permitidas"] = {
@@ -114,7 +117,9 @@ def main() -> int:
             }
         print(banca, json.dumps({u: {k: v for k, v in i.items() if k in ("permitido", "status", "tipo", "bytes", "titulo")}
                                  for u, i in relatorio[banca].items()}, ensure_ascii=False))  # fmt: skip
-    (DESTINO / "_sondagem.json").write_text(json.dumps(relatorio, ensure_ascii=False, indent=1), encoding="utf-8")
+    texto = _CHAVE.sub(r"\1***", json.dumps(relatorio, ensure_ascii=False, indent=1))
+    texto = re.sub(r"AIza[0-9A-Za-z_-]{20,}", "***", texto)
+    (DESTINO / "_sondagem.json").write_text(texto, encoding="utf-8")
     return 0
 
 

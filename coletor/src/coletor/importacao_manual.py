@@ -15,6 +15,7 @@ from __future__ import annotations
 import hashlib
 import logging
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -55,16 +56,20 @@ def titulo_do_arquivo(arquivo: Path) -> str:
 
 def link_do_arquivo(arquivo: Path, padrao: str | None) -> str | None:
     lateral = arquivo.with_suffix(".url")
-    link = lateral.read_text(encoding="utf-8").strip() if lateral.exists() else (padrao or "").strip()
+    return validar_link(lateral.read_text(encoding="utf-8") if lateral.exists() else padrao, arquivo.name)
+
+
+def validar_link(link: str | None, origem: str) -> str | None:
+    link = (link or "").strip()
     if not link:
         return None
     if not _LINK.match(link):
-        raise ImportacaoInvalida(f"link inválido para {arquivo.name} (precisa começar com https://): {link!r}")
+        raise ImportacaoInvalida(f"link inválido para {origem} (precisa começar com https://): {link!r}")
     return link
 
 
-def ler_pdf(arquivo: Path, max_bytes: int, link_padrao: str | None) -> PdfLido:
-    link = link_do_arquivo(arquivo, link_padrao)
+def ler_pdf(arquivo: Path, max_bytes: int, link: str | None) -> PdfLido:
+    """`link` já resolvido (arquivo .url, descrição no Drive ou --link) e validado."""
     tamanho = arquivo.stat().st_size
     conteudo = arquivo.read_bytes() if tamanho <= max_bytes else b""
     sha = hashlib.sha256(conteudo or arquivo.name.encode()).hexdigest()
@@ -109,14 +114,20 @@ def sinal_do_pdf(pdf: PdfLido) -> SinalDescoberta:
 def importar_pasta(repo: Repositorio, pasta: Path, banca: str, link: str | None, max_bytes: int) -> ResumoEtapa:
     if not pasta.is_dir():
         raise ImportacaoInvalida(f"pasta não encontrada: {pasta}")
-    fonte = repo.fonte_manual(banca)
-    if fonte is None:
-        raise ImportacaoInvalida(f"banca {banca!r} sem fonte manual cadastrada (use a sigla, ex.: FCC, VUNESP, OUTRA)")
     arquivos = sorted(p for p in pasta.iterdir() if p.is_file() and p.suffix.lower() == ".pdf")
     if not arquivos:
         raise ImportacaoInvalida(f"nenhum PDF em {pasta}")
+    return importar_arquivos(repo, [(a, link_do_arquivo(a, link)) for a in arquivos], banca, max_bytes)[0]
 
-    lidos = [ler_pdf(arquivo, max_bytes, link) for arquivo in arquivos]
+
+def importar_arquivos(
+    repo: Repositorio, arquivos: Sequence[tuple[Path, str | None]], banca: str, max_bytes: int
+) -> tuple[ResumoEtapa, list[PdfLido]]:
+    """Importa os PDFs (cada um com seu link oficial, já validado) e devolve o resultado de cada arquivo."""
+    fonte = repo.fonte_manual(banca)
+    if fonte is None:
+        raise ImportacaoInvalida(f"banca {banca!r} sem fonte manual cadastrada (use a sigla, ex.: FCC, VUNESP, OUTRA)")
+    lidos = [ler_pdf(arquivo, max_bytes, link) for arquivo, link in arquivos]
     for pdf in lidos:
         log.info("%s: %s%s", pdf.arquivo.name, pdf.status, f" ({pdf.motivo})" if pdf.motivo else "")
     validos = [p for p in lidos if p.status != "FALHA"]
@@ -133,4 +144,4 @@ def importar_pasta(repo: Repositorio, pasta: Path, banca: str, link: str | None,
 
     falhas = [f"{p.arquivo.name}: {p.motivo}" for p in lidos if p.status == "FALHA"]
     status = "SUCESSO" if not falhas else ("FALHA" if not validos else "PARCIAL")
-    return ResumoEtapa("IMPORTACAO_MANUAL", status, len(validos), "; ".join(falhas) or None, fonte.nome)
+    return ResumoEtapa("IMPORTACAO_MANUAL", status, len(validos), "; ".join(falhas) or None, fonte.nome), lidos

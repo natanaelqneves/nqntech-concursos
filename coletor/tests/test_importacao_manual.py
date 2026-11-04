@@ -13,6 +13,7 @@ from coletor.importacao_manual import (
     importar_pasta,
     ler_pdf,
     link_do_arquivo,
+    orgao_do_texto,
     sinal_do_pdf,
     titulo_do_arquivo,
 )
@@ -59,6 +60,27 @@ def test_sinal_usa_o_link_e_identifica_o_arquivo_pelo_hash(tmp_path):
     [arquivo] = sinal.payload["arquivos"]
     assert arquivo["url"] == f"manual:{pdf.sha256}" and arquivo["tipo"] == "EDITAL"
     assert titulo_do_arquivo(Path("Retificacao_01-2026.pdf")) == "Retificacao 01 2026"
+    assert titulo_do_arquivo(Path("001-edital-mgs-05.2026.pdf")) == "edital mgs 05.2026"
+    assert sinal.titulo != titulo_do_arquivo(pdf.arquivo)  # o nome vem do edital, não do arquivo
+
+
+@pytest.mark.parametrize(
+    ("arquivo", "orgao"),
+    [
+        ("fgv/edital_pms2026_0.txt", "Prefeitura Municipal do Salvador"),
+        ("fgv/edital_pcpr26_0.txt", "Polícia Civil do Paraná"),
+        ("fgv/edital_tjpb26_0.txt", "Tribunal de Justiça do Estado da Paraíba"),  # retificação: título na 2ª linha
+        ("fgv/edital_dataprev26_0.txt", "Empresa de Tecnologia e Informações da Previdência"),
+        ("fgv/edital_sesto26_0.txt", "Secretaria de Estado de Administração"),  # prefere o órgão ao "Governo do"
+    ],
+)
+def test_orgao_lido_no_cabecalho_do_edital(fixture_texto, arquivo, orgao):
+    assert orgao_do_texto(fixture_texto(arquivo)) == orgao
+
+
+def test_orgao_empresa_sa_e_texto_sem_orgao():
+    assert orgao_do_texto("MINAS GERAIS ADMINISTRAÇÃO E SERVIÇOS S.A. – MGS\nEDITAL 05/2026").startswith("Minas Gerais")
+    assert orgao_do_texto("lorem ipsum\nsem cabeçalho") is None
 
 
 @pytest.mark.db
@@ -83,6 +105,8 @@ def test_importacao_passa_pelo_pipeline(parametros_coletor, conn_admin, tmp_path
             (link,),
         ).fetchall()
         assert documentos == [("OK", "EDITAL", True)]
+        titulo = conn_admin.execute("SELECT titulo FROM concursos.concurso WHERE link_oficial = %s", (link,)).fetchone()
+        assert "edital mini" not in titulo[0].lower()
         fonte = conn_admin.execute(
             """SELECT f.nome, f.ativa FROM concursos.sinal_descoberta s JOIN concursos.fonte f ON f.id = s.fonte_id
                WHERE s.url = %s""",

@@ -19,12 +19,13 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from coletor.classificacao.orgao import OrgaoInferido, inferir_orgao
 from coletor.db import Repositorio
 from coletor.fontes.base import SinalDescoberta
 from coletor.pipeline.comum import ResumoEtapa
 from coletor.pipeline.documentos import MAX_CARACTERES_TEXTO, MIN_CARACTERES_UTEIS, ExtracaoFalhou, extrair_texto_pdf
 from coletor.pipeline.vinculacao import classificar_tipo_documento, executar_vinculacao
-from coletor.texto import colapsar_espacos, limitar
+from coletor.texto import colapsar_espacos, limitar, titulo_portugues
 
 log = logging.getLogger(__name__)
 
@@ -51,7 +52,70 @@ class PdfLido:
 
 
 def titulo_do_arquivo(arquivo: Path) -> str:
-    return colapsar_espacos(re.sub(r"[_\-]+", " ", arquivo.stem)) or "Edital"
+    nome = re.sub(r"^\d{3}-", "", arquivo.stem)  # prefixo de ordem posto pela importação do Drive
+    return colapsar_espacos(re.sub(r"[_\-]+", " ", nome)) or "Edital"
+
+
+_CHAVE = re.compile(
+    r"\b(PREFEITURA|C[ÂA]MARA|TRIBUNAL|SECRETARIA|MINIST[ÉE]RIO|INSTITUTO|UNIVERSIDADE|CONSELHO|COMPANHIA|EMPRESA|"
+    r"AG[ÊE]NCIA|ASSEMBLEIA|DEFENSORIA|PROCURADORIA|POL[ÍI]CIA|CORPO DE BOMBEIROS|FUNDA[ÇC][ÃA]O|SERVI[ÇC]O|BANCO|"
+    r"MUNIC[ÍI]PIO|DEPARTAMENTO|AUTARQUIA|HOSPITAL|CONS[ÓO]RCIO|GOVERNO)\b"
+)
+_CORTE = re.compile(
+    r"\s*(\(|\s[-–]\s|,|\s(?:DE|PARA|NO|NA|EM)\s+(?:ANALISTA|T[ÉE]CNICO|CARGOS?|PROVIMENTO|VAGAS?|N[ÍI]VEL)\b|\sEDITAL\b|\sTORNA\b)"
+)
+_EMPRESA = re.compile(r"^(.{6,80}?\bS\.?\s?/?A\.?)(?:\s|$)")  # "MINAS GERAIS ADMINISTRAÇÃO E SERVIÇOS S.A."
+_CONECTOR = re.compile(r"\b(DE|DO|DA|DOS|DAS|E|NO|NA)$")
+
+
+def orgao_do_texto(texto: str | None) -> str | None:
+    """Órgão no cabeçalho do edital (primeiras linhas em caixa alta); prefere o órgão ao "Governo do Estado"."""
+    linhas = [colapsar_espacos(x) for x in (texto or "")[:4000].splitlines() if x.strip()][:15]
+    juntas: list[str] = []
+    for linha in linhas:
+        if juntas and _CONECTOR.search(juntas[-1]):
+            juntas[-1] += " " + linha
+        else:
+            juntas.append(linha)
+    candidatos = []
+    for linha in juntas:
+        if sum(c.islower() for c in linha) > len(linha) * 0.3:
+            continue
+        for m in _CHAVE.finditer(linha):
+            trecho = linha[m.start() :]
+            trecho = _CORTE.split(trecho, maxsplit=1)[0].strip(" .:;")
+            if len(trecho) >= 8:
+                candidatos.append((m.group(1).startswith("GOVERNO"), len(candidatos), trecho))
+            break
+        if not candidatos and (empresa := _EMPRESA.match(linha)):
+            candidatos.append((False, len(candidatos), empresa.group(1)))
+    if not candidatos:
+        return None
+    trecho = min(candidatos)[2]
+    nome = re.sub(r"\bS\.?\s?/?a\.?(?=\s|$)", "S.A.", titulo_portugues(trecho))
+    inferido = inferir_orgao(nome)
+    return inferido.nome if inferido else nome
+
+
+def titulo_do_pdf(pdf: PdfLido) -> str:
+    """Nome do órgão lido no edital; o nome do arquivo só como último recurso."""
+    return orgao_do_texto(pdf.texto) or titulo_do_arquivo(pdf.arquivo)
+
+
+def corrigir_nomes(repo: Repositorio) -> int:
+    """Concursos importados sem órgão (título = nome do arquivo): lê o órgão no texto já gravado e renomeia."""
+    corrigidos = 0
+    for linha in repo.concursos_manuais_sem_orgao():
+        nome = orgao_do_texto(linha["texto_extraido"])
+        if nome is None:
+            continue
+        inferido = inferir_orgao(nome) or OrgaoInferido(nome, None, None, None)
+        repo.definir_orgao_se_ausente(linha["id"], inferido)
+        repo.renomear_concurso(linha["id"], inferido.nome)
+        corrigidos += 1
+    if corrigidos:
+        log.info("importação manual: %d concursos renomeados pelo órgão lido no edital", corrigidos)
+    return corrigidos
 
 
 def link_do_arquivo(arquivo: Path, padrao: str | None) -> str | None:
@@ -88,10 +152,10 @@ def ler_pdf(arquivo: Path, max_bytes: int, link: str | None) -> PdfLido:
 
 
 def sinal_do_pdf(pdf: PdfLido) -> SinalDescoberta:
-    titulo = titulo_do_arquivo(pdf.arquivo)
-    tipo = classificar_tipo_documento(titulo)
+    titulo = titulo_do_pdf(pdf)
+    tipo = classificar_tipo_documento(titulo_do_arquivo(pdf.arquivo))
     arquivo = {
-        "titulo": titulo,
+        "titulo": titulo_do_arquivo(pdf.arquivo),
         "url": pdf.url_documento,
         "data": None,
         "pdf": True,
@@ -141,6 +205,7 @@ def importar_arquivos(
         if documento_id is None:  # vinculação falhou para este sinal (já registrado no log da etapa)
             continue
         repo.salvar_extracao(documento_id, pdf.sha256, pdf.texto, pdf.status)
+    corrigir_nomes(repo)
 
     falhas = [f"{p.arquivo.name}: {p.motivo}" for p in lidos if p.status == "FALHA"]
     status = "SUCESSO" if not falhas else ("FALHA" if not validos else "PARCIAL")

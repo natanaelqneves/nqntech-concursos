@@ -493,6 +493,27 @@ class Repositorio:
                 (concurso_id, ordem, evento.evento[:200], evento.inicio, fim),
             )
 
+    def concursos_manuais_sem_orgao(self) -> list[Linha]:
+        linhas = self.conn.execute(
+            """SELECT DISTINCT ON (c.id) c.id, d.texto_extraido
+               FROM concurso c
+                        JOIN sinal_descoberta s ON s.concurso_id = c.id
+                        JOIN fonte f ON f.id = s.fonte_id AND f.tipo = 'MANUAL'
+                        JOIN documento d ON d.concurso_id = c.id AND d.status_extracao = 'OK'
+               WHERE c.orgao_id IS NULL
+               ORDER BY c.id, (d.tipo = 'EDITAL') DESC, d.id DESC"""
+        ).fetchall()
+        self.conn.commit()
+        return linhas
+
+    def renomear_concurso(self, concurso_id: int, titulo: str) -> None:
+        """Título novo; o slug (feito do nome do arquivo) é refeito na etapa de resumo."""
+        with self.transacao():
+            self.conn.execute(
+                "UPDATE concurso SET titulo = %s, slug = NULL WHERE id = %s AND titulo IS DISTINCT FROM %s",
+                (titulo[:1000], concurso_id, titulo[:1000]),
+            )
+
     def definir_orgao_se_ausente(self, concurso_id: int, orgao: OrgaoInferido) -> bool:
         """Órgão lido do edital, só quando a fonte não informou (ex.: Cebraspe, com nomes abreviados)."""
         with self.transacao():

@@ -13,16 +13,16 @@ import json
 import logging
 import re
 import time
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
 from urllib.parse import urlsplit
 
 import httpx
 
-from coletor.ia.provedores import GEMINI_URL, FalhaIA, LimiteAtingido
+from coletor.ia.provedores import GEMINI_URL, OPENROUTER_URL, FalhaIA, LimiteAtingido
 
 log = logging.getLogger(__name__)
 
@@ -131,23 +131,62 @@ def interpretar(banca: str, texto: str, metadados: Mapping[str, Any]) -> list[Su
     return sugestoes
 
 
+# Ordem: os "Lite" têm cota diária bem maior na faixa gratuita (500/dia) e vão primeiro; quem esgotar sai da rodada.
+MODELOS_BUSCA_PADRAO = (
+    "gemini-3.1-flash-lite",
+    "gemini-3.5-flash-lite",
+    "gemini-3.6-flash",
+    "gemini-3-flash",
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-3.8-flash",
+)
+OPENROUTER_MODELO_BUSCA = "openrouter/free"
+
+
 def _motivo(resposta: httpx.Response) -> str:
-    """Mensagem do Google para o 429 (qual cota: por minuto, por dia, ou 0 para o modelo na faixa gratuita)."""
+    """Mensagem do provedor para o erro (qual cota estourou, modelo inexistente etc.)."""
     try:
         erro = resposta.json().get("error") or {}
     except ValueError:
         return resposta.text[:300]
-    return str(erro.get("message") or "")[:400]
+    return str(erro.get("message") if isinstance(erro, dict) else erro)[:300]
+
+
+class Buscador(Protocol):
+    nome: str
+
+    def buscar(self, banca: str, hoje: date, limite: int = 15) -> list[Sugestao]:
+        """Sugestões da banca; LimiteAtingido tira o buscador da rodada, FalhaIA passa a banca ao próximo."""
+        ...
+
+
+class _Ritmo:
+    """Intervalo mínimo entre chamadas do mesmo buscador (cabe no limite por minuto da faixa gratuita)."""
+
+    def __init__(self, intervalo_s: float, dormir: Callable[[float], None], relogio: Callable[[], float]) -> None:
+        self._intervalo_s, self._dormir, self._relogio = intervalo_s, dormir, relogio
+        self._ultima: float | None = None
+
+    def esperar(self) -> None:
+        if self._ultima is not None:
+            falta = self._ultima + self._intervalo_s - self._relogio()
+            if falta > 0:
+                self._dormir(falta)
+        self._ultima = self._relogio()
 
 
 class BuscaGemini:
     def __init__(self, chave: str, modelo: str, http: httpx.Client, espera_429_s: float = 65.0,
-                 dormir=time.sleep) -> None:  # fmt: skip
+                 intervalo_s: float = 13.0, dormir: Callable[[float], None] = time.sleep,
+                 relogio: Callable[[], float] = time.monotonic) -> None:  # fmt: skip
         self._chave = chave
         self._modelo = modelo
         self._http = http
         self._espera_429_s = espera_429_s
         self._dormir = dormir
+        self._ritmo = _Ritmo(intervalo_s, dormir, relogio)
+        self.nome = f"gemini:{modelo}"
 
     def buscar(self, banca: str, hoje: date, limite: int = 15) -> list[Sugestao]:
         pedido = INSTRUCOES.format(banca=banca, hoje=hoje, limite=limite)
@@ -157,24 +196,71 @@ class BuscaGemini:
             "generationConfig": {"temperature": 0, "maxOutputTokens": 8192},
         }
         resposta = self._postar(corpo)
-        if resposta.status_code == 429:
-            # Limite por minuto passa com uma espera; cota diária (ou modelo sem cota de busca) não: uma tentativa só.
-            self._dormir(self._espera_429_s)
+        if resposta.status_code == 429 and "minute" in _motivo(resposta).lower():
+            self._dormir(self._espera_429_s)  # limite por minuto passa com uma espera; o diário, não
             resposta = self._postar(corpo)
-        if resposta.status_code == 429:
-            raise LimiteAtingido(f"gemini ({self._modelo}): limite da busca atingido (429): {_motivo(resposta)}")
+        if resposta.status_code in (404, 429) or (resposta.status_code == 400 and "not" in _motivo(resposta)):
+            raise LimiteAtingido(f"{self.nome}: HTTP {resposta.status_code}: {_motivo(resposta)}")
         if resposta.status_code >= 400:
-            raise FalhaIA(f"gemini: HTTP {resposta.status_code}: {resposta.text[:300]}")
+            raise FalhaIA(f"{self.nome}: HTTP {resposta.status_code}: {_motivo(resposta)}")
         try:
             candidato = resposta.json()["candidates"][0]
             texto = "".join(p.get("text", "") for p in candidato["content"]["parts"])
         except (KeyError, IndexError, TypeError, ValueError) as erro:
-            raise FalhaIA(f"gemini: resposta sem conteúdo ({erro})") from erro
+            raise FalhaIA(f"{self.nome}: resposta sem conteúdo ({erro})") from erro
         return interpretar(banca, texto, candidato.get("groundingMetadata") or {})
 
     def _postar(self, corpo: Mapping[str, Any]) -> httpx.Response:
+        self._ritmo.esperar()
         return self._http.post(GEMINI_URL.format(modelo=self._modelo), json=corpo,
                                headers={"x-goog-api-key": self._chave})  # fmt: skip
+
+
+class BuscaOpenRouter:
+    """Reserva: plugin de busca na web do OpenRouter (cobra créditos da conta; sem crédito vem 402 e ele sai)."""
+
+    def __init__(self, chave: str, modelo: str, http: httpx.Client, intervalo_s: float = 4.0,
+                 dormir: Callable[[float], None] = time.sleep,
+                 relogio: Callable[[], float] = time.monotonic) -> None:  # fmt: skip
+        self._chave, self._modelo, self._http = chave, modelo, http
+        self._ritmo = _Ritmo(intervalo_s, dormir, relogio)
+        self.nome = f"openrouter:{modelo}"
+
+    def buscar(self, banca: str, hoje: date, limite: int = 15) -> list[Sugestao]:
+        self._ritmo.esperar()
+        corpo = {
+            "model": self._modelo,
+            "temperature": 0,
+            "messages": [{"role": "user", "content": INSTRUCOES.format(banca=banca, hoje=hoje, limite=limite)}],
+            "plugins": [{"id": "web", "max_results": 8}],
+        }
+        resposta = self._http.post(OPENROUTER_URL, json=corpo, headers={
+            "Authorization": f"Bearer {self._chave}", "X-Title": "NqnTech Concursos"})  # fmt: skip
+        if resposta.status_code in (402, 404, 429):
+            raise LimiteAtingido(f"{self.nome}: HTTP {resposta.status_code}: {_motivo(resposta)}")
+        if resposta.status_code >= 400:
+            raise FalhaIA(f"{self.nome}: HTTP {resposta.status_code}: {_motivo(resposta)}")
+        try:
+            mensagem = resposta.json()["choices"][0]["message"]
+            texto = mensagem.get("content") or ""
+        except (KeyError, IndexError, TypeError, ValueError) as erro:
+            raise FalhaIA(f"{self.nome}: resposta sem conteúdo ({erro})") from erro
+        # As citações da busca viram o mesmo formato de fontes do Gemini, para a marca 🔎.
+        fontes = [{"web": {"uri": (a.get("url_citation") or {}).get("url", ""), "title": ""}}
+                  for a in mensagem.get("annotations") or [] if a.get("type") == "url_citation"]  # fmt: skip
+        return interpretar(banca, texto, {"groundingChunks": fontes})
+
+
+def criar_buscadores(env: Mapping[str, str], http: httpx.Client) -> list[Buscador]:
+    buscadores: list[Buscador] = []
+    if env.get("GEMINI_API_KEY"):
+        modelos = [m.strip() for m in (env.get("COLETOR_BUSCA_MODELOS") or "").split(",") if m.strip()]
+        for modelo in modelos or MODELOS_BUSCA_PADRAO:
+            buscadores.append(BuscaGemini(env["GEMINI_API_KEY"], modelo, http))
+    if env.get("OPENROUTER_API_KEY"):
+        modelo = env.get("COLETOR_BUSCA_OPENROUTER_MODELO") or OPENROUTER_MODELO_BUSCA
+        buscadores.append(BuscaOpenRouter(env["OPENROUTER_API_KEY"], modelo, http))
+    return buscadores
 
 
 def gravar(sugestoes: Sequence[Sugestao], pasta: Path, hoje: date, falhas: Sequence[str] = ()) -> tuple[Path, Path]:
@@ -207,19 +293,35 @@ def gravar(sugestoes: Sequence[Sugestao], pasta: Path, hoje: date, falhas: Seque
     return base.with_suffix(".csv"), base.with_suffix(".md")
 
 
-def buscar_bancas(busca: BuscaGemini, bancas: Iterable[str], hoje: date) -> tuple[list[Sugestao], list[str]]:
+def buscar_bancas(
+    buscadores: Sequence[Buscador], bancas: Iterable[str], hoje: date
+) -> tuple[list[Sugestao], list[str]]:
+    """Cada banca vai ao primeiro buscador disponível; se ele esgotar ou falhar, a mesma banca tenta o próximo."""
+    ativos = list(buscadores)
     sugestoes: list[Sugestao] = []
     falhas: list[str] = []
     for banca in bancas:
-        try:
-            achadas = busca.buscar(banca, hoje)
-        except LimiteAtingido as erro:
-            falhas.append(f"{banca}: {erro}")
-            break  # cota do dia acabou: não adianta insistir
-        except (FalhaIA, httpx.HTTPError) as erro:
-            falhas.append(f"{banca}: {erro}")
+        achadas: list[Sugestao] | None = None
+        for buscador in list(ativos):
+            try:
+                achadas = buscador.buscar(banca, hoje)
+            except LimiteAtingido as erro:
+                log.warning("%s; seguindo para o próximo", erro)
+                falhas.append(f"{banca}: {erro} (saiu da rodada)")
+                ativos.remove(buscador)
+                continue
+            except (FalhaIA, httpx.HTTPError) as erro:
+                log.warning("%s: %s", banca, erro)
+                falhas.append(f"{banca}: {erro}")
+                continue
+            log.info("%s via %s: %d sugestões (%d oficiais)", banca, buscador.nome, len(achadas),
+                     sum(s.oficial for s in achadas))  # fmt: skip
+            break
+        if achadas is None:
+            if not ativos:
+                falhas.append("todos os provedores de busca esgotaram a cota de hoje")
+                break
             continue
-        log.info("%s: %d sugestões (%d oficiais)", banca, len(achadas), sum(s.oficial for s in achadas))
         sugestoes += achadas
     vistos: set[str] = set()
     unicas = [s for s in sugestoes if not (s.link in vistos or vistos.add(s.link))]

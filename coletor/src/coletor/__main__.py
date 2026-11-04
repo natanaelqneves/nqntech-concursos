@@ -87,9 +87,8 @@ def buscar_concursos(args: argparse.Namespace) -> int:
     """Não usa o banco: só a chave do Gemini. O resultado é um relatório para conferência humana."""
     import httpx
 
-    from coletor.ia.busca_web import DOMINIOS_BANCAS, BuscaGemini, buscar_bancas, gravar
+    from coletor.ia.busca_web import DOMINIOS_BANCAS, buscar_bancas, criar_buscadores, gravar
     from coletor.ia.email_relatorio import ConfigEmail, EmailNaoConfigurado, enviar, montar_mensagem
-    from coletor.ia.provedores import ConfigIA
     from coletor.pipeline.comum import hoje
 
     config_email = None
@@ -99,14 +98,14 @@ def buscar_concursos(args: argparse.Namespace) -> int:
         except EmailNaoConfigurado as erro:
             log.error("e-mail: %s", erro)
             return 2
-    chave = os.environ.get("GEMINI_API_KEY")
-    if not chave:
-        log.error("defina GEMINI_API_KEY no .env (a busca usa o Gemini com a Busca Google)")
-        return 2
     bancas = [b.upper() for b in (args.bancas or DOMINIOS_BANCAS)]
-    modelo = os.environ.get("COLETOR_BUSCA_MODELO") or os.environ.get("COLETOR_GEMINI_MODELO") or ConfigIA.gemini_modelo
     with httpx.Client(timeout=180) as http:
-        sugestoes, falhas = buscar_bancas(BuscaGemini(chave, modelo, http), bancas, hoje())
+        buscadores = criar_buscadores(os.environ, http)
+        if not buscadores:
+            log.error("defina GEMINI_API_KEY e/ou OPENROUTER_API_KEY (a busca usa a Busca Google do Gemini)")
+            return 2
+        log.info("buscadores na ordem: %s", [b.nome for b in buscadores])
+        sugestoes, falhas = buscar_bancas(buscadores, bancas, hoje())
     csv_, md = gravar(sugestoes, Path(args.saida), hoje(), falhas)
     for falha in falhas:
         log.warning("%s", falha)

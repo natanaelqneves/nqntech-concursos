@@ -59,7 +59,8 @@ class PaginasTest {
                 .contains("data-prazo=\"2026-10-28\"")
                 .contains("Confira sempre o")
                 .contains("\"@type\":\"WebSite\"")
-                .contains("href=\"/inscricoes-abertas/\"", "href=\"/isencao-em-prazo/\"", "href=\"/brasil/\"")
+                .contains("href=\"/inscricoes-abertas/\"", "href=\"/isencao-em-prazo/\"", "href=\"/brasil/\"",
+                        "href=\"/isencoes/\"", "href=\"/sobre/\"", "aria-controls=\"menu-principal\"")
                 .contains("index, follow")
                 .doesNotContain("href=\"/concursos/\"");
     }

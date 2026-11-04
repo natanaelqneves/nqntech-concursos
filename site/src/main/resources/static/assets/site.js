@@ -108,4 +108,24 @@
   }
 
   document.addEventListener("DOMContentLoaded", iniciarTema);
+
+  // Menu do celular: o botão abre e fecha o painel; Esc, clique fora ou num link também fecham.
+  function iniciarMenu() {
+    var botao = document.getElementById("abrir-menu");
+    var nav = document.getElementById("menu-principal");
+    if (!botao || !nav) return;
+    function definir(aberto) {
+      nav.classList.toggle("navegacao--aberta", aberto);
+      botao.setAttribute("aria-expanded", String(aberto));
+      botao.setAttribute("aria-label", aberto ? "Fechar menu" : "Abrir menu");
+    }
+    botao.addEventListener("click", function (e) {
+      e.stopPropagation();
+      definir(!nav.classList.contains("navegacao--aberta"));
+    });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") definir(false); });
+    document.addEventListener("click", function (e) { if (!nav.contains(e.target)) definir(false); });
+    nav.querySelectorAll("a").forEach(function (a) { a.addEventListener("click", function () { definir(false); }); });
+  }
+  document.addEventListener("DOMContentLoaded", iniciarMenu);
 })();

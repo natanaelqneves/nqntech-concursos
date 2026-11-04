@@ -59,12 +59,14 @@ p { margin: 0 0 1rem; }
 
 .topo__acoes { display: flex; align-items: center; gap: 12px; }
 .menu { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; overflow-x: auto; }
-.menu a { display: block; padding: 8px 12px; border-radius: 999px; text-decoration: none; font-size: .93rem;
+.menu a { display: block; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: .93rem;
     font-weight: 550; color: var(--texto-suave); white-space: nowrap; }
 .menu a:hover { background: var(--fundo-suave); color: var(--texto); }
+.botao-menu { display: none; background: transparent; border: 1px solid var(--borda); border-radius: 8px;
+    width: 40px; height: 38px; place-items: center; cursor: pointer; color: var(--texto); }
 
 /* Botão de Alternar Tema (Sol/Lua) */
-.botao-tema { background: transparent; border: 1px solid var(--borda); border-radius: 50%; width: 38px; height: 38px;
+.botao-tema { background: transparent; border: 1px solid var(--borda); border-radius: 8px; width: 38px; height: 38px;
     display: grid; place-items: center; cursor: pointer; color: var(--texto); transition: background .15s; }
 .botao-tema:hover { background: var(--fundo-suave); }
 .botao-tema .icone-sol { display: none; }
@@ -76,10 +78,22 @@ ins.adsbygoogle { display: block; max-width: 100%; overflow: hidden; }
 ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
 .google-auto-placed { margin: 24px auto; max-width: 100%; }
 
+/* Até 1000px o menu completo não cabe numa linha: com JS vira painel suspenso; sem JS, linha rolável. */
+@media (max-width: 1000px) {
+    .topo { position: sticky; }
+    .menu { flex-wrap: nowrap; }
+    .js .botao-menu { display: grid; }
+    .js .navegacao { display: none; position: absolute; left: 0; right: 0; top: 100%; z-index: 6;
+        background: var(--fundo); border-bottom: 1px solid var(--borda); box-shadow: 0 12px 24px rgb(0 0 0 / .08);
+        max-height: calc(100vh - 64px); overflow-y: auto; }
+    .js .navegacao--aberta { display: block; }
+    .js .menu { flex-direction: column; gap: 2px; padding: 8px 20px 16px; overflow: visible; }
+    .js .menu a { padding: 12px; font-size: 1rem; }
+}
 @media (max-width: 640px) {
-    .topo__linha { height: auto; flex-direction: column; align-items: flex-start; padding: 12px 20px 6px; }
-    .topo__acoes { width: 100%; justify-content: space-between; }
-    .menu { width: 100%; margin-left: -12px; }
+    html:not(.js) .topo__linha { height: auto; flex-direction: column; align-items: flex-start; padding: 12px 20px 6px; }
+    html:not(.js) .topo__acoes { width: 100%; justify-content: space-between; }
+    .marca__nome { font-size: .95rem; }
 }
 
 /* Restante do CSS mantido idêntico... */
@@ -87,7 +101,7 @@ ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
 .abertura__texto { font-size: 1.15rem; color: var(--texto-suave); }
 .busca { display: flex; gap: 8px; margin: 24px 0 12px; }
 .busca input { flex: 1; min-width: 0; font: inherit; padding: 14px 18px; border: 1px solid var(--borda);
-    border-radius: 999px; background: var(--fundo-suave); color: var(--texto); }
+    border-radius: 8px; background: var(--fundo-suave); color: var(--texto); }
 .busca input:focus { outline: none; border-color: var(--marca); background: var(--fundo); }
 .numeros { display: flex; flex-wrap: wrap; gap: 28px; margin: 28px 0 8px; }
 .numeros strong { display: block; font-size: 1.8rem; font-weight: 750; letter-spacing: -.03em; color: var(--texto); }
@@ -105,7 +119,7 @@ ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
 .cartao__dados dt { font-size: .75rem; color: var(--texto-suave); text-transform: uppercase; letter-spacing: .04em; }
 .cartao__dados dd { margin: 2px 0 0; font-weight: 650; font-size: .95rem; }
 .selos { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; margin: 0; }
-.selo { font-size: .75rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--fundo-suave); color: var(--texto-suave); }
+.selo { font-size: .75rem; font-weight: 600; padding: 3px 10px; border-radius: 6px; background: var(--fundo-suave); color: var(--texto-suave); }
 .selo--aberto { background: var(--marca-clara); color: var(--marca-forte); }
 .selo--aberto::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: currentColor; vertical-align: 1px; }
 .selo--isencao { background: var(--alerta-fundo); color: var(--alerta); }
@@ -114,9 +128,9 @@ ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
 .lista-compacta { list-style: none; padding: 0; margin: 8px 0 0; }
 .lista-compacta li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 16px; padding: 10px 0; border-top: 1px solid var(--borda); }
 .atalhos ul, .estados { list-style: none; padding: 0; margin: 12px 0; display: flex; flex-wrap: wrap; gap: 8px; }
-.atalhos a, .estados a { display: inline-block; padding: 7px 14px; border: 1px solid var(--borda); border-radius: 999px; text-decoration: none; font-size: .92rem; }
+.atalhos a, .estados a { display: inline-block; padding: 7px 14px; border: 1px solid var(--borda); border-radius: 8px; text-decoration: none; font-size: .92rem; }
 .filtros { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr)); align-items: end; margin: 20px 0; padding: 16px; border-radius: var(--raio); background: var(--fundo-suave); }
-.botao { display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border-radius: 999px; background: var(--texto); color: var(--fundo); font-weight: 650; text-decoration: none; }
+.botao { display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border-radius: 8px; background: var(--texto); color: var(--fundo); font-weight: 650; text-decoration: none; }
 .botao:hover { background: var(--marca); color: #fff; }
 .botao--secundario { background: transparent; color: var(--texto); border: 1px solid var(--borda); }
 .dados { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; padding: 20px; border: 1px solid var(--borda); border-radius: var(--raio); }

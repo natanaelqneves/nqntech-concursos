@@ -93,6 +93,18 @@ jobs:
           set -o pipefail
           mvn -B -ntp -f site/pom.xml verify 2>&1 | tee maven.log
 
+      # Site gerado dos seeds para os testes no navegador, mais abaixo (antes do coletor, que reprocessa os seeds).
+      - name: Gerar o site de teste (seeds)
+        working-directory: site
+        env:
+          SITE_DB_URL: jdbc:postgresql://localhost:5432/concursos
+          SITE_DB_USER: site_app
+          SITE_DB_PASSWORD: ${{ env.SITE_SENHA_CI }}
+          SITE_URL_BASE: http://127.0.0.1:8099
+          SITE_SAIDA: ${{ runner.temp }}/site-teste
+          SITE_ISENCOES: ../config/isencoes.yml
+        run: java -jar target/nqntech-site.jar
+
       - name: Anotar falhas do site
         if: failure()
         run: python3 scripts/ci/anotar_falhas.py "site/target/surefire-reports/*.xml" "site/target/failsafe-reports/*.xml" --log maven.log
@@ -125,6 +137,31 @@ jobs:
 
       - name: Testes dos scripts de apoio
         run: python -m pytest -q scripts/tests
+
+      # Chromium de verdade em celular, tablet e computador: sem rolagem lateral, menu, tema, grade, links.
+      - name: Testes do site no navegador
+        env:
+          SITE_TESTE_URL: http://127.0.0.1:8099
+        run: |
+          pip install -r site/testes-navegador/requirements.txt
+          python -m playwright install --with-deps chromium
+          python -m http.server 8099 --bind 127.0.0.1 -d "$RUNNER_TEMP/site-teste" >/dev/null 2>&1 &
+          sleep 1
+          python -m pytest -q -p no:cacheprovider site/testes-navegador --junitxml=navegador.xml
+
+      - name: Capturas de tela do site de teste
+        if: always()
+        env:
+          SITE_TESTE_URL: http://127.0.0.1:8099
+        run: python site/testes-navegador/capturas.py capturas-site || true
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: capturas-site
+          path: capturas-site/
+          retention-days: 7
+          if-no-files-found: ignore
 
       - name: Anotar falhas
         if: failure()

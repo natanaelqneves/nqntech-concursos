@@ -1,7 +1,8 @@
 """Etapa 6: resumo por regras, campos desnormalizados para o site, slug estável e publicação.
 
-Publicado = tem o mínimo para a página (slug, abrangência, resumo) E é oportunidade (seção 4.3). Concurso que
-deixa de ser oportunidade sai do site na mesma execução; o slug fica, para voltar à mesma URL se reabrir.
+Publicado = tem o mínimo para a página (slug, abrangência, resumo), é oportunidade (seção 4.3) e, se não for
+previsto, já teve o edital lido. Concurso que deixa de ser oportunidade sai do site na mesma execução; o slug fica,
+para voltar à mesma URL se reabrir.
 """
 
 from __future__ import annotations
@@ -11,8 +12,8 @@ from decimal import Decimal
 
 from coletor.db import Linha, Repositorio
 from coletor.pipeline.comum import ResumoEtapa, agora, hoje
-from coletor.resumo import DadosConcurso, e_oportunidade, gerar_resumo, gerar_slug
-from coletor.resumo.gerador import ORDEM_NIVEIS
+from coletor.resumo import DadosConcurso, gerar_resumo, gerar_slug
+from coletor.resumo.gerador import ORDEM_NIVEIS, pode_publicar
 
 log = logging.getLogger(__name__)
 
@@ -64,8 +65,9 @@ def executar_resumo(repo: Repositorio) -> ResumoEtapa:
                 slug = gerar_slug(dados, ocupados, linha["ano_criacao"] or dia.year)
                 ocupados.add(slug)
             resumo = gerar_resumo(dados, dia)
-            oportunidade = e_oportunidade(linha["situacao"], linha["isencao_fim"], dia)
-            publicado = linha["abrangencia"] is not None and oportunidade
+            publicado = pode_publicar(
+                linha["abrangencia"], linha["situacao"], linha["isencao_fim"], bool(linha["tem_edital"]), dia
+            )
             campos = {
                 "slug": slug,
                 "total_vagas": dados.total_vagas,

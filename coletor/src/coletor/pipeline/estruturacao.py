@@ -16,6 +16,7 @@ from coletor.extratores.base import EditalExtraido
 from coletor.ia.extrator import ExtratorIA, combinar, precisa_de_ia
 from coletor.ia.lacunas import faltando
 from coletor.pipeline.comum import ResumoEtapa, agora, hoje
+from coletor.precadastro import completar_com_busca
 
 log = logging.getLogger(__name__)
 
@@ -74,6 +75,7 @@ def executar_estruturacao(repo: Repositorio, ia: ExtratorIA | None = None) -> Re
                 continue
             if ia is not None and concurso["banca"] not in BANCAS_SEM_IA and faltando(edital):
                 edital = ia.completar(edital, texto, concurso["hash_sha256"], dia)
+            edital = completar_com_busca(edital, concurso.get("dados_busca"), concurso["id"])
             repo.aplicar_edital(concurso["id"], concurso["documento_id"], edital, situacao_por_datas(edital, dia))
             orgao = orgao_do_edital(edital)
             if orgao is not None and concurso.get("orgao_id") is None:

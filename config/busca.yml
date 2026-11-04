@@ -1,0 +1,36 @@
+# Alvos da busca na web com IA (Gemini + Busca Google), a primeira etapa do fluxo único (seção 6 do contexto).
+#
+# Cada alvo vira uma pesquisa; o coletor pesquisa cada um no máximo a cada COLETOR_BUSCA_INTERVALO_H horas (padrão
+# 11 h: duas vezes por dia com o fluxo rodando 4 vezes), para caber na cota gratuita.
+#
+#   codigo:   identificador estável (guardado em concursos.busca_alvo)
+#   banca:    sigla cadastrada em concursos.banca, ou ausente (a sugestão diz a banca, se souber)
+#   pesquisa: o que pedir à busca, em português
+#   dominios: sites oficiais da banca (além de .gov.br, .jus.br, .leg.br, .mp.br, .def.br e .edu.br, que valem
+#             para todos). O link da página do concurso precisa ser oficial; o PDF do edital pode vir de qualquer
+#             site que permita a leitura (robots.txt), mas nunca aparece como link no site se não for oficial.
+#
+# Bancas com coletor automático (FGV, Cebraspe, COMPERVE, IBAM, IBADE) e o DOE-SP já entram pelas próprias fontes e
+# ficam fora daqui para não gastar cota com o que já é coletado.
+
+alvos:
+  - {codigo: fcc, banca: FCC, pesquisa: "concursos da Fundação Carlos Chagas (FCC)", dominios: [concursosfcc.com.br, fcc.org.br]}
+  - {codigo: cesgranrio, banca: CESGRANRIO, pesquisa: "concursos da Fundação Cesgranrio", dominios: [cesgranrio.org.br]}
+  - {codigo: vunesp, banca: VUNESP, pesquisa: "concursos da Fundação Vunesp", dominios: [vunesp.com.br]}
+  - {codigo: ibfc, banca: IBFC, pesquisa: "concursos do IBFC", dominios: [ibfc.org.br]}
+  - {codigo: consulplan, banca: CONSULPLAN, pesquisa: "concursos do Instituto Consulplan", dominios: [institutoconsulplan.org.br, consulplan.net]}
+  - {codigo: quadrix, banca: QUADRIX, pesquisa: "concursos do Instituto Quadrix", dominios: [quadrix.org.br]}
+  - {codigo: idecan, banca: IDECAN, pesquisa: "concursos do IDECAN", dominios: [idecan.org.br]}
+  - {codigo: aocp, banca: AOCP, pesquisa: "concursos do Instituto AOCP", dominios: [institutoaocp.org.br]}
+  - {codigo: fundep, banca: FUNDEP, pesquisa: "concursos da Fundep (Gestão de Concursos)", dominios: [gestaodeconcursos.com.br, fundep.ufmg.br, fundep.selecao.net.br]}
+  - {codigo: fumarc, banca: FUMARC, pesquisa: "concursos da Fumarc", dominios: [fumarc.com.br]}
+  - {codigo: cpcon, banca: CPCON, pesquisa: "concursos da CPCON (UEPB)", dominios: [cpcon.uepb.edu.br, uepb.edu.br]}
+  - {codigo: selecon, banca: SELECON, pesquisa: "concursos do Instituto Selecon", dominios: [selecon.org.br]}
+  - {codigo: fundatec, banca: FUNDATEC, pesquisa: "concursos da Fundatec", dominios: [fundatec.org.br]}
+  # Sem banca fixa: pega bancas pequenas e editais publicados só no site do órgão.
+  - {codigo: federais, pesquisa: "concursos de órgãos federais (ministérios, autarquias, agências, universidades e institutos federais, forças armadas)"}
+  - {codigo: norte, pesquisa: "concursos de prefeituras, câmaras e órgãos estaduais da região Norte (AC, AP, AM, PA, RO, RR, TO)"}
+  - {codigo: nordeste, pesquisa: "concursos de prefeituras, câmaras e órgãos estaduais da região Nordeste (AL, BA, CE, MA, PB, PE, PI, RN, SE)"}
+  - {codigo: centro-oeste, pesquisa: "concursos de prefeituras, câmaras e órgãos estaduais e do DF da região Centro-Oeste (DF, GO, MT, MS)"}
+  - {codigo: sudeste, pesquisa: "concursos de prefeituras, câmaras e órgãos estaduais da região Sudeste (ES, MG, RJ, SP)"}
+  - {codigo: sul, pesquisa: "concursos de prefeituras, câmaras e órgãos estaduais da região Sul (PR, RS, SC)"}

@@ -1,10 +1,18 @@
 # Gera o site estático a partir do banco (como site_app) e publica na Cloudflare (Worker só de assets).
 # Chamado pelo "diario" depois da coleta; também pode ser disparado à mão (Actions → site → Run workflow).
+# Com a impressão do conteúdo (MD5 do que o site mostra, vinda do coletor), só publica se ela, o código do site ou o
+# dia mudaram desde a última publicação (o dia entra para os prazos e contagens se renovarem ao menos 1x/dia).
 # O repositório NÃO é conectado à Cloudflare: o deploy acontece só aqui, com token em GitHub Secrets.
 name: site
 
 on:
   workflow_call:
+    inputs:
+      impressao:
+        description: "MD5 do conteúdo (python -m coletor impressao-site); vazio = publica sempre"
+        type: string
+        required: false
+        default: ""
   workflow_dispatch:
 
 permissions:
@@ -29,8 +37,40 @@ jobs:
           NEON_ADMIN_URL: ${{ secrets.NEON_ADMIN_URL }}
         run: python3 scripts/ci/neon_url.py --host
 
+  decidir:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    outputs:
+      publicar: ${{ steps.decisao.outputs.publicar }}
+      chave: ${{ steps.chave.outputs.chave }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: chave
+        env:
+          IMPRESSAO: ${{ inputs.impressao }}
+        run: |
+          codigo=$(git rev-parse HEAD:site HEAD:config | sha1sum | cut -c1-12)
+          echo "chave=site-publicado-$(TZ=America/Sao_Paulo date +%F)-${codigo}-${IMPRESSAO}" >> "$GITHUB_OUTPUT"
+      # Só consulta se a chave existe (nada é baixado). Execução manual (sem impressão) publica sempre.
+      - id: anterior
+        if: ${{ inputs.impressao != '' }}
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .site-publicado
+          key: ${{ steps.chave.outputs.chave }}
+          lookup-only: true
+      - id: decisao
+        run: |
+          if [ "${{ steps.anterior.outputs.cache-hit }}" = "true" ]; then
+            echo "publicar=false" >> "$GITHUB_OUTPUT"
+            echo "Site sem mudanças desde a última publicação de hoje: nada a publicar." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "publicar=true" >> "$GITHUB_OUTPUT"
+          fi
+
   publicar:
-    needs: config
+    needs: [config, decidir]
+    if: ${{ needs.decidir.outputs.publicar == 'true' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -84,3 +124,11 @@ jobs:
         run: |
           echo "::notice title=Site publicado::${{ steps.url.outputs.url }}"
           echo "Site publicado: ${{ steps.url.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"
+          date -u +%FT%TZ > .site-publicado
+
+      # Marca esta impressão como publicada (a próxima execução com o mesmo conteúdo, no mesmo dia, não republica).
+      - if: ${{ inputs.impressao != '' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .site-publicado
+          key: ${{ needs.decidir.outputs.chave }}

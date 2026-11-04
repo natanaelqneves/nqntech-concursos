@@ -10,12 +10,14 @@ import logging
 import re
 from dataclasses import replace
 from datetime import date, datetime, time, timedelta
+from typing import Any
 
 from coletor.classificacao.escolaridade import InferidorEscolaridade
 from coletor.classificacao.orgao import OrgaoInferido, inferir_orgao
-from coletor.db import Repositorio
+from coletor.db import Linha, Repositorio
 from coletor.fontes.base import DadosEstruturados
 from coletor.pipeline.comum import FUSO, ResumoEtapa, agora, hoje
+from coletor.pipeline.deduplicacao import Candidato, procurar_equivalente
 from coletor.texto import normalizar
 
 log = logging.getLogger(__name__)
@@ -90,6 +92,73 @@ def eh_pdf(url: str) -> bool:
     return url.lower().split("?")[0].split("#")[0].endswith(".pdf")
 
 
+def _registrar_documentos(repo: Repositorio, concurso_id: int, arquivos_pdf: list[dict[str, Any]]) -> tuple[int, bool]:
+    novos = 0
+    tinha_texto = False
+    for arquivo in arquivos_pdf:
+        data = date.fromisoformat(arquivo["data"]) if arquivo.get("data") else None
+        novos += repo.garantir_documento(
+            concurso_id,
+            # A fonte pode dizer o tipo (Cebraspe: todo documento começa com "Edital nº N").
+            arquivo.get("tipo") or classificar_tipo_documento(arquivo.get("titulo", "")),
+            arquivo.get("titulo") or "Documento",
+            arquivo["url"],
+            data,
+            bool(arquivo.get("oficial", True)),
+        )
+        if arquivo.get("texto"):  # diários oficiais: o texto vem da API, não há PDF para baixar
+            repo.gravar_texto_se_pendente(arquivo["url"], arquivo["texto"])
+            tinha_texto = True
+    return novos, tinha_texto
+
+
+def _vincular_busca(
+    repo: Repositorio,
+    sinal: Linha,
+    payload: dict[str, Any],
+    candidatos: list[Candidato],
+    inferidor: InferidorEscolaridade,
+) -> tuple[int, bool, int]:
+    """Sinal da busca na web. Se outra fonte já trouxe o concurso, só guarda o pré-cadastro (e o link do edital,
+    se ainda não houver um); a fonte da banca continua mandando no título, no órgão e nas datas."""
+    estruturado = DadosEstruturados.de_payload(payload["estruturado"])
+    orgao = orgao_do_sinal(sinal["titulo"], estruturado)
+    banca_id = repo.banca_por_sigla(payload.get("banca_sigla"))
+    concurso_id = sinal["concurso_id"] or repo.concurso_por_link(sinal["url"])
+    ambiguo = False
+    if concurso_id is None:
+        equivalencia = procurar_equivalente(
+            orgao.nome if orgao else None, orgao.uf if orgao else None, banca_id, estruturado.ano, candidatos
+        )
+        concurso_id, ambiguo = equivalencia.concurso_id, equivalencia.ambiguo
+    arquivos_pdf = [a for a in payload.get("arquivos", []) if a.get("pdf", eh_pdf(a.get("url", "")))]
+    novo = concurso_id is None
+    so_busca = novo or any(c.id == concurso_id and c.so_busca for c in candidatos)
+    if novo:
+        concurso_id = repo.garantir_concurso(
+            titulo=sinal["titulo"],
+            link_oficial=sinal["url"],
+            banca_id=banca_id,
+            orgao_id=repo.garantir_orgao(orgao) if orgao else None,
+            link_inscricao=None,
+            tem_edital=bool(arquivos_pdf),
+        )
+        if ambiguo:
+            repo.marcar_possivel_duplicado(concurso_id)
+        candidatos.append(Candidato(concurso_id, orgao.nome if orgao else None, orgao.uf if orgao else None,
+                                    banca_id, estruturado.ano, True))  # fmt: skip
+    assert concurso_id is not None
+    repo.gravar_dados_busca(concurso_id, payload.get("busca") or {})
+    documentos = 0
+    if arquivos_pdf and not repo.tem_edital(concurso_id):
+        documentos, _ = _registrar_documentos(repo, concurso_id, arquivos_pdf)
+    if so_busca:
+        estruturado = completar_escolaridade(estruturado, inferidor)
+        repo.aplicar_dados_fonte(concurso_id, estruturado, situacao_da_fonte(estruturado, hoje()))
+    repo.marcar_sinal_vinculado(sinal["id"], concurso_id)
+    return concurso_id, novo, documentos
+
+
 def executar_vinculacao(
     repo: Repositorio,
     janela: timedelta = timedelta(hours=36),
@@ -98,6 +167,7 @@ def executar_vinculacao(
     inicio = agora()
     inferidor = inferidor or InferidorEscolaridade.padrao()
     sinais = repo.sinais_para_vincular(inicio - janela)
+    candidatos = [Candidato.da_linha(linha) for linha in repo.candidatos_deduplicacao()] if sinais else []
     novos_concursos = 0
     novos_documentos = 0
     descartados = 0
@@ -107,6 +177,11 @@ def executar_vinculacao(
         encerrado = bool(payload.get("encerrado"))
         try:
             with repo.transacao():
+                if sinal.get("fonte_tipo") == "BUSCA_IA" and payload.get("estruturado"):
+                    _, novo, documentos = _vincular_busca(repo, sinal, payload, candidatos, inferidor)
+                    novos_concursos += novo
+                    novos_documentos += documentos
+                    continue
                 antigo = not encerrado_recente(sinal["data_publicacao"], hoje())
                 if encerrado and sinal["concurso_id"] is None and antigo:
                     repo.descartar_sinal(sinal["id"])
@@ -119,6 +194,15 @@ def executar_vinculacao(
                 orgao = orgao_do_sinal(sinal["titulo"], estruturado)
                 orgao_id = repo.garantir_orgao(orgao) if orgao else None
                 ja_existia = sinal["concurso_id"] is not None
+                if not ja_existia and orgao is not None and repo.concurso_por_link(sinal["url"]) is None:
+                    # Concurso que só a busca na web conhecia: a página da banca vira a oficial (sem duplicar).
+                    equivalencia = procurar_equivalente(orgao.nome, orgao.uf, sinal["banca_id"],
+                                                        estruturado.ano if estruturado else None, candidatos,
+                                                        somente_busca=True)  # fmt: skip
+                    if equivalencia.concurso_id is not None:
+                        repo.adotar_link_oficial(equivalencia.concurso_id, sinal["url"], sinal["banca_id"])
+                        log.info("concurso %d (busca na web) passa a usar a página %s", equivalencia.concurso_id,
+                                 sinal["url"])  # fmt: skip
                 concurso_id = repo.garantir_concurso(
                     titulo=sinal["titulo"],
                     link_oficial=sinal["url"],
@@ -128,20 +212,8 @@ def executar_vinculacao(
                     tem_edital=bool(arquivos_pdf),
                 )
                 novos_concursos += not ja_existia
-                tinha_texto = False
-                for arquivo in arquivos_pdf:
-                    data = date.fromisoformat(arquivo["data"]) if arquivo.get("data") else None
-                    novos_documentos += repo.garantir_documento(
-                        concurso_id,
-                        # A fonte pode dizer o tipo (Cebraspe: todo documento começa com "Edital nº N").
-                        arquivo.get("tipo") or classificar_tipo_documento(arquivo.get("titulo", "")),
-                        arquivo.get("titulo") or "Documento",
-                        arquivo["url"],
-                        data,
-                    )
-                    if arquivo.get("texto"):  # diários oficiais: o texto vem da API, não há PDF para baixar
-                        repo.gravar_texto_se_pendente(arquivo["url"], arquivo["texto"])
-                        tinha_texto = True
+                documentos, tinha_texto = _registrar_documentos(repo, concurso_id, arquivos_pdf)
+                novos_documentos += documentos
                 if tinha_texto:
                     repo.tirar_texto_do_sinal(sinal["id"])  # o texto fica só no documento
                 if estruturado is not None:

@@ -9,8 +9,10 @@ from __future__ import annotations
 
 import codecs
 import hashlib
+import ipaddress
 import logging
 import re
+import socket
 import ssl
 import time
 import urllib.robotparser
@@ -79,6 +81,31 @@ class AcessoNaoPermitido(ErroHttp):
     """Domínio fora da lista, esquema não HTTPS ou caminho proibido pelo robots.txt."""
 
 
+# Cliente sem lista de domínios (editais achados pela busca na web podem estar em qualquer site): continua só HTTPS,
+# com robots.txt e nunca para endereços internos (o runner não pode ser usado para alcançar a própria rede).
+QUALQUER_DOMINIO_PUBLICO = frozenset({"*"})
+Resolvedor = Callable[[str], list[str]]
+
+
+def resolver_ips(host: str) -> list[str]:
+    return [str(info[4][0]) for info in socket.getaddrinfo(host, 443, proto=socket.IPPROTO_TCP)]
+
+
+def host_publico(host: str, resolver: Resolvedor = resolver_ips) -> bool:
+    if not host or "." not in host or host.endswith((".local", ".internal", ".localhost", ".lan")):
+        return False
+    try:
+        ipaddress.ip_address(host)
+        return False  # IP literal: editais de verdade têm nome de domínio
+    except ValueError:
+        pass
+    try:
+        ips = resolver(host)
+    except OSError:
+        return False
+    return bool(ips) and all(ipaddress.ip_address(ip.split("%")[0]).is_global for ip in ips)
+
+
 class RespostaRecusada(ErroHttp):
     """Status de erro, tipo de conteúdo inesperado ou tamanho acima do limite."""
 
@@ -104,8 +131,11 @@ class ClienteHttp:
         transport: httpx.BaseTransport | None = None,
         relogio: Callable[[], float] = time.monotonic,
         dormir: Callable[[float], None] = time.sleep,
+        resolver: Resolvedor = resolver_ips,
     ) -> None:
         self._dominios = frozenset(d.lower() for d in dominios_permitidos)
+        self._resolver = resolver
+        self._publicos: dict[str, bool] = {}
         self._user_agent = user_agent
         self._intervalo_s = intervalo_s
         self._max_tentativas = max_tentativas
@@ -187,7 +217,12 @@ class ClienteHttp:
         if partes.scheme != "https":
             raise AcessoNaoPermitido(f"só HTTPS é permitido: {url}")
         host = (partes.hostname or "").lower()
-        if not any(host == d or host.endswith("." + d) for d in self._dominios):
+        if self._dominios == QUALQUER_DOMINIO_PUBLICO:
+            if host not in self._publicos:
+                self._publicos[host] = host_publico(host, self._resolver)
+            if not self._publicos[host]:
+                raise AcessoNaoPermitido(f"endereço não público: {host}")
+        elif not any(host == d or host.endswith("." + d) for d in self._dominios):
             raise AcessoNaoPermitido(f"domínio fora da lista permitida: {host}")
         if not self._robots_permite(partes.scheme, host, url):
             raise AcessoNaoPermitido(f"robots.txt não permite: {url}")

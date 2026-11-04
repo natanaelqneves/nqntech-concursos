@@ -170,14 +170,18 @@ Sem estas chaves, o coletor continua só com as regras (nada quebra).
 Passo a passo em `scripts/importar/LEIA-ME.md`: `.env` na raiz com host do Neon e senha do `coletor_app`, depois
 `scripts\importar\importar_pdfs.bat PASTA SIGLA [LINK]`.
 
-## Busca diária de concursos por e-mail (workflow `buscar`) — ~5 min
+## Fluxo único: e-mail de pendências (secrets de antes, nada novo) — 2 min
 
-1. Na conta Google que vai **enviar** (pode ser a sua): ative a verificação em duas etapas e crie uma
-   **senha de app** em https://myaccount.google.com/apppasswords.
-2. Secrets do repositório: `SMTP_USUARIO` = o Gmail que envia; `SMTP_SENHA` = a senha de app (16 letras);
-   `BUSCA_EMAIL_DESTINO` = o e-mail que recebe o relatório (fica só no secret, nunca no repositório
-   público). Usa também o `GEMINI_API_KEY`.
-3. Actions → buscar → Run workflow para testar. Depois roda sozinho todo dia às 07:23.
+- Os secrets `SMTP_USUARIO`, `SMTP_SENHA` (senha de app do Gmail) e `BUSCA_EMAIL_DESTINO` continuam os mesmos; se
+  ainda não existem: na conta Google que envia, ative a verificação em duas etapas, crie a senha de app em
+  https://myaccount.google.com/apppasswords e cadastre os três secrets. Sem eles a lista sai só no log do `diario`.
+- O workflow `buscar` foi removido: a busca agora roda dentro do `diario` e grava os concursos no banco.
+- [ ] Depois do merge: **Actions → migrar** roda sozinho (V19). Confira verde.
+- [ ] **Actions → diario → Run workflow** para a primeira busca. No resumo da execução: `DESCOBERTA` da fonte
+      `busca-ia`, `LOCALIZACAO` e `PENDENCIAS`. Depois roda sozinho 4x/dia (06:17, 11:17, 16:17 e 21:17).
+- Rotina diária: abra o e-mail "aguardando edital", baixe cada PDF no navegador e solte na pasta do Drive com o
+  código no nome (`NQ-123 edital.pdf`), na raiz da pasta ou em qualquer subpasta.
+- Opcional (variáveis do repositório): `COLETOR_BUSCA_INTERVALO_H` (padrão 11 h por alvo) e `COLETOR_BUSCA_MODELOS`.
 
 ## PDFs pelo Google Drive (o GitHub faz o resto) — ~10 min, uma vez
 
@@ -190,9 +194,10 @@ Passo a passo em `scripts/importar/LEIA-ME.md`: `.env` na raiz com host do Neon 
    serviço (termina em `iam.gserviceaccount.com`) como **Editor**.
 4. Secrets do repositório: `GOOGLE_SA_JSON` = conteúdo inteiro do `.json`; `DRIVE_PASTA_ENTRADA` = o ID da pasta
    principal (o trecho depois de `/folders/` no endereço dela).
-5. Uso: solte os PDFs na subpasta da banca. Opcional: link oficial do concurso na **descrição** do arquivo
-   (botão direito → Informações do arquivo → Detalhes → Descrição). O `diario` (06:17, ou Actions → diario → Run
-   workflow) importa, aplica as mesmas regras e move cada PDF para `processados/` ou `recusados/`.
+5. Uso: edital de concurso do e-mail de pendências → nome com o código (`NQ-123 edital.pdf`), em qualquer lugar da
+   pasta. Concurso novo → subpasta da banca, com o link oficial opcional na **descrição** do arquivo (botão direito →
+   Informações do arquivo → Detalhes → Descrição). O `diario` (4x/dia, ou Actions → diario → Run workflow) importa,
+   aplica as mesmas regras e move cada PDF para `processados/` ou `recusados/`.
 
 ## Próximas fases (só para você se planejar)
 

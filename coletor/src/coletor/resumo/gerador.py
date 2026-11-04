@@ -90,6 +90,16 @@ def e_oportunidade(situacao: str, isencao_fim: date | None, hoje: date) -> bool:
     return situacao in SITUACOES_OPORTUNIDADE or (isencao_fim is not None and isencao_fim >= hoje)
 
 
+def pode_publicar(
+    abrangencia: str | None, situacao: str, isencao_fim: date | None, tem_edital: bool, hoje: date
+) -> bool:
+    """Vai ao site: oportunidade com local definido e, se não for previsto, com o edital já lido (fluxo único,
+    04/11/2026): dado só da busca na web ou da página da banca não basta para mostrar um concurso aberto."""
+    if abrangencia is None or not e_oportunidade(situacao, isencao_fim, hoje):
+        return False
+    return situacao == "PREVISTO" or tem_edital
+
+
 def gerar_resumo(dados: DadosConcurso, hoje: date) -> str:
     frases = [_abertura(dados, hoje)]
     if dados.situacao == "PREVISTO" and dados.inscricao_inicio is None:

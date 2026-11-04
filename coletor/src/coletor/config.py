@@ -56,6 +56,17 @@ class ConfigBanco:
 
 
 @dataclass(frozen=True)
+class ConfigBusca:
+    """Fluxo único: busca na web (IA) e procura do edital dos pré-cadastros."""
+
+    # Cada alvo de config/busca.yml é pesquisado no máximo uma vez neste intervalo (11 h = 2x/dia com 4 execuções).
+    intervalo_h: float = 11.0
+    max_alvos: int = 20  # por execução
+    max_localizar: int = 30  # pré-cadastros procurados por execução
+    intervalo_localizar_h: float = 20.0  # nova tentativa de achar o edital sozinho
+
+
+@dataclass(frozen=True)
 class Config:
     banco: ConfigBanco
     contato_email: str
@@ -66,6 +77,7 @@ class Config:
     # Páginas do bloco "realizados" da FGV (encerrados). Desligado (0): o site só mostra oportunidades abertas.
     max_paginas_realizados: int = 0
     ia: ConfigIA = field(default_factory=ConfigIA)
+    busca: ConfigBusca = field(default_factory=ConfigBusca)
 
     @property
     def user_agent(self) -> str:
@@ -117,6 +129,12 @@ def carregar_config(env: Mapping[str, str] | None = None) -> Config:
                 max_chamadas=int(env.get("COLETOR_IA_MAX_CHAMADAS", "30")),
                 intervalo_s=float(env.get("COLETOR_IA_INTERVALO_S", "4")),
                 max_caracteres=int(env.get("COLETOR_IA_MAX_CARACTERES", "24000")),
+            ),
+            busca=ConfigBusca(
+                intervalo_h=float(env.get("COLETOR_BUSCA_INTERVALO_H", "11")),
+                max_alvos=int(env.get("COLETOR_BUSCA_MAX_ALVOS", "20")),
+                max_localizar=int(env.get("COLETOR_LOCALIZAR_MAX", "30")),
+                intervalo_localizar_h=float(env.get("COLETOR_LOCALIZAR_INTERVALO_H", "20")),
             ),
         )
     except ValueError as erro:

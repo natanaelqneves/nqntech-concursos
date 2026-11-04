@@ -1,12 +1,14 @@
 """Linha de comando do coletor.
 
-python -m coletor executar                 # todas as etapas (o que o GitHub Actions roda)
+python -m coletor executar                 # todas as etapas do fluxo único (o que o GitHub Actions roda)
 python -m coletor descobrir --fonte fgv --dry-run
 python -m coletor documentos --limite 5
 python -m coletor classificar             # reaplica config/areas.yml etc. sem coletar nada
 python -m coletor resumir                 # refaz resumos, slugs e publicação sem coletar nada
 python -m coletor importar-pdfs PASTA --banca FCC [--link https://...]   # PDFs baixados à mão
-python -m coletor buscar-concursos [--bancas FCC VUNESP] [--saida pasta]  # sugestões pela Busca Google (Gemini)
+python -m coletor importar-drive           # PDFs da pasta do Drive (código NQ-<n> no nome = edital daquele concurso)
+python -m coletor pendencias --email       # e-mail diário com os concursos abertos que aguardam o edital
+python -m coletor impressao-site           # MD5 do que o site mostra (o workflow só publica se mudou)
 """
 
 from __future__ import annotations
@@ -14,7 +16,6 @@ from __future__ import annotations
 import argparse
 import logging
 import os
-import smtplib
 import sys
 from pathlib import Path
 
@@ -54,16 +55,16 @@ def criar_parser() -> argparse.ArgumentParser:
     descobrir.add_argument("--dry-run", action="store_true", help="só mostra o que encontraria; não grava nada")
 
     sub.add_parser("vincular", help="etapa 2: sinais → concursos e documentos")
+    sub.add_parser("localizar", help="acha o PDF do edital dos pré-cadastros da busca na web")
     documentos = sub.add_parser("documentos", help="etapas 3-4: baixar (temporário) e extrair texto")
     documentos.add_argument("--limite", type=int)
     sub.add_parser("estruturar", help="etapa 4: texto do edital → cargos, datas e taxas")
     sub.add_parser("classificar", help="etapa 5: área e escolaridade dos cargos, local do concurso e CNU")
     sub.add_parser("resumir", help="etapa 6: resumo, slug, campos do site e publicação")
-    buscar = sub.add_parser("buscar-concursos", help="sugere concursos abertos das bancas sem coleta (Gemini + Busca)")
-    buscar.add_argument("--bancas", nargs="+", help="siglas (padrão: todas as bancas sem coleta automática)")
-    buscar.add_argument("--saida", default="buscas", help="pasta dos relatórios .md e .csv (padrão: buscas)")
-    buscar.add_argument("--email", action="store_true", help="envia o relatório para BUSCA_EMAIL_DESTINO (SMTP_*)")
     sub.add_parser("importar-drive", help="importa os PDFs da pasta do Drive (GOOGLE_SA_JSON, DRIVE_PASTA_ENTRADA)")
+    pendencias = sub.add_parser("pendencias", help="lista (e envia por e-mail) os concursos que aguardam o edital")
+    pendencias.add_argument("--email", action="store_true", help="envia para BUSCA_EMAIL_DESTINO (SMTP_*)")
+    sub.add_parser("impressao-site", help="imprime o MD5 do conteúdo publicado no site")
     importar = sub.add_parser("importar-pdfs", help="lê PDFs de uma pasta local e aplica as etapas 4 a 6")
     importar.add_argument("pasta", help="pasta com os PDFs (opcional: <nome>.url com o link oficial de cada um)")
     importar.add_argument("--banca", required=True, help="sigla da banca (FCC, VUNESP, CESGRANRIO... ou OUTRA)")
@@ -82,47 +83,6 @@ def anotar_github(resumos: list[ResumoEtapa]) -> None:
         alvo = f" ({resumo.fonte})" if resumo.fonte else ""
         mensagem = (resumo.mensagem or "").replace("\n", " ")[:900]
         print(f"::{nivel} title=Coletor {resumo.etapa}{alvo}::{resumo.status}: {mensagem}")
-
-
-def buscar_concursos(args: argparse.Namespace) -> int:
-    """Não usa o banco: só a chave do Gemini. O resultado é um relatório para conferência humana."""
-    import httpx
-
-    from coletor.ia.busca_web import DOMINIOS_BANCAS, buscar_bancas, criar_buscadores, gravar
-    from coletor.ia.email_relatorio import ConfigEmail, EmailNaoConfigurado, enviar, montar_mensagem
-    from coletor.pipeline.comum import hoje
-
-    config_email = None
-    if args.email:
-        try:
-            config_email = ConfigEmail.do_ambiente(os.environ)
-        except EmailNaoConfigurado as erro:
-            log.error("e-mail: %s", erro)
-            return 2
-    bancas = [b.upper() for b in (args.bancas or DOMINIOS_BANCAS)]
-    with httpx.Client(timeout=180) as http:
-        buscadores = criar_buscadores(os.environ, http)
-        if not buscadores:
-            log.error("defina GEMINI_API_KEY e/ou OPENROUTER_API_KEY (a busca usa a Busca Google do Gemini)")
-            return 2
-        log.info("buscadores na ordem: %s", [b.nome for b in buscadores])
-        sugestoes, falhas = buscar_bancas(buscadores, bancas, hoje())
-    csv_, md = gravar(sugestoes, Path(args.saida), hoje(), falhas)
-    for falha in falhas:
-        log.warning("%s", falha)
-    log.info("%d sugestões (%d oficiais). Relatórios: %s e %s", len(sugestoes),
-             sum(s.oficial for s in sugestoes), md, csv_)  # fmt: skip
-    if config_email is not None:
-        oficiais = sum(s.oficial for s in sugestoes)
-        assunto = f"Concursos sugeridos {hoje():%d/%m/%Y}: {len(sugestoes)} ({oficiais} em sites oficiais)"
-        if falhas:
-            assunto += f" – {len(falhas)} falha(s)"
-        try:
-            enviar(config_email, montar_mensagem(config_email, assunto, md, csv_))
-        except (OSError, smtplib.SMTPException) as erro:
-            log.error("e-mail não enviado: %s", erro)
-            return 1
-    return 0 if sugestoes or not falhas else 1
 
 
 def importar_drive(repo: Repositorio, max_bytes: int) -> int | None:
@@ -150,15 +110,29 @@ def importar_drive(repo: Repositorio, max_bytes: int) -> int | None:
     return codigo_de_saida(resumos)
 
 
+def enviar_pendencias_cli(repo: Repositorio, email: bool) -> int:
+    from coletor.ia.email_relatorio import ConfigEmail, EmailNaoConfigurado
+    from coletor.pendencias import enviar_pendencias
+
+    config_email = None
+    if email:
+        try:
+            config_email = ConfigEmail.do_ambiente(os.environ)
+        except EmailNaoConfigurado as erro:
+            log.warning("e-mail de pendências: %s (a lista vai só para o log)", erro)
+    resumo = enviar_pendencias(repo, config_email)
+    log.info("pendências: %s, %d concursos%s", resumo.status, resumo.itens_novos,
+             f" ({resumo.mensagem})" if resumo.mensagem else "")  # fmt: skip
+    anotar_github([resumo])
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = criar_parser().parse_args(argv)
     configurar_logs(args.verbose)
     env_local = resolver_caminho(".env")
     if env_local.exists():
         load_dotenv(env_local, override=False)  # variáveis já definidas (GitHub Secrets) têm prioridade
-
-    if args.comando == "buscar-concursos":
-        return buscar_concursos(args)
 
     try:
         config = carregar_config()
@@ -172,12 +146,13 @@ def main(argv: list[str] | None = None) -> int:
         ("estruturar", "classificar", "resumir")
         if importacao
         else ()
-        if args.comando == "importar-drive"
+        if args.comando in ("importar-drive", "pendencias", "impressao-site")
         else ETAPAS
         if args.comando == "executar"
         else {
             "descobrir": ("descobrir",),
             "vincular": ("vincular",),
+            "localizar": ("localizar",),
             "documentos": ("documentos",),
             "estruturar": ("estruturar",),
             "classificar": ("classificar",),
@@ -195,6 +170,11 @@ def main(argv: list[str] | None = None) -> int:
     resumos: list[ResumoEtapa] = []
     try:
         with Repositorio(conn, reconectar=lambda: conectar(config.banco)) as repo:
+            if args.comando == "impressao-site":
+                print(repo.impressao_site())
+                return 0
+            if args.comando == "pendencias":
+                return enviar_pendencias_cli(repo, args.email)
             orquestrador = Orquestrador(config, repo)
             if args.comando == "importar-drive":
                 codigo = importar_drive(repo, config.pdf_max_bytes)

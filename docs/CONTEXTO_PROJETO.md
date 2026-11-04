@@ -533,6 +533,9 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
 - [x] Menu com abas e regiões/estados (PR #21) foi revertido a pedido (PR #23): volta o design anterior, com textos
       corridos justificados na largura da grade de cartões. IA ganhou o OpenRouter (`OPENROUTER_API_KEY`, roteador
       `openrouter/free` só com modelos que aceitam json_schema) como 3ª reserva, depois de Gemini e Groq.
+- [x] Menu e SEO (04/11/2026, PR #28): menu Início, Inscrições abertas (`/inscricoes-abertas/`), Isenção em prazo
+      (`/isencao-em-prazo/`) e Por região (`/brasil/`); a página de filtros `/concursos/` e a busca da home saíram
+      (301 para `/inscricoes-abertas/` em `_redirects`); meta robots (404 noindex), og:locale e twitter:card.
 - [x] Importação manual (04/11/2026, PR #25): `python -m coletor importar-pdfs PASTA --banca SIGLA [--link URL]`
       (scripts em `scripts/importar/`) para bancas sem coleta automática. Mesmas regras e etapas dos PDFs baixados;
       fonte inativa `manual-<sigla>` por banca e banca `OUTRA` (V17); documento identificado por `manual:<sha256>`.

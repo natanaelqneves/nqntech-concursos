@@ -83,7 +83,7 @@ ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
 }
 
 /* Restante do CSS mantido idêntico... */
-.abertura { padding: 56px 0 24px; max-width: 760px; }
+.abertura { padding: 56px 0 24px; }
 .abertura__texto { font-size: 1.15rem; color: var(--texto-suave); }
 .busca { display: flex; gap: 8px; margin: 24px 0 12px; }
 .busca input { flex: 1; min-width: 0; font: inherit; padding: 14px 18px; border: 1px solid var(--borda);
@@ -131,3 +131,7 @@ thead th { font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; 
 .calendario li::before { content: ""; position: absolute; left: 4px; top: 20px; width: 8px; height: 8px; border-radius: 50%; background: var(--marca); }
 .rodape { margin-top: 64px; border-top: 1px solid var(--borda); padding: 32px 0; font-size: .9rem; color: var(--texto-suave); }
 .rodape a { color: var(--texto-suave); }
+
+/* Textos corridos justificados, ocupando a mesma largura da grade de cartões (bordas alinhadas). */
+main p { text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
+main .cartao p, main .vazio, main .contador, main .filtros__resultado { text-align: left; }

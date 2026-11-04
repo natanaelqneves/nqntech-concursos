@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent"
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 
 class FalhaIA(Exception):
@@ -46,6 +47,9 @@ class ConfigIA:
     gemini_modelo: str = "gemini-3.8-flash"
     groq_chave: str | None = None
     groq_modelo: str = "openai/gpt-oss-120b"
+    openrouter_chave: str | None = None
+    # Roteador gratuito do OpenRouter; com require_parameters só vão modelos que aceitam json_schema.
+    openrouter_modelo: str = "openrouter/free"
     max_chamadas: int = 30
     intervalo_s: float = 4.0  # entre chamadas ao mesmo provedor (cabe no RPM da faixa gratuita)
     timeout_s: float = 120.0
@@ -53,12 +57,12 @@ class ConfigIA:
 
     @property
     def ativa(self) -> bool:
-        return bool(self.gemini_chave or self.groq_chave) and self.max_chamadas > 0
+        return bool(self.gemini_chave or self.groq_chave or self.openrouter_chave) and self.max_chamadas > 0
 
     def __repr__(self) -> str:  # chaves nunca em logs
         return (
             f"ConfigIA(gemini={'sim' if self.gemini_chave else 'não'}, groq={'sim' if self.groq_chave else 'não'}, "
-            f"max_chamadas={self.max_chamadas})"
+            f"openrouter={'sim' if self.openrouter_chave else 'não'}, max_chamadas={self.max_chamadas})"
         )
 
 
@@ -137,13 +141,50 @@ class Groq:
         return _json_da_resposta(texto, self.nome)
 
 
+@dataclass
+class OpenRouter:
+    """API compatível com a da OpenAI; a última reserva da lista."""
+
+    chave: str
+    modelo: str
+    http: httpx.Client
+    nome: str = "openrouter"
+
+    def gerar_json(self, instrucoes: str, conteudo: str, esquema: Mapping[str, Any]) -> dict[str, Any]:
+        corpo = {
+            "model": self.modelo,
+            "temperature": 0,
+            "max_tokens": 8192,
+            "messages": [{"role": "system", "content": instrucoes}, {"role": "user", "content": conteudo}],
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": {"name": "edital", "strict": True, "schema": esquema},
+            },
+            "provider": {"require_parameters": True},
+        }
+        cabecalhos = {
+            "Authorization": f"Bearer {self.chave}",
+            "HTTP-Referer": "https://github.com/natanaelqneves/nqntech-concursos",
+            "X-Title": "NqnTech Concursos",
+        }
+        resposta = self.http.post(OPENROUTER_URL, json=corpo, headers=cabecalhos)
+        _checar_status(resposta, self.nome)
+        try:
+            texto = resposta.json()["choices"][0]["message"]["content"]
+        except (KeyError, IndexError, TypeError, ValueError) as erro:
+            raise FalhaIA(f"openrouter: resposta sem conteúdo ({erro})") from erro
+        return _json_da_resposta(texto, self.nome)
+
+
 def criar_provedores(config: ConfigIA, http: httpx.Client) -> list[ProvedorIA]:
-    """Ordem = prioridade: Gemini primeiro, Groq como reserva."""
+    """Ordem = prioridade: Gemini, depois Groq, depois OpenRouter."""
     provedores: list[ProvedorIA] = []
     if config.gemini_chave:
         provedores.append(Gemini(config.gemini_chave, config.gemini_modelo, http))
     if config.groq_chave:
         provedores.append(Groq(config.groq_chave, config.groq_modelo, http))
+    if config.openrouter_chave:
+        provedores.append(OpenRouter(config.openrouter_chave, config.openrouter_modelo, http))
     return provedores
 
 

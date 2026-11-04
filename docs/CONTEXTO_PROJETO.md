@@ -530,9 +530,9 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       em `coletor/src/coletor/certificados/` e `ClienteHttp` usa certifi + intermediário, com verificação completa e
       PARTIAL_CHAIN desligado (a raiz continua obrigatória). FUMARC tem o mesmo problema de TLS, mas os dados ficam
       atrás de um app SharePoint sem rota pública: continua fora.
-- [x] Menu do site (04/11/2026, PR #21): abas Inscrições abertas (`/inscricoes-abertas/`), Previstos (`/previstos/`)
-      e Isenção em prazo (`/isencao-em-prazo/`), submenus Regiões e Estados (`<details>`, sem JS), recolhível atrás
-      de um botão no celular (≤860px); o topo mostra só a logo.
+- [x] Menu com abas e regiões/estados (PR #21) foi revertido a pedido (PR #23): volta o design anterior, com textos
+      corridos justificados na largura da grade de cartões. IA ganhou o OpenRouter (`OPENROUTER_API_KEY`, roteador
+      `openrouter/free` só com modelos que aceitam json_schema) como 3ª reserva, depois de Gemini e Groq.
 - [ ] Fase 6 (diários oficiais): sondagem do Querido Diário em 04/11/2026 a partir do GitHub Actions falhou no
       handshake TLS (`SSLV3_ALERT_HANDSHAKE_FAILURE`, recusa do servidor); nada contornado, tentar de novo depois.
       DOU via INLABS depende de conta do usuário (PENDENCIAS).

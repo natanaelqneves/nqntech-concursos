@@ -154,6 +154,7 @@ Sem estas chaves, o coletor continua só com as regras (nada quebra).
 - [ ] GitHub → **Settings → Secrets and variables → Actions → New repository secret**:
   - `GEMINI_API_KEY` = chave do Gemini
   - `GROQ_API_KEY` = chave do Groq
+  - `OPENROUTER_API_KEY` = chave do OpenRouter (opcional, 3ª reserva; usa o roteador gratuito `openrouter/free`)
 - [ ] (Opcional) aba **Variables**: `COLETOR_IA_MAX_CHAMADAS` (padrão 30 por dia).
 - Uma chave de cada provedor só. Criar várias chaves para somar cotas viola os termos de uso.
 - Na faixa gratuita do Gemini, o Google pode usar o conteúdo enviado para melhorar os modelos. Aqui só vão trechos
@@ -163,7 +164,7 @@ Sem estas chaves, o coletor continua só com as regras (nada quebra).
 
 1. **INLABS (DOU):** crie uma conta gratuita em https://inlabs.in.gov.br e cadastre os secrets `INLABS_EMAIL` e
    `INLABS_SENHA` no repositório (Settings → Secrets and variables → Actions). Sem isso o DOU não entra.
-2. **AOCP e IDECAN (opcional):** envie o e-mail pedindo liberação do User-Agent `NqnTechConcursos/0.1` (rascunho
+2. **AOCP e IDECAN (opcional):** envie o e-mail (AOCP: candidato@institutoaocp.org.br; IDECAN: formulário Fale Conosco do site) pedindo liberação do User-Agent `NqnTechConcursos/0.1` (rascunho
    na conversa). Se liberarem, a AOCP volta com um `UPDATE fonte SET ativa = true` depois de nova sondagem.
 
 ## Próximas fases (só para você se planejar)

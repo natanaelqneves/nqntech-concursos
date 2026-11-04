@@ -60,6 +60,14 @@ jobs:
           cache-dependency-path: coletor/pyproject.toml
       - name: Instalar coletor
         run: pip install ./coletor
+      # PDFs que o administrador pôs na pasta do Drive (uma subpasta por banca). Sem os secrets, não faz nada;
+      # uma falha aqui não impede a coleta.
+      - name: Importar PDFs do Drive
+        continue-on-error: true
+        env:
+          GOOGLE_SA_JSON: ${{ secrets.GOOGLE_SA_JSON }}
+          DRIVE_PASTA_ENTRADA: ${{ secrets.DRIVE_PASTA_ENTRADA }}
+        run: python -m coletor importar-drive
       - name: Coletar (descobrir → vincular → documentos → estruturar → classificar → resumir)
         env:
           LIMITE: ${{ inputs.limite }}

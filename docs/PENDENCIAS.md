@@ -181,6 +181,21 @@ Passo a passo em `scripts/importar/LEIA-ME.md`: `.env` na raiz com host do Neon 
    público). Usa também o `GEMINI_API_KEY`.
 3. Actions → buscar → Run workflow para testar. Depois roda sozinho todo dia às 07:23.
 
+## PDFs pelo Google Drive (o GitHub faz o resto) — ~10 min, uma vez
+
+1. https://console.cloud.google.com → crie um projeto (ex.: `nqntech-concursos`) → APIs e serviços → Biblioteca →
+   ative a **Google Drive API**.
+2. IAM e administrador → Contas de serviço → Criar (ex.: `coletor-drive`), sem papéis. Na conta criada:
+   Chaves → Adicionar chave → JSON. Baixa um arquivo `.json` (é uma senha: não envie a ninguém nem ao repositório).
+3. No Drive, crie a pasta `NqnTech - editais` e, dentro, uma subpasta por banca com a sigla: `FCC`, `VUNESP`,
+   `CESGRANRIO`, `IBFC`, `IDECAN`, `AOCP`... ou `OUTRA`. Compartilhe a pasta principal com o e-mail da conta de
+   serviço (termina em `iam.gserviceaccount.com`) como **Editor**.
+4. Secrets do repositório: `GOOGLE_SA_JSON` = conteúdo inteiro do `.json`; `DRIVE_PASTA_ENTRADA` = o ID da pasta
+   principal (o trecho depois de `/folders/` no endereço dela).
+5. Uso: solte os PDFs na subpasta da banca. Opcional: link oficial do concurso na **descrição** do arquivo
+   (botão direito → Informações do arquivo → Detalhes → Descrição). O `diario` (06:17, ou Actions → diario → Run
+   workflow) importa, aplica as mesmas regras e move cada PDF para `processados/` ou `recusados/`.
+
 ## Próximas fases (só para você se planejar)
 
 - **Fase 7 (alertas):** conta no serviço de e-mail transacional escolhido e hospedagem da API.

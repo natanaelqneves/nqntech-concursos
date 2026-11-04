@@ -63,6 +63,7 @@ def criar_parser() -> argparse.ArgumentParser:
     buscar.add_argument("--bancas", nargs="+", help="siglas (padrão: todas as bancas sem coleta automática)")
     buscar.add_argument("--saida", default="buscas", help="pasta dos relatórios .md e .csv (padrão: buscas)")
     buscar.add_argument("--email", action="store_true", help="envia o relatório para BUSCA_EMAIL_DESTINO (SMTP_*)")
+    sub.add_parser("importar-drive", help="importa os PDFs da pasta do Drive (GOOGLE_SA_JSON, DRIVE_PASTA_ENTRADA)")
     importar = sub.add_parser("importar-pdfs", help="lê PDFs de uma pasta local e aplica as etapas 4 a 6")
     importar.add_argument("pasta", help="pasta com os PDFs (opcional: <nome>.url com o link oficial de cada um)")
     importar.add_argument("--banca", required=True, help="sigla da banca (FCC, VUNESP, CESGRANRIO... ou OUTRA)")
@@ -124,6 +125,29 @@ def buscar_concursos(args: argparse.Namespace) -> int:
     return 0 if sugestoes or not falhas else 1
 
 
+def importar_drive(repo: Repositorio, max_bytes: int) -> int | None:
+    """Sem as variáveis do Drive não há nada a fazer (o passo do diario fica inofensivo): devolve 0."""
+    import httpx
+
+    from coletor.importacao_drive import Drive, ErroDrive, configuracao, importar_do_drive, token_da_conta_de_servico
+
+    dados = configuracao(os.environ)
+    if dados is None:
+        log.info("Drive não configurado (GOOGLE_SA_JSON e DRIVE_PASTA_ENTRADA): nada a importar")
+        return 0
+    try:
+        token = token_da_conta_de_servico(dados[0])
+        with httpx.Client(timeout=120, headers={"Authorization": f"Bearer {token}"}) as http:
+            resumos = importar_do_drive(repo, Drive(http), dados[1], max_bytes)
+    except ErroDrive as erro:
+        log.error("%s", erro)
+        anotar_github([ResumoEtapa("IMPORTACAO_DRIVE", "FALHA", 0, str(erro))])
+        return 1
+    anotar_github(resumos)
+    log.info("Drive: %d PDFs importados", sum(r.itens_novos for r in resumos))
+    return codigo_de_saida(resumos)
+
+
 def main(argv: list[str] | None = None) -> int:
     args = criar_parser().parse_args(argv)
     configurar_logs(args.verbose)
@@ -145,6 +169,8 @@ def main(argv: list[str] | None = None) -> int:
     etapas = (
         ("estruturar", "classificar", "resumir")
         if importacao
+        else ()
+        if args.comando == "importar-drive"
         else ETAPAS
         if args.comando == "executar"
         else {
@@ -168,6 +194,10 @@ def main(argv: list[str] | None = None) -> int:
     try:
         with Repositorio(conn, reconectar=lambda: conectar(config.banco)) as repo:
             orquestrador = Orquestrador(config, repo)
+            if args.comando == "importar-drive":
+                codigo = importar_drive(repo, config.pdf_max_bytes)
+                if codigo is not None:
+                    return codigo
             if importacao:
                 try:
                     resumos.append(importar_pasta(repo, Path(args.pasta), args.banca, args.link, config.pdf_max_bytes))

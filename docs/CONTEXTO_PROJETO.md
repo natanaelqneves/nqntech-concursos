@@ -573,6 +573,11 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       Cartões do mesmo tamanho: grade CSS com `grid-auto-rows: 1fr` (todas as linhas com a altura do cartão mais
       cheio), sempre as mesmas 4 informações (vagas, salário, prova, nível; "—" quando falta) e título em até 3
       linhas (nome completo no `title` e na página do concurso). Teste no navegador confere alturas iguais.
+- [x] Importação pelo Google Drive (04/11/2026): passo `importar-drive` no `diario`, antes da coleta. Conta de
+      serviço (secret `GOOGLE_SA_JSON`, escopo drive, só enxerga a pasta compartilhada) e `DRIVE_PASTA_ENTRADA`;
+      subpasta por sigla de banca; link oficial na descrição do arquivo. Mesmas regras de `importar-pdfs`; o PDF
+      só passa pela pasta temporária do runner e é movido no Drive para `processados/` ou `recusados/`. PDFs no
+      repositório foram descartados (público e contrário à seção 5.3).
 - [ ] Fase 6 (diários oficiais): sondagem do Querido Diário em 04/11/2026 a partir do GitHub Actions falhou no
       handshake TLS (`SSLV3_ALERT_HANDSHAKE_FAILURE`, recusa do servidor); nada contornado, tentar de novo depois.
       DOU: o INLABS indicou a base de dados abertos em in.gov.br/acesso-a-informacao/dados-abertos/base-de-dados;

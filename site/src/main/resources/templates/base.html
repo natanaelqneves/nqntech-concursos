@@ -40,12 +40,12 @@
     </a>
     <nav id="menu-principal" class="topo__nav" aria-label="Principal">
       <ul class="topo__menu">
-        <li><a href="/" th:attr="aria-current=${meta.url() == '/'} ? 'page' : null">Início</a></li>
-        <li><a href="/inscricoes-abertas/" th:attr="aria-current=${meta.url() == '/inscricoes-abertas/'} ? 'page' : null">Inscrições abertas</a></li>
-        <li><a href="/isencao-em-prazo/" th:attr="aria-current=${meta.url() == '/isencao-em-prazo/'} ? 'page' : null">Isenção em prazo</a></li>
-        <li><a href="/isencoes/" th:attr="aria-current=${meta.url() == '/isencoes/'} ? 'page' : null">Tipos de isenção</a></li>
-        <li><a href="/brasil/" th:attr="aria-current=${meta.url() == '/brasil/'} ? 'page' : null">Por região</a></li>
-        <li><a href="/sobre/" th:attr="aria-current=${meta.url() == '/sobre/'} ? 'page' : null">Sobre</a></li>
+        <li><a href="/" th:attr="aria-current=(${meta.url()} == '/') ? 'page' : null">Início</a></li>
+        <li><a href="/inscricoes-abertas/" th:attr="aria-current=(${meta.url()} == '/inscricoes-abertas/') ? 'page' : null">Inscrições abertas</a></li>
+        <li><a href="/isencao-em-prazo/" th:attr="aria-current=(${meta.url()} == '/isencao-em-prazo/') ? 'page' : null">Isenção em prazo</a></li>
+        <li><a href="/isencoes/" th:attr="aria-current=(${meta.url()} == '/isencoes/') ? 'page' : null">Tipos de isenção</a></li>
+        <li><a href="/brasil/" th:attr="aria-current=(${meta.url()} == '/brasil/') ? 'page' : null">Por região</a></li>
+        <li><a href="/sobre/" th:attr="aria-current=(${meta.url()} == '/sobre/') ? 'page' : null">Sobre</a></li>
       </ul>
     </nav>
     <button id="alternar-tema" class="botao-tema" type="button" aria-pressed="false"

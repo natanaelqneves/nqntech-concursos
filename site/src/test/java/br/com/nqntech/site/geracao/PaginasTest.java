@@ -61,6 +61,7 @@ class PaginasTest {
                 .contains("\"@type\":\"WebSite\"")
                 .contains("href=\"/inscricoes-abertas/\"", "href=\"/isencao-em-prazo/\"", "href=\"/brasil/\"",
                         "href=\"/isencoes/\"", "href=\"/sobre/\"")
+                .contains("<a href=\"/\" aria-current=\"page\">Início</a>")
                 .doesNotContain("abrir-menu")
                 .contains("index, follow")
                 .doesNotContain("href=\"/concursos/\"");

@@ -3,6 +3,7 @@
 import ssl
 from datetime import date
 
+import certifi
 import httpx
 
 from coletor.fontes.comperve import (
@@ -13,7 +14,7 @@ from coletor.fontes.comperve import (
     orgao,
     periodo_inscricao,
 )
-from coletor.http_cliente import ClienteHttp, contexto_tls
+from coletor.http_cliente import _CERTIFICADOS, ClienteHttp, contexto_tls
 
 DOCS = "https://www.comperve.ufrn.br/conteudo/concursos/mossoro_202601/documentos.php"
 
@@ -95,4 +96,6 @@ def test_contexto_tls_verifica_e_inclui_intermediario():
     contexto = contexto_tls()
     assert contexto.verify_mode == ssl.CERT_REQUIRED and contexto.check_hostname
     assert not contexto.verify_flags & ssl.VERIFY_X509_PARTIAL_CHAIN
-    assert any("GlobalSign RSA OV SSL CA 2018" in str(c.get("subject")) for c in contexto.get_ca_certs())
+    padrao = ssl.create_default_context(cafile=certifi.where())
+    assert list(_CERTIFICADOS.glob("*.pem")), "intermediário fora do pacote"
+    assert contexto.cert_store_stats()["x509"] == padrao.cert_store_stats()["x509"] + 1

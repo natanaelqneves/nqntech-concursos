@@ -51,3 +51,6 @@ downloads/
 *.dump
 *.sql.gz
 backup/
+
+# Relatórios locais de busca assistida (scripts/importar/buscar_concursos)
+buscas/

@@ -542,6 +542,13 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       (scripts em `scripts/importar/`) para bancas sem coleta automática. Mesmas regras e etapas dos PDFs baixados;
       fonte inativa `manual-<sigla>` por banca e banca `OUTRA` (V17); documento identificado por `manual:<sha256>`.
       Bancas com Content-Signal ai-train=no (IDECAN) nunca vão à IA (`BANCAS_SEM_IA`).
+- [x] Busca assistida (04/11/2026): `python -m coletor buscar-concursos [--bancas ...]` (scripts em
+      `scripts/importar/`) pede ao Gemini, com a Busca Google (grounding), concursos abertos das bancas sem coleta.
+      Não acessa o site das bancas nem grava no banco: gera relatório .md/.csv para conferência humana, com cada
+      link marcado como oficial (domínio da banca/órgão público) e confirmado (domínio nas fontes da busca). O
+      administrador baixa os PDFs no navegador e usa `importar-pdfs`. Workflow `buscar` (diário, 07:23) envia o
+      relatório por e-mail (SMTP com senha de app; destino em secret). Menu volta a ser a linha completa, que quebra
+      em linhas no celular (sem botão de abrir/fechar).
 - [ ] Fase 6 (diários oficiais): sondagem do Querido Diário em 04/11/2026 a partir do GitHub Actions falhou no
       handshake TLS (`SSLV3_ALERT_HANDSHAKE_FAILURE`, recusa do servidor); nada contornado, tentar de novo depois.
       DOU: o INLABS indicou a base de dados abertos em in.gov.br/acesso-a-informacao/dados-abertos/base-de-dados;

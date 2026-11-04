@@ -6,6 +6,7 @@ python -m coletor documentos --limite 5
 python -m coletor classificar             # reaplica config/areas.yml etc. sem coletar nada
 python -m coletor resumir                 # refaz resumos, slugs e publicação sem coletar nada
 python -m coletor importar-pdfs PASTA --banca FCC [--link https://...]   # PDFs baixados à mão
+python -m coletor buscar-concursos [--bancas FCC VUNESP] [--saida pasta]  # sugestões pela Busca Google (Gemini)
 """
 
 from __future__ import annotations
@@ -13,6 +14,7 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+import smtplib
 import sys
 from pathlib import Path
 
@@ -57,6 +59,10 @@ def criar_parser() -> argparse.ArgumentParser:
     sub.add_parser("estruturar", help="etapa 4: texto do edital → cargos, datas e taxas")
     sub.add_parser("classificar", help="etapa 5: área e escolaridade dos cargos, local do concurso e CNU")
     sub.add_parser("resumir", help="etapa 6: resumo, slug, campos do site e publicação")
+    buscar = sub.add_parser("buscar-concursos", help="sugere concursos abertos das bancas sem coleta (Gemini + Busca)")
+    buscar.add_argument("--bancas", nargs="+", help="siglas (padrão: todas as bancas sem coleta automática)")
+    buscar.add_argument("--saida", default="buscas", help="pasta dos relatórios .md e .csv (padrão: buscas)")
+    buscar.add_argument("--email", action="store_true", help="envia o relatório para BUSCA_EMAIL_DESTINO (SMTP_*)")
     importar = sub.add_parser("importar-pdfs", help="lê PDFs de uma pasta local e aplica as etapas 4 a 6")
     importar.add_argument("pasta", help="pasta com os PDFs (opcional: <nome>.url com o link oficial de cada um)")
     importar.add_argument("--banca", required=True, help="sigla da banca (FCC, VUNESP, CESGRANRIO... ou OUTRA)")
@@ -77,12 +83,55 @@ def anotar_github(resumos: list[ResumoEtapa]) -> None:
         print(f"::{nivel} title=Coletor {resumo.etapa}{alvo}::{resumo.status}: {mensagem}")
 
 
+def buscar_concursos(args: argparse.Namespace) -> int:
+    """Não usa o banco: só a chave do Gemini. O resultado é um relatório para conferência humana."""
+    import httpx
+
+    from coletor.ia.busca_web import DOMINIOS_BANCAS, BuscaGemini, buscar_bancas, gravar
+    from coletor.ia.email_relatorio import ConfigEmail, EmailNaoConfigurado, enviar, montar_mensagem
+    from coletor.ia.provedores import ConfigIA
+    from coletor.pipeline.comum import hoje
+
+    config_email = None
+    if args.email:
+        try:
+            config_email = ConfigEmail.do_ambiente(os.environ)
+        except EmailNaoConfigurado as erro:
+            log.error("e-mail: %s", erro)
+            return 2
+    chave = os.environ.get("GEMINI_API_KEY")
+    if not chave:
+        log.error("defina GEMINI_API_KEY no .env (a busca usa o Gemini com a Busca Google)")
+        return 2
+    bancas = [b.upper() for b in (args.bancas or DOMINIOS_BANCAS)]
+    modelo = os.environ.get("COLETOR_GEMINI_MODELO") or ConfigIA.gemini_modelo
+    with httpx.Client(timeout=180) as http:
+        sugestoes, falhas = buscar_bancas(BuscaGemini(chave, modelo, http), bancas, hoje())
+    csv_, md = gravar(sugestoes, Path(args.saida), hoje())
+    for falha in falhas:
+        log.warning("%s", falha)
+    log.info("%d sugestões (%d oficiais). Relatórios: %s e %s", len(sugestoes),
+             sum(s.oficial for s in sugestoes), md, csv_)  # fmt: skip
+    if config_email is not None:
+        oficiais = sum(s.oficial for s in sugestoes)
+        assunto = f"Concursos sugeridos {hoje():%d/%m/%Y}: {len(sugestoes)} ({oficiais} em sites oficiais)"
+        try:
+            enviar(config_email, montar_mensagem(config_email, assunto, md, csv_))
+        except (OSError, smtplib.SMTPException) as erro:
+            log.error("e-mail não enviado: %s", erro)
+            return 1
+    return 0 if sugestoes or not falhas else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     args = criar_parser().parse_args(argv)
     configurar_logs(args.verbose)
     env_local = resolver_caminho(".env")
     if env_local.exists():
         load_dotenv(env_local, override=False)  # variáveis já definidas (GitHub Secrets) têm prioridade
+
+    if args.comando == "buscar-concursos":
+        return buscar_concursos(args)
 
     try:
         config = carregar_config()

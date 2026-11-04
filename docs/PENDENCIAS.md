@@ -172,6 +172,15 @@ Sem estas chaves, o coletor continua só com as regras (nada quebra).
 Passo a passo em `scripts/importar/LEIA-ME.md`: `.env` na raiz com host do Neon e senha do `coletor_app`, depois
 `scripts\importar\importar_pdfs.bat PASTA SIGLA [LINK]`.
 
+## Busca diária de concursos por e-mail (workflow `buscar`) — ~5 min
+
+1. Na conta Google que vai **enviar** (pode ser a sua): ative a verificação em duas etapas e crie uma
+   **senha de app** em https://myaccount.google.com/apppasswords.
+2. Secrets do repositório: `SMTP_USUARIO` = o Gmail que envia; `SMTP_SENHA` = a senha de app (16 letras);
+   `BUSCA_EMAIL_DESTINO` = natanaelqueiroz@gmail.com (fica em secret para o e-mail não aparecer no repositório
+   público). Usa também o `GEMINI_API_KEY`.
+3. Actions → buscar → Run workflow para testar. Depois roda sozinho todo dia às 07:23.
+
 ## Próximas fases (só para você se planejar)
 
 - **Fase 7 (alertas):** conta no serviço de e-mail transacional escolhido e hospedagem da API.

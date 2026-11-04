@@ -176,10 +176,10 @@ def test_cartoes_do_mesmo_tamanho(pagina: Page) -> None:
     if len(alturas) < 2:
         pytest.skip("seeds com menos de 2 concursos abertos")
     assert max(alturas) - min(alturas) <= 1, f"cartões com alturas diferentes: {alturas}"
-    # Os dados ficam no pé do cartão, na mesma altura em todos.
+    # Os dados ficam no pé do cartão: a distância do fim dos dados ao fim do cartão é igual em todos.
     pes = pagina.evaluate("""[...document.querySelectorAll('.grade-cartoes article.cartao')].map(c =>
-        Math.round(c.getBoundingClientRect().bottom - c.querySelector('.cartao__dados').getBoundingClientRect().top))""")
-    assert max(pes) - min(pes) <= 1, f"dados desalinhados: {pes}"
+        Math.round(c.getBoundingClientRect().bottom - c.querySelector('.cartao__dados').getBoundingClientRect().bottom))""")
+    assert max(pes) - min(pes) <= 1, f"dados fora do pé do cartão: {pes}"
 
 
 def test_pronto_para_o_adsense(pagina: Page) -> None:

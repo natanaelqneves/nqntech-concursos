@@ -24,7 +24,9 @@ public class Paginas {
     /** Metadados de SEO de uma página. */
     public record Meta(String titulo, String descricao, String url, String canonica, String jsonLd) {}
 
-    public record Site(String nome, String urlBase, String atualizacao) {}
+    /** Itens do menu principal presentes em todas as páginas: regiões e estados (agrupados por região). */
+    public record Site(String nome, String urlBase, String atualizacao, List<Atalho> regioes,
+            Map<String, List<Atalho>> estadosPorRegiao) {}
 
     private final TemplateEngine templates;
     private final String urlBase;
@@ -32,10 +34,16 @@ public class Paginas {
     private final Site site;
 
     public Paginas(TemplateEngine templates, String urlBase, Formatos fmt, String atualizacao) {
+        this(templates, urlBase, fmt, atualizacao, List.of(), Map.of());
+    }
+
+    public Paginas(TemplateEngine templates, String urlBase, Formatos fmt, String atualizacao, List<Atalho> regioes,
+            Map<String, List<Atalho>> estadosPorRegiao) {
         this.templates = templates;
         this.urlBase = urlBase;
         this.fmt = fmt;
-        this.site = new Site(GeradorSite.NOME, urlBase, atualizacao);
+        this.site = new Site(GeradorSite.NOME, urlBase, atualizacao, List.copyOf(regioes),
+                java.util.Collections.unmodifiableMap(new LinkedHashMap<>(estadosPorRegiao)));
     }
 
     public PaginaGerada inicio(List<Concurso> abertos, List<Concurso> isencao, int total) {

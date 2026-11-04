@@ -67,4 +67,17 @@ class PaginasTest {
                 .html();
         assertThat(html).contains("Nenhum concurso aberto ou previsto aqui no momento.");
     }
+
+    @Test
+    void menuTemAbasRegioesEstadosESoALogo() {
+        Paginas comMenu = new Paginas(GeradorSite.criarTemplates(), "https://exemplo.dev", new Formatos(HOJE, Map.of()),
+                "", List.of(new Paginas.Atalho("Nordeste", "/regiao/nordeste/", 0)),
+                Map.of("Nordeste", List.of(new Paginas.Atalho("Paraíba", "/estado/paraiba/", 3))));
+        String html = comMenu.lista("/previstos/", "Previstos", "Descrição", List.of(), false, List.of()).html();
+        assertThat(html)
+                .contains("href=\"/inscricoes-abertas/\"", "href=\"/previstos/\"", "href=\"/isencao-em-prazo/\"")
+                .contains("href=\"/regiao/nordeste/\"", "href=\"/estado/paraiba/\"", "aria-controls=\"menu-principal\"")
+                .contains("<img src=\"/assets/icone.svg\"")
+                .doesNotContain("marca__nome");
+    }
 }

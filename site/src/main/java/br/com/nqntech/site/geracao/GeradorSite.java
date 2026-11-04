@@ -87,19 +87,7 @@ public class GeradorSite {
         List<TipoIsencao> tipos = repositorio.tiposIsencao(CatalogoIsencoes.documentos(propriedades.isencoes()));
         String atualizacao = repositorio.ultimaColeta().map(fmt::dataHora).orElse("");
 
-        Map<String, Uf> ufPorSigla = ufs.stream().collect(Collectors.toMap(Uf::sigla, u -> u));
-        Map<String, Long> porUf = concursos.stream().filter(c -> c.uf() != null && !c.nacional())
-                .collect(Collectors.groupingBy(Concurso::uf, Collectors.counting()));
-        Map<String, List<Paginas.Atalho>> estadosPorRegiao = new LinkedHashMap<>();
-        for (Item regiao : regioes) {
-            estadosPorRegiao.put(regiao.nome(), ufs.stream().filter(u -> u.regiao().equals(regiao.codigo()))
-                    .map(u -> new Paginas.Atalho(u.nome(), "/estado/" + u.slug() + "/",
-                            porUf.getOrDefault(u.sigla(), 0L)))
-                    .toList());
-        }
-        Paginas paginas = new Paginas(templates, propriedades.urlBase(), fmt, atualizacao,
-                regioes.stream().map(r -> new Paginas.Atalho(r.nome(), "/regiao/" + r.slug() + "/", 0)).toList(),
-                estadosPorRegiao);
+        Paginas paginas = new Paginas(templates, propriedades.urlBase(), fmt, atualizacao);
         Map<String, String> arquivos = new LinkedHashMap<>();
         List<String> urls = new ArrayList<>();
         PaginaGerada.adicionar(arquivos, urls, paginas.inicio(
@@ -107,24 +95,15 @@ public class GeradorSite {
         PaginaGerada.adicionar(arquivos, urls, paginas.lista("/concursos/", "Todos os concursos",
                 "Concursos públicos com inscrições abertas, previstos e com prazo para pedir isenção da taxa.",
                 Ordenacao.lista(concursos, hoje), true, List.of()));
-        // Abas do menu: cada recorte de situação tem página própria (funciona sem JavaScript e é indexável).
-        PaginaGerada.adicionar(arquivos, urls, paginas.lista("/inscricoes-abertas/", "Inscrições abertas",
-                "Concursos públicos com inscrições abertas hoje em todo o Brasil.",
-                Ordenacao.lista(filtrar(concursos, c -> c.inscricoesAbertas(hoje)), hoje), false, List.of()));
-        PaginaGerada.adicionar(arquivos, urls, paginas.lista("/previstos/", "Concursos previstos",
-                "Concursos autorizados ou anunciados e editais com inscrições que ainda vão abrir.",
-                Ordenacao.lista(filtrar(concursos, c -> !c.inscricoesAbertas(hoje)
-                        && ("PREVISTO".equals(c.situacao()) || "INSCRICOES_ABERTAS".equals(c.situacao()))), hoje),
-                false, List.of()));
-        PaginaGerada.adicionar(arquivos, urls, paginas.lista("/isencao-em-prazo/", "Isenção da taxa em prazo",
-                "Concursos com o prazo para pedir isenção da taxa de inscrição em andamento.",
-                Ordenacao.isencaoEmPrazo(concursos, hoje), false, List.of()));
 
         for (Concurso c : concursos) {
             PaginaGerada.adicionar(arquivos, urls, paginas.concurso(c, tipos));
         }
 
         // Navegação geográfica: nacionais entram em todos os recortes; estaduais também nos municípios da UF.
+        Map<String, Uf> ufPorSigla = ufs.stream().collect(Collectors.toMap(Uf::sigla, u -> u));
+        Map<String, Long> porUf = concursos.stream().filter(c -> c.uf() != null && !c.nacional())
+                .collect(Collectors.groupingBy(Concurso::uf, Collectors.counting()));
         long nacionais = concursos.stream().filter(Concurso::nacional).count();
         PaginaGerada.adicionar(arquivos, urls, paginas.brasil(regioes, ufs, porUf, nacionais));
         for (Item regiao : regioes) {

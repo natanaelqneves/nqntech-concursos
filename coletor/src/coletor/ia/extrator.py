@@ -93,6 +93,12 @@ class ExtratorIA:
         log.info("edital lido por IA (%s): %d caracteres enviados", origem, len(trecho))
         return ResultadoIA(self._montar(resposta, texto, hoje), origem)
 
+    def completar(self, edital: EditalExtraido, texto: str, sha256: str | None, hoje: date) -> EditalExtraido:
+        """Segunda leitura dirigida aos dados mínimos que faltaram (ver ia/lacunas.py)."""
+        from coletor.ia.lacunas import CompletadorIA
+
+        return CompletadorIA(self._rodizio, self._ler_cache, self._gravar_cache).completar(edital, texto, sha256, hoje)
+
     @staticmethod
     def _montar(resposta: dict[str, Any], texto: str, hoje: date) -> EditalExtraido:
         edital, _uf = para_edital(resposta, hoje)

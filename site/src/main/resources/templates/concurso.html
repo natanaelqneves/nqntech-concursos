@@ -30,6 +30,8 @@
                         <div><dt>Inscrições</dt><dd th:text="${fmt.periodo(c.inscricaoInicio(), c.inscricaoFim())}">--</dd></div>
                         <div th:if="${c.taxaMax() != null}"><dt>Taxa</dt><dd th:text="${fmt.faixaReais(c.taxaMin(), c.taxaMax())}">R$</dd></div>
                         <div><dt>Prova</dt><dd th:text="${fmt.data(c.dataProva())}">--</dd></div>
+                        <div><dt>Salário até</dt><dd th:text="${c.salarioMax() != null} ? ${fmt.reais(c.salarioMax())} : 'confira no edital'">R$</dd></div>
+                        <div th:if="${!c.isencoes().isEmpty()}"><dt>Isenção</dt><dd th:text="${fmt.periodo(c.isencaoInicio(), c.isencaoFim())}">--</dd></div>
                         <div th:if="${c.municipio() != null}"><dt>Local</dt><dd th:text="${c.municipio() + '/' + c.uf()}">--</dd></div>
                         <div th:if="${c.municipio() == null and c.uf() != null and !c.nacional()}"><dt>Estado</dt><dd>
                             <a th:href="${'/estado/' + #strings.toLowerCase(c.uf()) + '/'}" th:text="${c.uf()}">UF</a></dd></div>

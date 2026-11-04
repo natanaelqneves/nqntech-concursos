@@ -80,8 +80,13 @@ class IndiceMunicipios:
         return [m for m in candidatos if m.uf == uf] if uf else list(candidatos)
 
 
+# "horário oficial de Brasília/DF" aparece em quase todo edital (é o fuso das datas), não é o local do concurso.
+_HORARIO_DE_BRASILIA = re.compile(r"hor[áa]rio\s+(?:oficial\s+)?de\s+bras[íi]lia(?:\s*/\s*DF)?", re.IGNORECASE)
+
+
 def ufs_citadas(texto: str) -> set[str]:
     """UFs citadas como 'Estado do Rio de Janeiro' ou 'Macaé/RJ'."""
+    texto = _HORARIO_DE_BRASILIA.sub(" ", texto)
     ufs = {UFS[m.group(1)] for m in _ESTADO_POR_EXTENSO.finditer(normalizar(texto))}
     ufs.update(m.group(1) for m in _UF_APOS_BARRA.finditer(texto) if m.group(1) in SIGLAS_UF)
     return ufs

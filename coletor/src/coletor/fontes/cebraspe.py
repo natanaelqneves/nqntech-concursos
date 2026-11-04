@@ -23,7 +23,7 @@ from typing import Any
 from coletor.extratores.base import CargoExtraido
 from coletor.fontes.base import DadosEstruturados, ResultadoDescoberta, SinalDescoberta
 from coletor.http_cliente import ClienteHttp, ErroHttp
-from coletor.texto import colapsar_espacos, normalizar, titulo_portugues, todas_as_datas
+from coletor.texto import colapsar_espacos, normalizar, sem_acento, titulo_portugues, todas_as_datas
 
 log = logging.getLogger(__name__)
 
@@ -36,6 +36,55 @@ _CARGO = re.compile(r"^CARGO\s*\d+\s*:\s*(?P<nome>.+?)(?:\s*[–-]\s*(?P<resto>(
 _ROTULOS = re.compile(r"\s*[–-]?\s*(?:ESPECIALIDADE|[ÁA]REA|PERFIL)\s*:\s*", re.IGNORECASE)
 _ABERTURA = re.compile(r"^edital n\W*o?\s*0*1\b.*\babertura\b")
 _SUSPENSO = re.compile(r"\b(suspens|cancelament|anulac)")
+
+
+# A Cebraspe identifica os concursos por siglas ("PC PE 26", "CGU 26 AFFC", "TJ CE 25 NOTÁRIOS"). Sem o nome do
+# órgão, o local sai errado (o texto ao redor só cita "horário de Brasília/DF"). Siglas comuns viram o nome oficial;
+# o resto fica como veio e o órgão é completado depois pela leitura do edital.
+_ESTADOS = {
+    "AC": "do Acre", "AL": "de Alagoas", "AP": "do Amapá", "AM": "do Amazonas", "BA": "da Bahia", "CE": "do Ceará",
+    "DF": "do Distrito Federal", "ES": "do Espírito Santo", "GO": "de Goiás", "MA": "do Maranhão",
+    "MT": "de Mato Grosso", "MS": "de Mato Grosso do Sul", "MG": "de Minas Gerais", "PA": "do Pará",
+    "PB": "da Paraíba", "PR": "do Paraná", "PE": "de Pernambuco", "PI": "do Piauí", "RJ": "do Rio de Janeiro",
+    "RN": "do Rio Grande do Norte", "RS": "do Rio Grande do Sul", "RO": "de Rondônia", "RR": "de Roraima",
+    "SC": "de Santa Catarina", "SP": "de São Paulo", "SE": "de Sergipe", "TO": "do Tocantins",
+}  # fmt: skip
+_ESTADUAIS = {
+    "PC": "Polícia Civil do Estado {uf}", "PM": "Polícia Militar do Estado {uf}",
+    "CBM": "Corpo de Bombeiros Militar do Estado {uf}", "PP": "Polícia Penal do Estado {uf}",
+    "TJ": "Tribunal de Justiça do Estado {uf}", "MP": "Ministério Público do Estado {uf}",
+    "DPE": "Defensoria Pública do Estado {uf}", "TCE": "Tribunal de Contas do Estado {uf}",
+    "PGE": "Procuradoria-Geral do Estado {uf}", "SEFAZ": "Secretaria da Fazenda do Estado {uf}",
+    "SEDUC": "Secretaria de Educação do Estado {uf}", "SES": "Secretaria de Saúde do Estado {uf}",
+    "TRE": "Tribunal Regional Eleitoral {uf}", "AL": "Assembleia Legislativa do Estado {uf}",
+}  # fmt: skip
+_FEDERAIS = {
+    "CGU": "Controladoria-Geral da União", "TCU": "Tribunal de Contas da União", "AGU": "Advocacia-Geral da União",
+    "PF": "Polícia Federal", "PRF": "Polícia Rodoviária Federal", "INSS": "Instituto Nacional do Seguro Social",
+    "IBAMA": "Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis",
+    "BACEN": "Banco Central do Brasil", "BCB": "Banco Central do Brasil", "CD": "Câmara dos Deputados",
+    "SF": "Senado Federal", "STF": "Supremo Tribunal Federal", "STJ": "Superior Tribunal de Justiça",
+    "TST": "Tribunal Superior do Trabalho", "STM": "Superior Tribunal Militar", "MPU": "Ministério Público da União",
+    "DPU": "Defensoria Pública da União", "ABIN": "Agência Brasileira de Inteligência",
+    "ANAC": "Agência Nacional de Aviação Civil",
+}  # fmt: skip
+
+
+def orgao_por_sigla(nome_abreviado: str) -> str | None:
+    """'PC PE 26' → 'Polícia Civil do Estado de Pernambuco'; 'CGU 26 AFFC' → 'Controladoria-Geral da União'."""
+    tokens = [t for t in re.split(r"[\s_/-]+", sem_acento(nome_abreviado).upper()) if t]
+    if not tokens:
+        return None
+    if tokens[0] in _FEDERAIS:
+        return _FEDERAIS[tokens[0]]
+    if len(tokens) >= 2 and tokens[0] in _ESTADUAIS and tokens[1] in _ESTADOS:
+        # O DF não é estado: "Polícia Civil do Distrito Federal", não "do Estado do Distrito Federal".
+        return _ESTADUAIS[tokens[0]].format(uf=_ESTADOS[tokens[1]]).replace("do Estado do Distrito", "do Distrito")
+    # Nome por extenso seguido do ano ("CÂMARA DOS DEPUTADOS 26 ANALISTA"): o órgão é o que vem antes do ano.
+    antes_do_ano = re.split(r"\s\d{2}(?:\s|$)", colapsar_espacos(nome_abreviado), maxsplit=1)[0]
+    if len(antes_do_ano.split()) >= 3 and not re.search(r"\d", antes_do_ano):
+        return titulo_portugues(antes_do_ano)
+    return None
 
 
 def _json(http: ClienteHttp, url: str) -> Any:
@@ -122,7 +171,9 @@ def parse_evento(evento: dict[str, Any], fase: str) -> SinalDescoberta | None:
             }
         )
     situacao = "INSCRICOES_ABERTAS" if fim or fase == "inscricoes-abertas" else FASES.get(fase, "PREVISTO")
+    orgao = orgao_por_sigla(str(evento.get("eventoNomeAbreviado") or ident))
     estruturado = DadosEstruturados(
+        orgao=orgao,
         ano=evento.get("eventoAno") if isinstance(evento.get("eventoAno"), int) else None,
         situacao=situacao,
         inscricao_inicio=inicio,

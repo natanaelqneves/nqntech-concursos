@@ -264,3 +264,11 @@ def test_assunto_da_secretaria_nao_vira_municipio():
     resolvedor = ResolvedorLocal(IndiceMunicipios([Municipio(2929800, "Saúde", "BA", "saude")]))
     local = resolvedor.resolver(OrgaoInferido("Secretaria Municipal de Saúde", "MUNICIPAL", None, None))
     assert local.abrangencia is None
+
+
+def test_horario_de_brasilia_nao_e_local_do_concurso():
+    from coletor.classificacao.local import ufs_citadas
+
+    assert ufs_citadas("Inscrições até 17/11/2026 às 18:00, horário oficial de Brasília/DF") == set()
+    assert ufs_citadas("conforme horário de Brasília") == set()
+    assert ufs_citadas("Secretaria de Saúde - Brasília/DF") == {"DF"}

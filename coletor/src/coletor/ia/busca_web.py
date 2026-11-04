@@ -131,14 +131,11 @@ def interpretar(banca: str, texto: str, metadados: Mapping[str, Any]) -> list[Su
     return sugestoes
 
 
-# Ordem: os "Lite" têm cota diária bem maior na faixa gratuita (500/dia) e vão primeiro; quem esgotar sai da rodada.
+# (04/11/2026: gemini-3-flash e 2.5 respondem 404 para contas novas; saíram.) Ordem: os "Lite" têm cota diária bem maior na faixa gratuita (500/dia) e vão primeiro; quem esgotar sai da rodada.
 MODELOS_BUSCA_PADRAO = (
     "gemini-3.1-flash-lite",
     "gemini-3.5-flash-lite",
     "gemini-3.6-flash",
-    "gemini-3-flash",
-    "gemini-2.5-flash",
-    "gemini-2.5-flash-lite",
     "gemini-3.8-flash",
 )
 OPENROUTER_MODELO_BUSCA = "openrouter/free"

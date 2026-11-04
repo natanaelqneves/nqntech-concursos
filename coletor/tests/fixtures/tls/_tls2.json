@@ -1,128 +1,282 @@
 {
- "conteudo_concursos_php": {
-  "url": "https://www.comperve.ufrn.br/conteudo/concursos.php",
+ "conteudo_concursos_cref_202601_documentos_php": {
+  "url": "https://www.comperve.ufrn.br/conteudo/concursos/cref_202601/documentos.php",
   "permitido": true,
   "status": 200,
   "tipo": "text/html; charset=UTF-8",
-  "bytes": 51598
- },
- "conteudo_concursos_cref_202601_informacoes_php": {
-  "url": "https://www.comperve.ufrn.br/conteudo/concursos/cref_202601/informacoes.php",
-  "permitido": true,
-  "status": 200,
-  "tipo": "text/html; charset=UTF-8",
-  "bytes": 11609
- },
- "30182_concursos_web_part_a63cd5f36174102910a8ad528ad46729_js": {
-  "url": "https://www.fumarc.com.br/sites/app/ClientSideAssets/1e6dd93b-1f99-440b-a6c4-5c6af3330182/concursos-web-part_a63cd5f36174102910a8ad528ad46729.js",
-  "permitido": true,
-  "status": 200,
-  "tipo": "application/javascript",
-  "bytes": 415877,
-  "rotas": [
-   "/_api/$batch",
-   "/_api/GroupSiteManager/CreateGroupEx",
-   "/_api/SP.MoveCopyUtil.CopyFileByPath(overwrite=@a1)?@a1=",
-   "/_api/SP.MoveCopyUtil.CopyFolder()",
-   "/_api/SP.MoveCopyUtil.CopyFolderByPath()",
-   "/_api/SP.MoveCopyUtil.MoveFileByPath(overwrite=@a1)?@a1=",
-   "/_api/SP.MoveCopyUtil.MoveFolder()",
-   "/_api/SP.MoveCopyUtil.MoveFolderByPath()",
-   "/_api/SP.Site.Exists",
-   "/_api/SP.Web.ShareObject",
-   "/_api/SPSiteManager/Create",
-   "/_api/contextinfo",
-   "/_api/lists/EnsureClientRenderedSitePagesLibrary",
-   "/_api/web/UploadImage",
-   "/_api/web/siteusers",
-   "/_api/web/url"
+  "bytes": 10235,
+  "links": [
+   [
+    "/",
+    "Home"
+   ],
+   [
+    "/conteudo/contato.php",
+    "Contato"
+   ],
+   [
+    "/conteudo/concursos.php",
+    "Concursos"
+   ],
+   [
+    "/conteudo/cursos_tecnicos.php",
+    "Cursos T&eacute;cnicos"
+   ],
+   [
+    "/conteudo/ead.php",
+    "Educa&ccedil;&atilde;o Superior a Dist&acirc;ncia"
+   ],
+   [
+    "/conteudo/proficiencias.php",
+    "Exames de Profici&ecirc;ncia"
+   ],
+   [
+    "/conteudo/graduacao.php",
+    "Gradua&ccedil;&atilde;o"
+   ],
+   [
+    "/conteudo/extravestibular.php",
+    "Ingresso Extra-Vestibular"
+   ],
+   [
+    "/conteudo/posgraduacao.php",
+    "P&oacute;s-Gradua&ccedil;&atilde;o"
+   ],
+   [
+    "/conteudo/metropoledigital.php",
+    "Metr&oacute;pole Digital"
+   ],
+   [
+    "/conteudo/vest_anteriores.php",
+    "Vestibulares Realizados"
+   ],
+   [
+    "/conteudo/sobre.php",
+    "Sobre"
+   ],
+   [
+    "/index.php",
+    "P&aacute;gina Principal"
+   ],
+   [
+    "/conteudo/concursos.php",
+    "Concurso"
+   ],
+   [
+    "/conteudo/concursos/cref_202601/informacoes.php",
+    "CONCURSO PÚBLICO PARA O CONSELHO REGIONAL DE EDUCAÇÃO FÍSICA DA 16ª REGIÃO/RN - CREF16/RN - 01/2026"
+   ]
   ],
-  "trechos": [
-   "Template:c})}),[4,Object(p.d)(this.clone(h,\"add\"),d)];case 1:return f=r.sent(),[2,{data:f,web:y(Object(s.a)(f).replace(/_api\\/web\\/?/i,\"\")).configureFrom(this)}]}})})},Object(r.c)([Object(b.a)(\"ws.add\")],t.prototype,\"add\",null),t=Object(r.c)([Object(a.a)(\"webs\")],t)}(c.e),h=Object(c.i)(m),g=function(e){function t(){var t=n",
-   ",Object(r.c)([Object(b.a)(\"w.removeStorageEntity\")],t.prototype,\"removeStorageEntity\",null),t=Object(r.c)([Object(a.a)(\"_api/web\")],t)}(c.f),y=Object(c.i)(g)},function(e,t,n){\"use strict\";function r(e){return{__metadata:{type:e}}}t.a=r},function(e,t,n){\"use strict\";function r(e){if(Object(o.u)(e))return\"\";var t=e.indexOf(\"",
-   "_api/\");return t<0&&(t=e.indexOf(\"_vti_bin/\")),t>-1?e.substr(0,t):e}t.a=r;var o=n(2)},function(e,t,n){\"use strict\";n.d(t,\"b\",function(){return h}),n.d(t,\"c\",function(){return g}),n.d(t,\"a\",function(){retu",
-   ")&&t.push(e.__metadata.uri);else if(Object(c.k)(e,n[3])&&Object(c.k)(e,n[1])){var r=Object(c.n)(e[n[1]])?e[n[1]].split(\"_api\")[1]:e[n[1]];t.push(Object(u.a)(e[n[3]]),\"_api\",r)}else Object(c.k)(e,n[1])?t.push(\"_api\",e[n[1]]):Object(c.k)(e,n[2])&&t.push(e.__metadata.uri);return t.length<1?(a.a.write(\"No uri information found",
-   "(r.label){case 0:return[4,this.getParentInfos()];case 1:return i=r.sent(),c=Object(f.a)(this.toUrl()),a=Object(o.a)(c,\"/_api/web/UploadImage\"),a.concat(\"(listTitle=@a1,imageName=@a2,listId=@a3,itemId=@a4)\"),a.query.set(\"@a1\",\"'\"+Object(b.a)(i.ParentList.Title)+\"'\"),a.query.set(\"@a2\",\"'\"+Object(b.a)(t)+\"'\"),a.query.set(\"@a3",
-   "edUrl='\"+Object(d.a)(e)+\"',overwrite=\"+t+\")\"))];case 1:return n=r.sent(),[2,{data:n,folder:y(Object(p.a)(this.toUrl()),\"_api/web/getFolderByServerRelativePath(decodedUrl='\"+Object(d.a)(e)+\"')\")}]}})})},Object(r.c)([Object(f.a)(\"fs.add\")],t.prototype,\"add\",null),Object(r.c)([Object(f.a)(\"fs.addUsingPath\")],t.prototype,\"addU",
-   ":return[4,this.getParentInfos()];case 1:return t=r.sent(),n=new URL(t.ParentWeb.Url),[4,Object(l.d)(y(t.ParentWeb.Url,\"/_api/SP.MoveCopyUtil.MoveFolder()\").configureFrom(this),Object(s.k)({destUrl:Object(o.n)(e)?e:Object(o.f)(n.origin,e),srcUrl:Object(o.f)(n.origin,t.Folder.ServerRelativeUrl)}))];case 2:return r.sent(),[2]",
-   "{case 0:return[4,this.getParentInfos()];case 1:return n=r.sent(),i=new URL(n.ParentWeb.Url),[4,Object(l.d)(y(i.origin,\"/_api/SP.MoveCopyUtil.MoveFolderByPath()\").configureFrom(this),Object(s.k)({destPath:Object(b.a)(Object(o.n)(e)?e:Object(o.f)(i.origin,e)),options:{KeepBoth:t,ResetAuthorAndCreatedOnCopy:!0,ShouldBypassSha",
-   ":return[4,this.getParentInfos()];case 1:return t=r.sent(),n=new URL(t.ParentWeb.Url),[4,Object(l.d)(y(t.ParentWeb.Url,\"/_api/SP.MoveCopyUtil.CopyFolder()\").configureFrom(this),Object(s.k)({destUrl:Object(o.n)(e)?e:Object(o.f)(n.origin,e),srcUrl:Object(o.f)(n.origin,t.Folder.ServerRelativeUrl)}))];case 2:return r.sent(),[2]",
-   "{case 0:return[4,this.getParentInfos()];case 1:return n=r.sent(),i=new URL(n.ParentWeb.Url),[4,Object(l.d)(y(i.origin,\"/_api/SP.MoveCopyUtil.CopyFolderByPath()\").configureFrom(this),Object(s.k)({destPath:Object(b.a)(Object(o.n)(e)?e:Object(o.f)(i.origin,e)),options:{KeepBoth:t,ResetAuthorAndCreatedOnCopy:!0,ShouldBypassSha",
-   "veUrl,s=r[\"odata.id\"],u=Object(f.a)(s),l=u.replace(\"://\",\"___\").split(\"/\")[0].replace(\"___\",\"://\"),[4,Object(d.d)(v(u,\"/_api/SP.MoveCopyUtil.CopyFileByPath(overwrite=@a1)?@a1=\"+t),Object(c.k)({destPath:Object(m.a)(Object(a.n)(e)?e:\"\"+l+e),options:{KeepBoth:n,ResetAuthorAndCreatedOnCopy:!0,ShouldBypassSharedLocks:!0,__metad",
-   "veUrl,s=r[\"odata.id\"],u=Object(f.a)(s),l=u.replace(\"://\",\"___\").split(\"/\")[0].replace(\"___\",\"://\"),[4,Object(d.d)(v(u,\"/_api/SP.MoveCopyUtil.MoveFileByPath(overwrite=@a1)?@a1=\"+t),Object(c.k)({destPath:Object(m.a)(Object(a.n)(e)?e:\"\"+l+e),options:{KeepBoth:n,ResetAuthorAndCreatedOnCopy:!1,ShouldBypassSharedLocks:!0,__metad",
-   "d 0,void 0,function(){var e,t,n,o;return Object(r.e)(this,function(r){switch(r.label){case 0:return e=y(this.parentUrl,\"_api/contextinfo\").configureFrom(this),t=f.a.configure(e,\"si.getContextInfo\"),[4,Object(l.d)(t)];case 1:return n=r.sent(),Object(a.k)(n,\"GetContextWebInformation\")?(o=n.GetContextWebInformation,o.Supporte",
-   "ch(n.label){case 0:return[4,this.clone(y,\"\").select(\"Id\")()];case 1:return e=n.sent(),t=f.a.configure(y(this.parentUrl,\"_api/SPSiteManager/Delete\"),\"si.delete\"),[4,Object(l.d)(t,Object(s.k)({siteId:e.Id}))];case 2:return n.sent(),[2]}})})},t.prototype.getDocumentLibraries=function(e){return Object(r.b)(this,void 0,void 0,f",
-   "unction(){var t,n;return Object(r.e)(this,function(r){switch(r.label){case 0:return t=f.a.configure(Object(o.a)(\"\",\"_api/sp.web.getdocumentlibraries(@v)\"),\"si.getDocumentLibraries\"),t.query.set(\"@v\",\"'\"+Object(p.a)(e)+\"'\"),[4,t()];case 1:return n=r.sent(),[2,Object(a.k)(n,\"GetDocumentLibraries\")?n.GetDocumentLibraries:"
-  ]
+  "texto": "..:::. Comperve - N&uacute;cleo permante de concursos - UFRN .:::... Home Contato Concursos Cursos T&eacute;cnicos Educa&ccedil;&atilde;o Superior a Dist&acirc;ncia Exames de Profici&ecirc;ncia Gradua&ccedil;&atilde;o Ingresso Extra-Vestibular P&oacute;s-Gradua&ccedil;&atilde;o Metr&oacute;pole Digital Vestibulares Realizados Sobre Documentos P&aacute;gina Principal &raquo; Concurso &raquo; CONCURSO PÚBLICO PARA O CONSELHO REGIONAL DE EDUCAÇÃO FÍSICA DA 16ª REGIÃO/RN - CREF16/RN - 01/2026 &raquo; Documentos CONSELHO REGIONAL DE EDUCAÇÃO FÍSICA - CREF 16/RN COMPERVE - NÚCLEO PERMANENTE DE CONCURSOS CONCURSO PÚBLICO PARA O CONSELHO REGIONAL DE EDUCAÇÃO FÍSICA DA 16ª REGIÃO/RN - CREF16/RN Edital Nº01/2026 Logo abaixo você verá uma lista com todos os documentos referentes ao Concurso . Editais Edital Nº 01/2026 (divulgado em 26 de outubro de 2026) Legendas --> Documentos Editais e manuais Informa&ccedil;&otilde;es gerais Inscri&ccedil;&otilde;es Programas"
  },
- "fumarc_api_https_www_fumarc_com_br_api_batch": {
-  "url": "https://www.fumarc.com.br/_api/$batch",
+ "conteudo_concursos_mossoro_202601_informacoes_php": {
+  "url": "https://www.comperve.ufrn.br/conteudo/concursos/mossoro_202601/informacoes.php",
   "permitido": true,
-  "status": 404,
-  "tipo": "application/json;odata=nometadata;streaming=true;charset=utf-8",
-  "bytes": 208
+  "status": 200,
+  "tipo": "text/html; charset=UTF-8",
+  "bytes": 15016,
+  "links": [
+   [
+    "/",
+    "Home"
+   ],
+   [
+    "/conteudo/contato.php",
+    "Contato"
+   ],
+   [
+    "/conteudo/concursos.php",
+    "Concursos"
+   ],
+   [
+    "/conteudo/cursos_tecnicos.php",
+    "Cursos T&eacute;cnicos"
+   ],
+   [
+    "/conteudo/ead.php",
+    "Educa&ccedil;&atilde;o Superior a Dist&acirc;ncia"
+   ],
+   [
+    "/conteudo/proficiencias.php",
+    "Exames de Profici&ecirc;ncia"
+   ],
+   [
+    "/conteudo/graduacao.php",
+    "Gradua&ccedil;&atilde;o"
+   ],
+   [
+    "/conteudo/extravestibular.php",
+    "Ingresso Extra-Vestibular"
+   ],
+   [
+    "/conteudo/posgraduacao.php",
+    "P&oacute;s-Gradua&ccedil;&atilde;o"
+   ],
+   [
+    "/conteudo/metropoledigital.php",
+    "Metr&oacute;pole Digital"
+   ],
+   [
+    "/conteudo/vest_anteriores.php",
+    "Vestibulares Realizados"
+   ],
+   [
+    "/conteudo/sobre.php",
+    "Sobre"
+   ],
+   [
+    "/index.php",
+    "P&aacute;gina Principal"
+   ],
+   [
+    "/conteudo/concursos.php",
+    "Concurso"
+   ],
+   [
+    "/conteudo/concursos/mossoro_202601/informacoes.php",
+    "PROVIMENTO DE CARGOS NO QUADRO PERMANENTE - 01/2026"
+   ]
+  ],
+  "texto": "..:::. Comperve - N&uacute;cleo permante de concursos - UFRN .:::... Home Contato Concursos Cursos T&eacute;cnicos Educa&ccedil;&atilde;o Superior a Dist&acirc;ncia Exames de Profici&ecirc;ncia Gradua&ccedil;&atilde;o Ingresso Extra-Vestibular P&oacute;s-Gradua&ccedil;&atilde;o Metr&oacute;pole Digital Vestibulares Realizados Sobre Informações P&aacute;gina Principal &raquo; Concurso &raquo; PROVIMENTO DE CARGOS NO QUADRO PERMANENTE - 01/2026 &raquo; Informações gerais CÂMARA MUNICIPAL DE MOSSORÓ COMPERVE - NÚCLEO PERMANENTE DE CONCURSOS PROVIMENTO DE CARGOS NO QUADRO PERMANENTE Edital Nº01/2026 RECURSOS Confira os recursos disponíveis ISENÇÃO Consulte a lista de inscrições contempladas com a isenção da taxa de inscrição DOCUMENTOS Confira os documentos disponíveis. INSCRIÇÕES Disponibilizado o formulário de inscrição PROGRAMAS Confira o conteúdo programático Notícias Divulgadas as listas de inscri&ccedil;&otilde;es beneficiadas com isen&ccedil;&atilde;o de pagamento de taxa de inscri&ccedil;&atilde;o p&oacute;s recursos. (Divulgada em 3 de novembro de 2026) Divulgada 2&ordf; Retifica&ccedil;&atilde;o do Edital do processo seletivo. (Divulgada em 29 de outubro de 2026) Resultado p&oacute;s-recursos dos pedidos de isen&ccedil;&atilde;o da taxa de inscri&ccedil;&atilde;o, previsto para hoje, ser&aacute; publicado em 03/11/26. (Divulgada em 29 de outubro de 2026) Divulgadas as listas de inscri&ccedil;&otilde;es beneficiadas com isen&ccedil;&atilde;o de pagamento de taxa de inscri&ccedil;&atilde;o. (Divulgada em 27 de outubro de 2026) Disponibilizada a gera&ccedil;&atilde;o de boletos banc&aacute;rios para os candidatos pagantes. (Divulgada em 27 de outubro de 2026) Divulgada retifica&ccedil;&atilde;o do edital. (Divulgada em 22 de outubro de 2026) Divulgado formul&aacute;rio de inscri&ccedil;&atilde;o do processo seletivo. O boleto banc&aacute;rio estar&aacute; dispon&iacute;vel em breve. (Divulgada em 13 de outubro de 2026) Divulgada retifica&ccedil;&atilde;o de programa de estudo para o cargo de agente administrativo. (Divulgada em 7 de outubro de 2026) Divulgado edital do processo seletivo. (Divulgada em 7 de outubro de 2026) Documentos Editais e manuais Informa&ccedil;&otilde;es gerais Inscri&ccedil;&otilde;es Isen&ccedil;&atilde;o da taxa de inscri&ccedil;&atilde;o Programas Recursos"
  },
- "fumarc_api_w_fumarc_com_br_api_groupsitemanager_creategroupex": {
-  "url": "https://www.fumarc.com.br/_api/GroupSiteManager/CreateGroupEx",
+ "conteudo_concursos_mossoro_202601_documentos_php": {
+  "url": "https://www.comperve.ufrn.br/conteudo/concursos/mossoro_202601/documentos.php",
   "permitido": true,
-  "status": 405,
-  "tipo": "application/json;odata=nometadata;streaming=true;charset=utf-8",
-  "bytes": 338
+  "status": 200,
+  "tipo": "text/html; charset=UTF-8",
+  "bytes": 13357,
+  "links": [
+   [
+    "/",
+    "Home"
+   ],
+   [
+    "/conteudo/contato.php",
+    "Contato"
+   ],
+   [
+    "/conteudo/concursos.php",
+    "Concursos"
+   ],
+   [
+    "/conteudo/cursos_tecnicos.php",
+    "Cursos T&eacute;cnicos"
+   ],
+   [
+    "/conteudo/ead.php",
+    "Educa&ccedil;&atilde;o Superior a Dist&acirc;ncia"
+   ],
+   [
+    "/conteudo/proficiencias.php",
+    "Exames de Profici&ecirc;ncia"
+   ],
+   [
+    "/conteudo/graduacao.php",
+    "Gradua&ccedil;&atilde;o"
+   ],
+   [
+    "/conteudo/extravestibular.php",
+    "Ingresso Extra-Vestibular"
+   ],
+   [
+    "/conteudo/posgraduacao.php",
+    "P&oacute;s-Gradua&ccedil;&atilde;o"
+   ],
+   [
+    "/conteudo/metropoledigital.php",
+    "Metr&oacute;pole Digital"
+   ],
+   [
+    "/conteudo/vest_anteriores.php",
+    "Vestibulares Realizados"
+   ],
+   [
+    "/conteudo/sobre.php",
+    "Sobre"
+   ],
+   [
+    "/index.php",
+    "P&aacute;gina Principal"
+   ],
+   [
+    "/conteudo/concursos.php",
+    "Concurso"
+   ],
+   [
+    "/conteudo/concursos/mossoro_202601/informacoes.php",
+    "PROVIMENTO DE CARGOS NO QUADRO PERMANENTE - 01/2026"
+   ]
+  ],
+  "texto": "..:::. Comperve - N&uacute;cleo permante de concursos - UFRN .:::... Home Contato Concursos Cursos T&eacute;cnicos Educa&ccedil;&atilde;o Superior a Dist&acirc;ncia Exames de Profici&ecirc;ncia Gradua&ccedil;&atilde;o Ingresso Extra-Vestibular P&oacute;s-Gradua&ccedil;&atilde;o Metr&oacute;pole Digital Vestibulares Realizados Sobre Documentos P&aacute;gina Principal &raquo; Concurso &raquo; PROVIMENTO DE CARGOS NO QUADRO PERMANENTE - 01/2026 &raquo; Documentos CÂMARA MUNICIPAL DE MOSSORÓ COMPERVE - NÚCLEO PERMANENTE DE CONCURSOS PROVIMENTO DE CARGOS NO QUADRO PERMANENTE Edital Nº01/2026 Logo abaixo você verá uma lista com todos os documentos referentes ao Concurso . Listas Lista de inscrições beneficiadas com isenção de pagamento de taxa de inscrição - CADÚNICO - pós recurso (divulgado em 03 de novembro de 2026) Lista de inscrições beneficiadas com isenção de pagamento de taxa de inscrição - Função em pleito eleitoral - pós recurso (divulgado em 03 de novembro de 2026) Lista de inscrições beneficiadas com isenção de pagamento de taxa de inscrição - Doador de Sangue - pós recurso (divulgado em 03 de novembro de 2026) Lista de inscrições beneficiadas com isenção de pagamento de taxa de inscrição - Doador de Órgãos - pós recurso (divulgado em 03 de novembro de 2026) Lista de inscrições beneficiadas com isenção de pagamento de taxa de inscrição - Doador de Medula Óssea - pós recurso (divulgado em 03 de novembro de 2026) Editais 2ª Retificação do Edital Nº 01/2026 (divulgada em 29 de outubro de 2026) Edital Nº 01/2026 (retificado em 29 de outubro de 2026) 1ª Retificação do Edital Nº 01/2026 (divulgada em 22 de outubro de 2026) Edital Nº 01/2026 (divulgado em 07 de outubro de 2026) Legendas --> Documentos Editais e manuais Informa&ccedil;&otilde;es gerais Inscri&ccedil;&otilde;es Isen&ccedil;&atilde;o da taxa de inscri&ccedil;&atilde;o Programas Recursos"
  },
- "fumarc_api_pi_sp_movecopyutil_copyfilebypath_overwrite_a1_a1_": {
-  "url": "https://www.fumarc.com.br/_api/SP.MoveCopyUtil.CopyFileByPath(overwrite=@a1)?@a1=",
+ "conteudo_concursos_mossoro_202601_inscricoes_php": {
+  "url": "https://www.comperve.ufrn.br/conteudo/concursos/mossoro_202601/inscricoes.php",
   "permitido": true,
-  "status": 400,
-  "tipo": "application/json;odata=nometadata;streaming=true;charset=utf-8",
-  "bytes": 186
- },
- "fumarc_api__www_fumarc_com_br_api_sp_movecopyutil_copyfolder_": {
-  "url": "https://www.fumarc.com.br/_api/SP.MoveCopyUtil.CopyFolder()",
-  "permitido": true,
-  "status": 405,
-  "tipo": "application/json;odata=nometadata;streaming=true;charset=utf-8",
-  "bytes": 335
- },
- "fumarc_api_umarc_com_br_api_sp_movecopyutil_copyfolderbypath_": {
-  "url": "https://www.fumarc.com.br/_api/SP.MoveCopyUtil.CopyFolderByPath()",
-  "permitido": true,
-  "status": 405,
-  "tipo": "application/json;odata=nometadata;streaming=true;charset=utf-8",
-  "bytes": 341
- },
- "fumarc_api_pi_sp_movecopyutil_movefilebypath_overwrite_a1_a1_": {
-  "url": "https://www.fumarc.com.br/_api/SP.MoveCopyUtil.MoveFileByPath(overwrite=@a1)?@a1=",
-  "permitido": true,
-  "status": 400,
-  "tipo": "application/json;odata=nometadata;streaming=true;charset=utf-8",
-  "bytes": 186
- },
- "fumarc_api__www_fumarc_com_br_api_sp_movecopyutil_movefolder_": {
-  "url": "https://www.fumarc.com.br/_api/SP.MoveCopyUtil.MoveFolder()",
-  "permitido": true,
-  "status": 405,
-  "tipo": "application/json;odata=nometadata;streaming=true;charset=utf-8",
-  "bytes": 335
- },
- "fumarc_api_umarc_com_br_api_sp_movecopyutil_movefolderbypath_": {
-  "url": "https://www.fumarc.com.br/_api/SP.MoveCopyUtil.MoveFolderByPath()",
-  "permitido": true,
-  "status": 405,
-  "tipo": "application/json;odata=nometadata;streaming=true;charset=utf-8",
-  "bytes": 341
- },
- "fumarc_api_https_www_fumarc_com_br_api_sp_site_exists": {
-  "url": "https://www.fumarc.com.br/_api/SP.Site.Exists",
-  "permitido": true,
-  "status": 400,
-  "tipo": "application/json;odata=nometadata;streaming=true;charset=utf-8",
-  "bytes": 156
- },
- "fumarc_api_https_www_fumarc_com_br_api_sp_web_shareobject": {
-  "url": "https://www.fumarc.com.br/_api/SP.Web.ShareObject",
-  "permitido": true,
-  "status": 405,
-  "tipo": "application/json;odata=nometadata;streaming=true;charset=utf-8",
-  "bytes": 336
+  "status": 200,
+  "tipo": "text/html; charset=UTF-8",
+  "bytes": 11024,
+  "links": [
+   [
+    "/",
+    "Home"
+   ],
+   [
+    "/conteudo/contato.php",
+    "Contato"
+   ],
+   [
+    "/conteudo/concursos.php",
+    "Concursos"
+   ],
+   [
+    "/conteudo/cursos_tecnicos.php",
+    "Cursos T&eacute;cnicos"
+   ],
+   [
+    "/conteudo/ead.php",
+    "Educa&ccedil;&atilde;o Superior a Dist&acirc;ncia"
+   ],
+   [
+    "/conteudo/proficiencias.php",
+    "Exames de Profici&ecirc;ncia"
+   ],
+   [
+    "/conteudo/graduacao.php",
+    "Gradua&ccedil;&atilde;o"
+   ],
+   [
+    "/conteudo/extravestibular.php",
+    "Ingresso Extra-Vestibular"
+   ],
+   [
+    "/conteudo/posgraduacao.php",
+    "P&oacute;s-Gradua&ccedil;&atilde;o"
+   ],
+   [
+    "/conteudo/metropoledigital.php",
+    "Metr&oacute;pole Digital"
+   ],
+   [
+    "/conteudo/vest_anteriores.php",
+    "Vestibulares Realizados"
+   ],
+   [
+    "/conteudo/sobre.php",
+    "Sobre"
+   ],
+   [
+    "/index.php",
+    "P&aacute;gina Principal"
+   ],
+   [
+    "/conteudo/concursos.php",
+    "Concurso"
+   ],
+   [
+    "/conteudo/concursos/mossoro_202601/informacoes.php",
+    "PROVIMENTO DE CARGOS NO QUADRO PERMANENTE - 01/2026"
+   ]
+  ],
+  "texto": "..:::. Comperve - N&uacute;cleo permante de concursos - UFRN .:::... Home Contato Concursos Cursos T&eacute;cnicos Educa&ccedil;&atilde;o Superior a Dist&acirc;ncia Exames de Profici&ecirc;ncia Gradua&ccedil;&atilde;o Ingresso Extra-Vestibular P&oacute;s-Gradua&ccedil;&atilde;o Metr&oacute;pole Digital Vestibulares Realizados Sobre Inscrições P&aacute;gina Principal &raquo; Concurso &raquo; PROVIMENTO DE CARGOS NO QUADRO PERMANENTE - 01/2026 &raquo; Inscrições CÂMARA MUNICIPAL DE MOSSORÓ COMPERVE - NÚCLEO PERMANENTE DE CONCURSOS PROVIMENTO DE CARGOS NO QUADRO PERMANENTE Edital Nº01/2026 Formulário de inscri&ccedil;&atilde;o clique para fazer a sua! Consultar Informa&ccedil;&otilde;es sobre sua inscri&ccedil;&atilde;o. A inscri&ccedil;&atilde;o ser&aacute; feita exclusivamente via Internet. &emsp;&emsp;Para inscrever-se, o candidato dever&aacute;, obrigatoriamente, ter Cadastro de Pessoa F&iacute;sica (CPF), documento de identifica&ccedil;&atilde;o e preencher todos os campos do Formul&aacute;rio de Inscri&ccedil;&atilde;o. &emsp;&emsp;A inscri&ccedil;&atilde;o dever&aacute; ser feita a partir das 15 horas do dia 13 de Outubro de 2026 até as 23h59min do dia 12 de Novembro de 2026 , observando os seguintes procedimentos: &emsp;&emsp;&emsp; a) Acessar o s&iacute;tio da Comperve no qual estar&atilde;o dispon&iacute;veis o Edital e o Formul&aacute;rio de Inscri&ccedil;&atilde;o; &emsp;&emsp;&emsp;b) Preencher, integralmente, o Formul&aacute;rio de Inscri&ccedil;&atilde;o de acordo com as instru&ccedil;&otilde;es nele constantes; &emsp;&emsp;&emsp;c) Enviar, eletronicamente, o Formul&aacute;rio de Inscri&ccedil;&atilde;o; &emsp; A segunda via do boleto bancário poderá ser obtida na página de informa&ccedil;&otilde;es sobre sua inscri&ccedil;&atilde;o. Documentos Editais e manuais Informa&ccedil;&otilde;es gerais Inscri&ccedil;&otilde;es Isen&ccedil;&atilde;o da taxa de inscri&ccedil;&atilde;o Programas Recursos"
  }
 }

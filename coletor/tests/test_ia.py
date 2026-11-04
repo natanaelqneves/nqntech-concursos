@@ -211,11 +211,11 @@ def test_openrouter_so_usa_modelos_com_json_schema():
 
 def test_ordem_dos_provedores():
     config = ConfigIA(gemini_chave="a", groq_chave="b", openrouter_chave="c")
-    assert [p.nome for p in criar_provedores(config, _cliente(lambda r: httpx.Response(500)))] == [
-        "gemini",
-        "groq",
-        "openrouter",
-    ]
+    nomes = [p.nome for p in criar_provedores(config, _cliente(lambda r: httpx.Response(500)))]
+    assert nomes[0] == "gemini:gemini-3.8-flash" and nomes[-2:] == ["groq", "openrouter"]
+    assert sum(n.startswith("gemini:") for n in nomes) == 4  # um por modelo, mesma chave
+    assert [p.nome for p in criar_provedores(ConfigIA(gemini_chave="a", gemini_modelos=("x",)),
+                                              _cliente(lambda r: httpx.Response(500)))] == ["gemini:x"]  # fmt: skip
     assert ConfigIA(openrouter_chave="segredo-or").ativa and "segredo-or" not in repr(
         ConfigIA(openrouter_chave="segredo-or")
     )

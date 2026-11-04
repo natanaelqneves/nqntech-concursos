@@ -45,6 +45,10 @@ class ProvedorIA(Protocol):
 class ConfigIA:
     gemini_chave: str | None = None
     gemini_modelo: str = "gemini-3.8-flash"
+    # Mesma chave, modelos diferentes: cada modelo tem a sua cota diária na faixa gratuita (os Lite, 500/dia).
+    # Não é multiplicar chaves: quando um modelo esgota (429), o próximo entra.
+    gemini_modelos: tuple[str, ...] = ("gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.1-flash-lite",
+                                       "gemini-3.5-flash-lite")  # fmt: skip
     groq_chave: str | None = None
     groq_modelo: str = "openai/gpt-oss-120b"
     openrouter_chave: str | None = None
@@ -81,6 +85,8 @@ def _json_da_resposta(texto: str | None, provedor: str) -> dict[str, Any]:
 def _checar_status(resposta: httpx.Response, provedor: str) -> None:
     if resposta.status_code == 429:
         raise LimiteAtingido(f"{provedor}: limite atingido (429)")
+    if resposta.status_code == 404:  # modelo indisponível para a conta: sai da rodada como se tivesse esgotado
+        raise LimiteAtingido(f"{provedor}: modelo indisponível (404)")
     if resposta.status_code >= 400:
         # O corpo de erro dos provedores não contém a chave; corta para não poluir o log.
         raise FalhaIA(f"{provedor}: HTTP {resposta.status_code}: {resposta.text[:300]}")
@@ -180,7 +186,8 @@ def criar_provedores(config: ConfigIA, http: httpx.Client) -> list[ProvedorIA]:
     """Ordem = prioridade: Gemini, depois Groq, depois OpenRouter."""
     provedores: list[ProvedorIA] = []
     if config.gemini_chave:
-        provedores.append(Gemini(config.gemini_chave, config.gemini_modelo, http))
+        for modelo in config.gemini_modelos or (config.gemini_modelo,):
+            provedores.append(Gemini(config.gemini_chave, modelo, http, nome=f"gemini:{modelo}"))
     if config.groq_chave:
         provedores.append(Groq(config.groq_chave, config.groq_modelo, http))
     if config.openrouter_chave:

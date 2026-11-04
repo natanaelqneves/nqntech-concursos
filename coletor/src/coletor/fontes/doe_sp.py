@@ -131,6 +131,9 @@ class FonteDOESP:
             try:
                 sinal = parse_publicacao(_json(http, f"{API}/publications/{quote(slug, safe='/')}"))
             except ErroHttp as erro:
+                if "maior que" in str(erro):  # listas de milhares de nomes, não editais de abertura
+                    log.info("DOE-SP: publicação grande demais ignorada: %s", slug)
+                    continue
                 falhas.append(f"{slug}: {erro}")
                 continue
             if sinal is not None:

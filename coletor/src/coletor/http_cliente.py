@@ -61,9 +61,11 @@ def contexto_tls() -> ssl.SSLContext:
 
     Alguns servidores de bancas (COMPERVE, FUMARC) não enviam o certificado intermediário. Os navegadores
     completam a cadeia sozinhos; aqui o intermediário oficial entra só como elo para a cadeia chegar a uma raiz
-    do certifi (sem PARTIAL_CHAIN, ele não vira âncora de confiança). Nunca se desliga a verificação.
+    do certifi. O Python 3.13 liga PARTIAL_CHAIN por padrão; aqui ele é desligado para o intermediário não virar
+    âncora de confiança (a raiz continua obrigatória). Nunca se desliga a verificação.
     """
     contexto = ssl.create_default_context(cafile=certifi.where())
+    contexto.verify_flags &= ~ssl.VERIFY_X509_PARTIAL_CHAIN
     for pem in sorted(_CERTIFICADOS.glob("*.pem")):
         contexto.load_verify_locations(cadata=pem.read_text(encoding="ascii"))
     return contexto

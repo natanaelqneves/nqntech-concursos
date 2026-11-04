@@ -12,6 +12,7 @@ import csv
 import json
 import logging
 import re
+import time
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date
@@ -130,11 +131,23 @@ def interpretar(banca: str, texto: str, metadados: Mapping[str, Any]) -> list[Su
     return sugestoes
 
 
+def _motivo(resposta: httpx.Response) -> str:
+    """Mensagem do Google para o 429 (qual cota: por minuto, por dia, ou 0 para o modelo na faixa gratuita)."""
+    try:
+        erro = resposta.json().get("error") or {}
+    except ValueError:
+        return resposta.text[:300]
+    return str(erro.get("message") or "")[:400]
+
+
 class BuscaGemini:
-    def __init__(self, chave: str, modelo: str, http: httpx.Client) -> None:
+    def __init__(self, chave: str, modelo: str, http: httpx.Client, espera_429_s: float = 65.0,
+                 dormir=time.sleep) -> None:  # fmt: skip
         self._chave = chave
         self._modelo = modelo
         self._http = http
+        self._espera_429_s = espera_429_s
+        self._dormir = dormir
 
     def buscar(self, banca: str, hoje: date, limite: int = 15) -> list[Sugestao]:
         pedido = INSTRUCOES.format(banca=banca, hoje=hoje, limite=limite)
@@ -143,10 +156,13 @@ class BuscaGemini:
             "tools": [{"google_search": {}}],
             "generationConfig": {"temperature": 0, "maxOutputTokens": 8192},
         }
-        resposta = self._http.post(GEMINI_URL.format(modelo=self._modelo), json=corpo,
-                                   headers={"x-goog-api-key": self._chave})  # fmt: skip
+        resposta = self._postar(corpo)
         if resposta.status_code == 429:
-            raise LimiteAtingido("gemini: limite da busca atingido (429)")
+            # Limite por minuto passa com uma espera; cota diária (ou modelo sem cota de busca) não: uma tentativa só.
+            self._dormir(self._espera_429_s)
+            resposta = self._postar(corpo)
+        if resposta.status_code == 429:
+            raise LimiteAtingido(f"gemini ({self._modelo}): limite da busca atingido (429): {_motivo(resposta)}")
         if resposta.status_code >= 400:
             raise FalhaIA(f"gemini: HTTP {resposta.status_code}: {resposta.text[:300]}")
         try:
@@ -156,8 +172,12 @@ class BuscaGemini:
             raise FalhaIA(f"gemini: resposta sem conteúdo ({erro})") from erro
         return interpretar(banca, texto, candidato.get("groundingMetadata") or {})
 
+    def _postar(self, corpo: Mapping[str, Any]) -> httpx.Response:
+        return self._http.post(GEMINI_URL.format(modelo=self._modelo), json=corpo,
+                               headers={"x-goog-api-key": self._chave})  # fmt: skip
 
-def gravar(sugestoes: Sequence[Sugestao], pasta: Path, hoje: date) -> tuple[Path, Path]:
+
+def gravar(sugestoes: Sequence[Sugestao], pasta: Path, hoje: date, falhas: Sequence[str] = ()) -> tuple[Path, Path]:
     pasta.mkdir(parents=True, exist_ok=True)
     base = pasta / f"concursos-sugeridos-{hoje.isoformat()}"
     campos = list(Sugestao.__dataclass_fields__)
@@ -179,6 +199,10 @@ def gravar(sugestoes: Sequence[Sugestao], pasta: Path, hoje: date) -> tuple[Path
             linhas.append(f"- {marcas} **{s.orgao}** — {s.cargos or 'cargos no edital'}"
                           f"{' — ' + prazos if prazos else ''}  \n  {s.link}")  # fmt: skip
         linhas.append("")
+    if falhas:
+        linhas += ["## Falhas da busca", "", *(f"- {f}" for f in falhas), ""]
+    if not sugestoes and not falhas:
+        linhas += ["Nenhum concurso aberto encontrado hoje.", ""]
     base.with_suffix(".md").write_text("\n".join(linhas), encoding="utf-8")
     return base.with_suffix(".csv"), base.with_suffix(".md")
 

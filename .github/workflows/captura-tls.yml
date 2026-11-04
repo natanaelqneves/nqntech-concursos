@@ -1,0 +1,29 @@
+# Utilitário: diagnóstico da cadeia TLS de FUMARC e COMPERVE. Roda só em push na branch captura/tls.
+name: captura-tls
+on:
+  push:
+    branches: [captura/tls]
+    paths: [scripts/captura/sondar_tls.py, .github/workflows/captura-tls.yml]
+permissions:
+  contents: write
+concurrency:
+  group: captura-tls
+  cancel-in-progress: false
+jobs:
+  sondar:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - run: pip install requests certifi
+      - run: python scripts/captura/sondar_tls.py
+      - name: Gravar o resultado na branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f coletor/tests/fixtures/tls
+          git commit -m "captura: diagnóstico TLS [skip ci]" || echo "nada novo"
+          git push

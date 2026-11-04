@@ -16,14 +16,13 @@ import requests
 UA = "NqnTechConcursos/0.1 (site publico e gratuito de concursos; respeita robots.txt)"
 DESTINO = Path("coletor/tests/fixtures/sondagem2")
 ALVOS = {
-    "fcc_publicacoes": "https://www.concursosfcc.com.br/webapi/publicacao/v1/Publicacao/ListarPublicacaoLiberadas/0",
-    "fcc_home": "https://www.concursosfcc.com.br/",
-    "aocp_api": "https://www.institutoaocp.org.br/api/concursos",
-    "aocp_abertas": "https://www.institutoaocp.org.br/concursos/status/inscricoes-abertas",
-    "aocp_novos": "https://www.institutoaocp.org.br/concursos/status/novos",
-    "idecan_editais": "https://concurso.idecan.org.br/editais",
-    "fundep_home": "https://www.gestaodeconcursos.com.br/",
-    "fundep_anexos": "https://www.gestaodeconcursos.com.br/site/Site/AnexosConcursos.aspx",
+    "fundep_selecao_info": "https://fundep.selecao.net.br/informacoes/72/",
+    "fundep_selecao_home": "https://fundep.selecao.net.br/",
+    "aocp_page_js": "https://www.institutoaocp.org.br/_next/static/chunks/app/concursos/status/%5Bstatus%5D/page-948a2d56d00edf06.js",
+    "aocp_878_js": "https://www.institutoaocp.org.br/_next/static/chunks/878-6d922f649d823cc7.js",
+    "aocp_337_js": "https://www.institutoaocp.org.br/_next/static/chunks/337-c2997afc119d90e9.js",
+    "aocp_api_723": "https://www.institutoaocp.org.br/api/concursos/723",
+    "aocp_pagina_723": "https://www.institutoaocp.org.br/concursos/723",
 }
 _CHAVE = re.compile(r"((?:key|token|apikey|api_key|secret|sig)=)[^&\"'\s]+", re.IGNORECASE)
 
@@ -72,8 +71,11 @@ def main() -> int:
         tipo = r.headers.get("Content-Type", "")
         item.update(status=r.status_code, tipo=tipo, bytes=len(r.content), final=r.url)
         if r.ok and len(r.content) < 3_000_000:
-            extensao = "json" if "json" in tipo else "html"
+            extensao = "json" if "json" in tipo else ("js" if "javascript" in tipo else "html")
             (DESTINO / f"{nome}.{extensao}").write_text(limpar(r.text), encoding="utf-8")
+            if extensao == "js":
+                item["rotas_api"] = sorted(set(re.findall(r"[\"'`](/(?:api|concursos)/[^\"'`\s]{0,120})", r.text)))[:60]
+                (DESTINO / f"{nome}.js").unlink()  # só as rotas interessam (bundle pode ter chaves de terceiros)
             if extensao == "html":
                 links = sorted({urljoin(r.url, h) for h in re.findall(r"href=[\"']([^\"'#]+)", r.text)})
                 item["links"] = [link for link in links if not link.startswith("mailto")][:150]

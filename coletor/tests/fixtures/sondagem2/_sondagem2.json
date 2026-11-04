@@ -1,79 +1,68 @@
 {
  "_robots": {
-  "www.concursosfcc.com.br": {
-   "status": 200,
-   "texto": "User-Agent: *\nDisallow: /concursos/\nDisallow: /rss/\nDisallow: /*.pdf$\nDisallow: /*.PDF$ \n"
+  "fundep.selecao.net.br": {
+   "status": 403,
+   "texto": ""
   },
   "www.institutoaocp.org.br": {
    "status": 404,
    "texto": ""
-  },
-  "concurso.idecan.org.br": {
-   "status": 200,
-   "texto": "# As a condition of accessing this website, you agree to abide by the following\n# content signals:\n\n# (a)  If a Content-Signal = yes, you may collect content for the corresponding\n#      use.\n# (b)  If a Content-Signal = no, you may not collect content for the\n#      corresponding use.\n# (c)  If the website operator does not include a Content-Signal for a\n#      corresponding use, the website operator neither grants nor restricts\n#      permission via Content-Signal with respect to the corresponding use.\n\n# The content signals and their meanings are:\n\n# search:   building a search index and providing search results (e.g., returning\n#           hyperlinks and short excerpts from your website's contents). Search does not\n#           include providing AI-generated search summaries.\n# ai-input: inputting content into one or more AI models (e.g., retrieval\n#           augmented generation, grounding, or other real-time taking of content for\n#           generative AI search answers).\n# ai-train: training or fine-tuning AI models.\n# use:      how AI systems may consume the content (immediate, reference, or full).\n\n# ANY RESTRICTIONS EXPRESSED VIA CONTENT SIGNALS ARE EXPRESS RESERVATIONS OF\n# RIGHTS UNDER ARTICLE 4 OF THE EUROPEAN UNION DIRECTIVE 2019/790 ON COPYRIGHT\n# AND RELATED RIGHTS IN THE DIGITAL SINGLE MARKET.\n\n# BEGIN Cloudflare Managed content\n\n\nUser-agent: *\nContent-Signal: search=yes,ai-train=no,use=reference\nAllow: /\n\n# Training crawlers\nUser-agent: Amazonbot\nDisallow: /"
-  },
-  "www.gestaodeconcursos.com.br": {
-   "status": 404,
-   "texto": ""
   }
  },
- "fcc_publicacoes": {
-  "url": "https://www.concursosfcc.com.br/webapi/publicacao/v1/Publicacao/ListarPublicacaoLiberadas/0",
-  "permitido": true,
-  "status": 200,
-  "tipo": "application/json",
-  "bytes": 6892,
-  "final": "https://www.concursosfcc.com.br/webapi/publicacao/v1/Publicacao/ListarPublicacaoLiberadas/0"
+ "fundep_selecao_info": {
+  "url": "https://fundep.selecao.net.br/informacoes/72/",
+  "permitido": false
  },
- "fcc_home": {
-  "url": "https://www.concursosfcc.com.br/",
+ "fundep_selecao_home": {
+  "url": "https://fundep.selecao.net.br/",
+  "permitido": false
+ },
+ "aocp_page_js": {
+  "url": "https://www.institutoaocp.org.br/_next/static/chunks/app/concursos/status/%5Bstatus%5D/page-948a2d56d00edf06.js",
   "permitido": true,
   "status": 200,
-  "tipo": "text/html; charset=ISO-8859-1",
-  "bytes": 10019,
-  "final": "https://www.concursosfcc.com.br/",
-  "links": [
-   "https://www.concursosfcc.com.br/concursos/alems125/index.html",
-   "https://www.concursosfcc.com.br/concursos/banes126/index.html",
-   "https://www.concursosfcc.com.br/concursos/dpeba125/index.html",
-   "https://www.concursosfcc.com.br/concursos/dpepb126/index.html",
-   "https://www.concursosfcc.com.br/concursos/dpesp126/index.html",
-   "https://www.concursosfcc.com.br/concursos/fazsp126/index.html",
-   "https://www.concursosfcc.com.br/concursos/jsp/localDeExame/index.jsp",
-   "https://www.concursosfcc.com.br/concursos/pomsp326/index.html",
-   "https://www.concursosfcc.com.br/concursos/publicWeb2/modelo/3/barraPesquisaTopo/barraPesquisaTopo.css",
-   "https://www.concursosfcc.com.br/concursos/publicWeb2/modelo/3/calendar/calendar.css",
-   "https://www.concursosfcc.com.br/concursos/publicWeb2/modelo/3/css/banner.css",
-   "https://www.concursosfcc.com.br/concursos/publicWeb2/modelo/3/css/fcc.css",
-   "https://www.concursosfcc.com.br/concursos/publicWeb2/modelo/3/css/impressao.css",
-   "https://www.concursosfcc.com.br/concursos/publicWeb2/modelo/3/menu/menu.css",
-   "https://www.concursosfcc.com.br/concursos/scmsp126/index.html",
-   "https://www.concursosfcc.com.br/concursos/scmsp226/index.html",
-   "https://www.concursosfcc.com.br/concursos/semef125/index.html",
-   "https://www.concursosfcc.com.br/concursos/tcego125/index.html",
-   "https://www.concursosfcc.com.br/concursos/tjuce125/index.html",
-   "https://www.concursosfcc.com.br/concursos/trt4r125/index.html",
-   "https://www.concursosfcc.com.br/concursos/trt8r126/index.html",
-   "https://www.concursosfcc.com.br/css/banner.css",
-   "https://www.concursosfcc.com.br/portal_candidato/"
-  ],
+  "tipo": "application/javascript",
+  "bytes": 6549,
+  "final": "https://www.institutoaocp.org.br/_next/static/chunks/app/concursos/status/%5Bstatus%5D/page-948a2d56d00edf06.js",
+  "rotas_api": [
+   "/api/concursos",
+   "/api/concursos/proseleta/",
+   "/concursos/"
+  ]
+ },
+ "aocp_878_js": {
+  "url": "https://www.institutoaocp.org.br/_next/static/chunks/878-6d922f649d823cc7.js",
+  "permitido": true,
+  "status": 200,
+  "tipo": "application/javascript",
+  "bytes": 13306,
+  "final": "https://www.institutoaocp.org.br/_next/static/chunks/878-6d922f649d823cc7.js",
   "rotas_api": []
  },
- "aocp_api": {
-  "url": "https://www.institutoaocp.org.br/api/concursos",
+ "aocp_337_js": {
+  "url": "https://www.institutoaocp.org.br/_next/static/chunks/337-c2997afc119d90e9.js",
   "permitido": true,
   "status": 200,
-  "tipo": "application/json",
-  "bytes": 257097,
-  "final": "https://www.institutoaocp.org.br/api/concursos"
+  "tipo": "application/javascript",
+  "bytes": 76891,
+  "final": "https://www.institutoaocp.org.br/_next/static/chunks/337-c2997afc119d90e9.js",
+  "rotas_api": []
  },
- "aocp_abertas": {
-  "url": "https://www.institutoaocp.org.br/concursos/status/inscricoes-abertas",
+ "aocp_api_723": {
+  "url": "https://www.institutoaocp.org.br/api/concursos/723",
+  "permitido": true,
+  "status": 404,
+  "tipo": "text/html; charset=utf-8",
+  "bytes": 55987,
+  "final": "https://www.institutoaocp.org.br/api/concursos/723"
+ },
+ "aocp_pagina_723": {
+  "url": "https://www.institutoaocp.org.br/concursos/723",
   "permitido": true,
   "status": 200,
   "tipo": "text/html; charset=utf-8",
-  "bytes": 56677,
-  "final": "https://www.institutoaocp.org.br/concursos/status/inscricoes-abertas",
+  "bytes": 55620,
+  "final": "https://www.institutoaocp.org.br/concursos/723",
   "links": [
    "https://link.institutoaocp.org.br/certificado/index.jsp",
    "https://noticias.institutoaocp.org.br",
@@ -99,134 +88,6 @@
    "https://www.institutoaocp.org.br/quem-somos",
    "https://www.linkedin.com/company/institutoaocp",
    "https://www.youtube.com/c/InstitutoAOCPOficial"
-  ],
-  "rotas_api": []
- },
- "aocp_novos": {
-  "url": "https://www.institutoaocp.org.br/concursos/status/novos",
-  "permitido": true,
-  "status": 200,
-  "tipo": "text/html; charset=utf-8",
-  "bytes": 56586,
-  "final": "https://www.institutoaocp.org.br/concursos/status/novos",
-  "links": [
-   "https://link.institutoaocp.org.br/certificado/index.jsp",
-   "https://noticias.institutoaocp.org.br",
-   "https://social.institutoaocp.org.br",
-   "https://www.facebook.com/institutoaocp",
-   "https://www.instagram.com/instituto.aocp",
-   "https://www.institutoaocp.org.br/",
-   "https://www.institutoaocp.org.br/_next/static/chunks/webpack-572f33227df9db7d.js",
-   "https://www.institutoaocp.org.br/_next/static/css/0aa9f82f32e64428.css",
-   "https://www.institutoaocp.org.br/_next/static/css/8d3bf35648cace3e.css",
-   "https://www.institutoaocp.org.br/atendimento/faq",
-   "https://www.institutoaocp.org.br/cdn-cgi/l/email-protection",
-   "https://www.institutoaocp.org.br/comercial",
-   "https://www.institutoaocp.org.br/concursos/status/em-andamento",
-   "https://www.institutoaocp.org.br/concursos/status/finalizados",
-   "https://www.institutoaocp.org.br/concursos/status/inscricoes-abertas",
-   "https://www.institutoaocp.org.br/concursos/status/novos",
-   "https://www.institutoaocp.org.br/concursos/status/resultados-disponiveis",
-   "https://www.institutoaocp.org.br/imprensa",
-   "https://www.institutoaocp.org.br/lgpd/direitos-do-titular",
-   "https://www.institutoaocp.org.br/politicas/cookies",
-   "https://www.institutoaocp.org.br/politicas/privacidade",
-   "https://www.institutoaocp.org.br/quem-somos",
-   "https://www.linkedin.com/company/institutoaocp",
-   "https://www.youtube.com/c/InstitutoAOCPOficial"
-  ],
-  "rotas_api": []
- },
- "idecan_editais": {
-  "url": "https://concurso.idecan.org.br/editais",
-  "permitido": true,
-  "status": 403,
-  "tipo": "text/html; charset=UTF-8",
-  "bytes": 5658,
-  "final": "https://concurso.idecan.org.br/editais"
- },
- "fundep_home": {
-  "url": "https://www.gestaodeconcursos.com.br/",
-  "permitido": true,
-  "status": 200,
-  "tipo": "text/html; charset=utf-8",
-  "bytes": 53138,
-  "final": "https://www.gestaodeconcursos.com.br/site/site/default.aspx",
-  "links": [
-   "http://www.fundep.ufmg.br/pagina/100/fale-conosco.aspx",
-   "http://www.fundep.ufmg.br/pagina/43/servicos---gestao-de-concursos.aspx",
-   "https://fonts.googleapis.com/css?family=Titillium+Web:200italic,200,300,300italic,400,700,600,400italic,700italic,600italic",
-   "https://fundep.selecao.net.br/informacoes/58/",
-   "https://fundep.selecao.net.br/informacoes/71/",
-   "https://fundep.selecao.net.br/informacoes/72/",
-   "https://fundep.selecao.net.br/noticias",
-   "https://wa.me/553182571243",
-   "https://www.fundep.ufmg.br/politicadeprivacidade",
-   "https://www.gestaodeconcursos.com.br/site/Candidato/AlteraSenha.aspx",
-   "https://www.gestaodeconcursos.com.br/site/Candidato/CadastroCandidato.aspx",
-   "https://www.gestaodeconcursos.com.br/site/Candidato/Default.aspx",
-   "https://www.gestaodeconcursos.com.br/site/Candidato/MinhasInscricoes.aspx",
-   "https://www.gestaodeconcursos.com.br/site/Default.aspx",
-   "https://www.gestaodeconcursos.com.br/site/EspacoCliente/LoginCliente.aspx",
-   "https://www.gestaodeconcursos.com.br/site/Site/AnexosConcursos.aspx",
-   "https://www.gestaodeconcursos.com.br/site/Site/Contato.aspx",
-   "https://www.gestaodeconcursos.com.br/site/Site/Default.aspx",
-   "https://www.gestaodeconcursos.com.br/site/Site/Faq.aspx",
-   "https://www.gestaodeconcursos.com.br/site/candidato/CadastroCandidato.aspx",
-   "https://www.gestaodeconcursos.com.br/site/css/bootstrap.min.css",
-   "https://www.gestaodeconcursos.com.br/site/css/fonts.css",
-   "https://www.gestaodeconcursos.com.br/site/css/simplechat.css",
-   "https://www.gestaodeconcursos.com.br/site/css/smoothness/jquery-ui.css",
-   "https://www.gestaodeconcursos.com.br/site/css/smoothness/ui.all.css",
-   "https://www.gestaodeconcursos.com.br/site/css/style.css",
-   "https://www.gestaodeconcursos.com.br/site/images/icons/favicon.jpg",
-   "https://www.gestaodeconcursos.com.br/site/site/AnexosConcursos.aspx",
-   "https://www.gestaodeconcursos.com.br/site/site/Default.aspx",
-   "https://www.gestaodeconcursos.com.br/site/site/LembrarSenha.aspx",
-   "https://www.gestaodeconcursos.com.br/site/site/faq.aspx",
-   "javascript:__doPostBack(&",
-   "javascript:void(0);"
-  ],
-  "rotas_api": []
- },
- "fundep_anexos": {
-  "url": "https://www.gestaodeconcursos.com.br/site/Site/AnexosConcursos.aspx",
-  "permitido": true,
-  "status": 200,
-  "tipo": "text/html; charset=utf-8",
-  "bytes": 60204,
-  "final": "https://www.gestaodeconcursos.com.br/site/Site/AnexosConcursos.aspx",
-  "links": [
-   "http://get.adobe.com/br/reader/",
-   "http://www.fundep.ufmg.br/pagina/100/fale-conosco.aspx",
-   "https://fonts.googleapis.com/css?family=Titillium+Web:200italic,200,300,300italic,400,700,600,400italic,700italic,600italic",
-   "https://fundep.selecao.net.br/noticias",
-   "https://wa.me/553182571243",
-   "https://www.fundep.ufmg.br/politicadeprivacidade",
-   "https://www.gestaodeconcursos.com.br/site/Candidato/AlteraSenha.aspx",
-   "https://www.gestaodeconcursos.com.br/site/Candidato/CadastroCandidato.aspx",
-   "https://www.gestaodeconcursos.com.br/site/Candidato/Default.aspx",
-   "https://www.gestaodeconcursos.com.br/site/Candidato/MinhasInscricoes.aspx",
-   "https://www.gestaodeconcursos.com.br/site/Default.aspx",
-   "https://www.gestaodeconcursos.com.br/site/EspacoCliente/LoginCliente.aspx",
-   "https://www.gestaodeconcursos.com.br/site/Site/AnexosConcursos.aspx",
-   "https://www.gestaodeconcursos.com.br/site/Site/Contato.aspx",
-   "https://www.gestaodeconcursos.com.br/site/Site/Default.aspx",
-   "https://www.gestaodeconcursos.com.br/site/Site/Faq.aspx",
-   "https://www.gestaodeconcursos.com.br/site/Site/LembrarSenha.aspx",
-   "https://www.gestaodeconcursos.com.br/site/Site/default.aspx",
-   "https://www.gestaodeconcursos.com.br/site/candidato/CadastroCandidato.aspx",
-   "https://www.gestaodeconcursos.com.br/site/css/bootstrap.min.css",
-   "https://www.gestaodeconcursos.com.br/site/css/fonts.css",
-   "https://www.gestaodeconcursos.com.br/site/css/simplechat.css",
-   "https://www.gestaodeconcursos.com.br/site/css/smoothness/jquery-ui.css",
-   "https://www.gestaodeconcursos.com.br/site/css/smoothness/ui.all.css",
-   "https://www.gestaodeconcursos.com.br/site/css/style.css",
-   "https://www.gestaodeconcursos.com.br/site/images/icons/favicon.jpg",
-   "https://www.gestaodeconcursos.com.br/site/site/AnexosConcursos.aspx",
-   "https://www.gestaodeconcursos.com.br/site/site/Default.aspx",
-   "https://www.gestaodeconcursos.com.br/site/site/faq.aspx",
-   "javascript:__doPostBack(&"
   ],
   "rotas_api": []
  }

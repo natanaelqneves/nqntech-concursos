@@ -56,6 +56,13 @@ def main() -> int:
                 eventos = [e for grupo in dados if isinstance(grupo, dict) for e in grupo.get("eventos") or []]
                 identificadores = [e.get("eventoURL") for e in eventos if e.get("eventoURL")]
                 item["identificadores"] = identificadores
+                for ident in identificadores[:10]:
+                    alvo = f"{API}/{ident}"
+                    if robo_api.can_fetch(UA, alvo):
+                        time.sleep(3)
+                        det = s.get(alvo, timeout=25, headers={"Accept": "application/json"})
+                        if det.ok:
+                            (DESTINO / f"evento_{ident}.json").write_text(det.text, encoding="utf-8")
                 identificador = identificador or (identificadores[0] if identificadores else None)
     if identificador is not None:
         url = f"{API}/{identificador}"

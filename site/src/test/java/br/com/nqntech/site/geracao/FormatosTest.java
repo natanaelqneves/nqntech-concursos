@@ -28,6 +28,10 @@ class FormatosTest {
         assertThat(fmt.periodo(inicio, inicio)).isEqualTo("20/10/2026");
         assertThat(fmt.periodo(null, null)).isEqualTo("a definir");
         assertThat(fmt.diasAte(LocalDate.of(2026, 10, 27))).isEqualTo(2);
+        assertThat(fmt.dia(LocalDate.of(2026, 11, 5))).isEqualTo("05");
+        assertThat(fmt.mes(LocalDate.of(2026, 11, 5))).isEqualTo("nov");
+        assertThat(fmt.mes(LocalDate.of(2026, 3, 1))).isEqualTo("mar");
+        assertThat(fmt.dia(null)).isEmpty();
     }
 
     @Test

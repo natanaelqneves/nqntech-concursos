@@ -3,17 +3,22 @@
 <head th:replace="~{base :: head(${meta})}"></head>
 <body>
 <header th:replace="~{base :: cabecalho}"></header>
-<main id="conteudo" class="largura">
-    <nav class="trilha" aria-label="Você está em"><a href="/">Início</a> › <span>Isenção da taxa</span></nav>
-    <h1>Isenção da taxa de inscrição</h1>
-    <p>Muitos editais preveem isenção da taxa para algumas pessoas: inscritos no CadÚnico, doadores de sangue ou
-        de medula, jurados e outros casos. Cada edital tem regras, documentos e prazo próprios. Veja abaixo o que
-        cada tipo costuma exigir e quais concursos abertos o preveem.</p>
-    <p class="aviso">Isto é orientação geral. Quem decide é o edital de cada concurso: confira sempre o edital.</p>
+<main id="conteudo" class="container">
+    <div class="cabeca-pagina">
+        <nav aria-label="Você está em"><ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Início</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Isenção da taxa</li>
+        </ol></nav>
+        <h1>Isenção da taxa de inscrição</h1>
+        <p class="lead">Muitos editais preveem isenção da taxa para algumas pessoas: inscritos no CadÚnico, doadores de
+            sangue ou de medula, jurados e outros casos. Cada edital tem regras, documentos e prazo próprios. Veja abaixo
+            o que cada tipo costuma exigir e quais concursos abertos o preveem.</p>
+        <p class="aviso mb-0">Isto é orientação geral. Quem decide é o edital de cada concurso: confira sempre o edital.</p>
+    </div>
 
-    <section th:if="${!emPrazo.isEmpty()}" class="destaque" aria-labelledby="titulo-prazo">
+    <section th:if="${!emPrazo.isEmpty()}" class="painel-prazo" aria-labelledby="titulo-prazo">
         <h2 id="titulo-prazo">Prazo para pedir isenção aberto agora</h2>
-        <ul class="lista-compacta">
+        <ul class="lista-prazos">
             <li th:each="c : ${emPrazo}">
                 <a th:href="${'/concurso/' + c.slug() + '/'}" th:text="${c.nomeExibicao()}">Órgão</a>
                 <span class="prazo" th:attr="data-prazo=${fmt.dataIso(c.isencaoFim())}"
@@ -23,12 +28,14 @@
     </section>
 
     <section aria-labelledby="titulo-tipos">
-        <h2 id="titulo-tipos">Tipos de isenção</h2>
-        <ul class="tipos">
-            <li th:each="t : ${tipos}">
-                <a th:href="${'/isencoes/' + t.slug() + '/'}" th:text="${t.nome()}">Tipo</a>
-                <span class="contador" th:text="${'(' + porTipo.get(t.codigo()).size() + ' concursos)'}">(0)</span>
-                <p th:text="${t.descricao()}">Descrição</p>
+        <h2 id="titulo-tipos" class="secao">Tipos de isenção</h2>
+        <ul class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3 list-unstyled">
+            <li class="col" th:each="t : ${tipos}">
+                <div class="tipo">
+                    <h3><a th:href="${'/isencoes/' + t.slug() + '/'}" th:text="${t.nome()}">Tipo</a></h3>
+                    <p class="nota mb-2" th:text="${porTipo.get(t.codigo()).size() == 1} ? '1 concurso prevê' : ${porTipo.get(t.codigo()).size() + ' concursos preveem'}">0 concursos</p>
+                    <p class="text-start" th:text="${t.descricao()}">Descrição</p>
+                </div>
             </li>
         </ul>
     </section>

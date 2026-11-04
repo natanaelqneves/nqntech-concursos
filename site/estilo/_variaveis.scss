@@ -1,0 +1,97 @@
+// Paleta: tinta azul-ardósia de documento oficial, verde do edital como cor principal e âmbar só para prazos
+// de isenção. Contrastes conferidos para WCAG AA (texto normal ≥ 4,5:1) nos dois temas.
+
+$tinta:        #16242c;
+$tinta-suave:  #4f5d66;
+$papel:        #ffffff;
+$nevoa:        #f1f5f3;
+$linha:        #dfe6e2;
+$verde:        #0b6b4f;
+$verde-fundo:  #e3f2ec;
+$ambar:        #8a4500;
+$ambar-fundo:  #fff1dc;
+$urgente:      #b42318;
+
+$tinta-escuro:       #e3ece8;
+$tinta-suave-escuro: #a3b2ab;
+$papel-escuro:       #0e1614;
+$nevoa-escuro:       #15201d;
+$linha-escuro:       #26332f;
+$verde-escuro:       #5fd3a8;
+$verde-fundo-escuro: #12302a;
+$ambar-escuro:       #ffb867;
+$ambar-fundo-escuro: #2c1f0e;
+$urgente-escuro:     #ff8a7d;
+
+// Bootstrap
+$primary:   $verde;
+$secondary: $tinta-suave;
+$success:   $verde;
+$warning:   $ambar;
+$danger:    $urgente;
+$light:     $nevoa;
+$dark:      $tinta;
+
+$body-bg:               $papel;
+$body-color:            $tinta;
+$body-secondary-color:  $tinta-suave;
+$body-tertiary-bg:      $nevoa;
+$border-color:          $linha;
+$link-color:            $verde;
+$link-decoration:       underline;
+$link-underline-offset: .2em;
+
+$body-bg-dark:              $papel-escuro;
+$body-color-dark:           $tinta-escuro;
+$body-secondary-color-dark: $tinta-suave-escuro;
+$body-tertiary-bg-dark:     $nevoa-escuro;
+$border-color-dark:         $linha-escuro;
+$link-color-dark:           $verde-escuro;
+$link-hover-color-dark:     #8fe4c4;
+$primary-text-emphasis-dark: $verde-escuro;
+
+$color-mode-type: data;
+$enable-negative-margins: false;
+$enable-shadows: false;
+$enable-gradients: false;
+
+$font-family-sans-serif: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+$font-size-base:   1rem;
+$line-height-base: 1.6;
+$headings-font-weight: 700;
+$headings-line-height: 1.2;
+$headings-margin-bottom: .6rem;
+$h1-font-size: 2.6rem;
+$h2-font-size: 1.45rem;
+$h3-font-size: 1.12rem;
+$h4-font-size: 1rem;
+$font-weight-semibold: 600;
+
+$border-radius:    .5rem;
+$border-radius-sm: .375rem;
+$border-radius-lg: .875rem;
+
+$btn-padding-y: .65rem;
+$btn-padding-x: 1.2rem;
+$btn-font-weight: 700;
+
+$badge-font-size: .78rem;
+$badge-font-weight: 600;
+$badge-padding-y: .38em;
+$badge-padding-x: .7em;
+
+$card-border-color: $linha;
+$card-spacer-y: 1.1rem;
+$card-spacer-x: 1.15rem;
+
+$breadcrumb-divider: quote("/");
+$breadcrumb-margin-bottom: 1.25rem;
+
+$table-cell-padding-y: .8rem;
+$table-cell-padding-x: 1rem;
+$table-th-font-weight: 600;
+
+$container-max-widths: (sm: 540px, md: 720px, lg: 960px, xl: 1140px, xxl: 1200px);
+$grid-gutter-width: 1.25rem;
+$grid-row-columns: 3;
+$container-padding-x: 2rem;

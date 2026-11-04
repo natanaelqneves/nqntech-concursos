@@ -21,6 +21,10 @@ public final class Formatos {
     private static final DateTimeFormatter DATA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter DATA_HORA = DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm");
 
+    // Abreviações fixas: o Locale pt-BR do JDK põe ponto final ("nov.") e muda entre versões.
+    private static final String[] MESES =
+            {"jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"};
+
     private static final Map<String, String> SITUACOES = Map.of(
             "PREVISTO", "Previsto",
             "INSCRICOES_ABERTAS", "Inscrições abertas",
@@ -45,6 +49,16 @@ public final class Formatos {
 
     public String data(LocalDate data) {
         return data == null ? "a definir" : DATA.format(data);
+    }
+
+    /** Dia com dois dígitos, para o canhoto de data dos cartões. */
+    public String dia(LocalDate data) {
+        return data == null ? "" : String.format("%02d", data.getDayOfMonth());
+    }
+
+    /** Mês abreviado em minúsculas ("nov"), para o canhoto de data dos cartões. */
+    public String mes(LocalDate data) {
+        return data == null ? "" : MESES[data.getMonthValue() - 1];
     }
 
     public String dataIso(LocalDate data) {

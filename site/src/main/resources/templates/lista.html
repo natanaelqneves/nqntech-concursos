@@ -3,22 +3,26 @@
 <head th:replace="~{base :: head(${meta})}"></head>
 <body>
 <header th:replace="~{base :: cabecalho}"></header>
-<main id="conteudo" class="largura">
-    <nav class="trilha" aria-label="Você está em"><a href="/">Início</a> › <span th:text="${titulo}">Lista</span></nav>
-    <h1 th:text="${titulo}">Concursos</h1>
-    <p th:text="${descricao}">Descrição</p>
+<main id="conteudo" class="container">
+    <div class="cabeca-pagina">
+        <nav aria-label="Você está em"><ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Início</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${titulo}">Lista</li>
+        </ol></nav>
+        <h1 th:text="${titulo}">Concursos</h1>
+        <p class="lead" th:text="${descricao}">Descrição</p>
+    </div>
 
-    <nav th:if="${!atalhos.isEmpty()}" class="atalhos" aria-label="Refinar">
-        <ul>
-            <li th:each="a : ${atalhos}"><a th:href="${a.url()}" th:text="${a.nome()}">Local</a>
-                <span class="contador" th:if="${a.quantidade() > 0}" th:text="${'(' + a.quantidade() + ')'}">(0)</span></li>
+    <nav th:if="${!atalhos.isEmpty()}" aria-label="Refinar">
+        <ul class="atalhos">
+            <li th:each="a : ${atalhos}"><a th:href="${a.url()}"><span th:text="${a.nome()}">Local</span>
+                <span class="contador" th:if="${a.quantidade() > 0}" th:text="${a.quantidade()}">0</span></a></li>
         </ul>
     </nav>
 
-
     <p th:if="${concursos.isEmpty()}" class="vazio">Nenhum concurso aberto ou previsto aqui no momento.</p>
-    <div class="grade" id="resultados">
-        <th:block th:each="c : ${concursos}"><article th:replace="~{base :: cartao(${c})}"></article></th:block>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3" id="resultados">
+        <div class="col" th:each="c : ${concursos}"><article th:replace="~{base :: cartao(${c})}"></article></div>
     </div>
 </main>
 <footer th:replace="~{base :: rodape}"></footer>

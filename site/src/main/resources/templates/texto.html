@@ -3,21 +3,26 @@
 <head th:replace="~{base :: head(${meta})}"></head>
 <body>
 <header th:replace="~{base :: cabecalho}"></header>
-<main id="conteudo" class="largura texto">
-    <nav class="trilha" aria-label="Você está em"><a href="/">Início</a> › <span th:text="${titulo}">Página</span></nav>
-    <h1 th:text="${titulo}">Título</h1>
+<main id="conteudo" class="container texto">
+    <div class="cabeca-pagina pb-0">
+        <nav aria-label="Você está em"><ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Início</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${titulo}">Página</li>
+        </ol></nav>
+        <h1 th:text="${titulo}">Título</h1>
+    </div>
 
     <th:block th:if="${fragmento == 'sobre'}">
         <p>O NqnTech Concursos reúne concursos públicos de todo o Brasil em um só lugar, com informação direta e
             gratuita. O foco são as <strong>oportunidades disponíveis</strong>: concursos com inscrições abertas ou por
             abrir, previstos e com prazo para pedir isenção da taxa.</p>
-        <h2>De onde vêm as informações</h2>
+        <h2 class="secao">De onde vêm as informações</h2>
         <p>Os dados são coletados automaticamente, uma vez por dia, das páginas oficiais das bancas organizadoras.
             Hoje as fontes são as bancas FGV, Cebraspe, IBAM, IBADE e COMPERVE (UFRN); outras
             bancas e os diários oficiais entram aos poucos. Bancas que proíbem o acesso automatizado (no robots.txt ou
             bloqueando robôs) não são coletadas. Os editais são lidos
             por regras automáticas, e o resumo de cada concurso é escrito a partir desses dados.</p>
-        <h2>Limites</h2>
+        <h2 class="secao">Limites</h2>
         <ul>
             <li>A leitura automática pode errar ou deixar de encontrar uma informação. Quando isso acontece, a página
                 avisa: confira o edital.</li>
@@ -26,15 +31,15 @@
             <li>Concursos encerrados e em fase de prova, sem prazo de isenção aberto, saem do site.</li>
         </ul>
         <p th:if="${!#strings.isEmpty(site.atualizacao())}">Última coleta: <span th:text="${site.atualizacao()}">--</span>.</p>
-        <h2>Código aberto</h2>
+        <h2 class="secao">Código aberto</h2>
         <p>O código do projeto é aberto: <a href="https://github.com/natanaelqneves/nqntech-concursos">github.com/natanaelqneves/nqntech-concursos</a>.</p>
     </th:block>
 
     <th:block th:if="${fragmento == 'privacidade'}">
-        <h2>O que o próprio site coleta</h2>
+        <h2 class="secao">O que o próprio site coleta</h2>
         <p>Nada que identifique você. O NqnTech Concursos não tem cadastro e não cria cookies próprios. A escolha de
             tema (claro ou escuro) fica guardada só no seu navegador.</p>
-        <h2>Anúncios (Google AdSense)</h2>
+        <h2 class="secao">Anúncios (Google AdSense)</h2>
         <p>Para manter a informação gratuita, o site exibe anúncios do Google AdSense. O Google e seus parceiros podem
             usar cookies e identificadores do aparelho para exibir e medir anúncios. Na primeira visita, uma mensagem
             de consentimento do Google pergunta se você aceita anúncios personalizados; sem consentimento, os anúncios
@@ -45,13 +50,13 @@
             Configurações de anúncios: <a href="https://adssettings.google.com" rel="noopener">adssettings.google.com</a>.</p>
         <p>Os anúncios nunca fazem parte do resumo dos concursos e não recomendam cursos ou produtos no lugar da
             informação oficial.</p>
-        <h2>Estatísticas</h2>
+        <h2 class="secao">Estatísticas</h2>
         <p>Podemos usar estatísticas agregadas de acesso sem cookies (por exemplo, o Cloudflare Web Analytics) para
             saber quais páginas são mais vistas.</p>
-        <h2>Alertas por e-mail (em breve)</h2>
+        <h2 class="secao">Alertas por e-mail (em breve)</h2>
         <p>Quando os alertas entrarem no ar, pediremos só nome, e-mail e o filtro escolhido, com confirmação por
             e-mail e descadastro em um clique, que apaga seus dados.</p>
-        <h2>Contato</h2>
+        <h2 class="secao">Contato</h2>
         <p>Dúvidas e pedidos sobre privacidade: pelo repositório do projeto no GitHub.</p>
         <p class="nota">Atualizada em 04/11/2026.</p>
     </th:block>

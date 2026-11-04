@@ -57,6 +57,25 @@ public record Concurso(
         return isencaoFim != null && !isencaoFim.isBefore(hoje) && (isencaoInicio == null || !isencaoInicio.isAfter(hoje));
     }
 
+    /**
+     * Data que o cartão destaca no canhoto: fim das inscrições (se abertas), início (se ainda vão abrir) ou prova.
+     * Sem nenhuma delas, o canhoto mostra "a definir".
+     */
+    public Marco marco(LocalDate hoje) {
+        if (inscricoesAbertas(hoje) && inscricaoFim != null) {
+            return new Marco("Inscrições até", inscricaoFim);
+        }
+        if (inscricaoInicio != null && inscricaoInicio.isAfter(hoje)) {
+            return new Marco("Inscrições a partir de", inscricaoInicio);
+        }
+        if (dataProva != null && !dataProva.isBefore(hoje)) {
+            return new Marco("Prova em", dataProva);
+        }
+        return new Marco("Datas", null);
+    }
+
+    public record Marco(String rotulo, LocalDate data) {}
+
     public boolean temDisciplinas() {
         return cargos.stream().anyMatch(c -> !c.disciplinas().isEmpty());
     }

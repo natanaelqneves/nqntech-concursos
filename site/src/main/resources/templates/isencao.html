@@ -3,31 +3,41 @@
 <head th:replace="~{base :: head(${meta})}"></head>
 <body>
 <header th:replace="~{base :: cabecalho}"></header>
-<main id="conteudo" class="largura">
-    <nav class="trilha" aria-label="Você está em"><a href="/">Início</a> › <a href="/isencoes/">Isenção da taxa</a> ›
-        <span th:text="${tipo.nome()}">Tipo</span></nav>
-    <h1 th:text="${'Isenção da taxa: ' + tipo.nome()}">Isenção</h1>
-    <p th:text="${tipo.descricao()}">Descrição</p>
+<main id="conteudo" class="container">
+    <div class="cabeca-pagina">
+        <nav aria-label="Você está em"><ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Início</a></li>
+            <li class="breadcrumb-item"><a href="/isencoes/">Isenção da taxa</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${tipo.nome()}">Tipo</li>
+        </ol></nav>
+        <h1 th:text="${'Isenção da taxa: ' + tipo.nome()}">Isenção</h1>
+        <p class="lead" th:text="${tipo.descricao()}">Descrição</p>
+    </div>
 
-    <section th:if="${!tipo.documentos().isEmpty()}" aria-labelledby="titulo-documentos">
-        <h2 id="titulo-documentos">Documentos que os editais costumam pedir</h2>
-        <ul><li th:each="d : ${tipo.documentos()}" th:text="${d}">Documento</li></ul>
-    </section>
+    <div class="row g-4">
+        <section th:if="${!tipo.documentos().isEmpty()}" class="col-lg-6" aria-labelledby="titulo-documentos">
+            <div class="tipo">
+                <h2 id="titulo-documentos">Documentos que os editais costumam pedir</h2>
+                <ul class="mb-0"><li th:each="d : ${tipo.documentos()}" th:text="${d}">Documento</li></ul>
+            </div>
+        </section>
+        <section class="col-lg-6" aria-labelledby="titulo-lei">
+            <div class="tipo">
+                <h2 id="titulo-lei">Base legal</h2>
+                <p th:text="${tipo.baseLegal()}">Lei</p>
+                <p th:if="${!#strings.isEmpty(linkLei)}" class="mt-2"><a th:href="${linkLei}" rel="noopener">Texto oficial da lei</a></p>
+            </div>
+        </section>
+    </div>
 
-    <section aria-labelledby="titulo-lei">
-        <h2 id="titulo-lei">Base legal</h2>
-        <p th:text="${tipo.baseLegal()}">Lei</p>
-        <p th:if="${!#strings.isEmpty(linkLei)}"><a th:href="${linkLei}" rel="noopener">Texto oficial da lei</a></p>
-    </section>
-
-    <p class="aviso">As regras variam de um edital para outro (renda, número de doações, prazos, documentos).
+    <p class="aviso mt-4">As regras variam de um edital para outro (renda, número de doações, prazos, documentos).
         Confira sempre o edital do concurso.</p>
 
     <section aria-labelledby="titulo-concursos">
-        <h2 id="titulo-concursos">Concursos que preveem esta isenção</h2>
+        <h2 id="titulo-concursos" class="secao">Concursos que preveem esta isenção</h2>
         <p th:if="${concursos.isEmpty()}" class="vazio">Nenhum concurso aberto ou previsto com esta isenção no momento.</p>
-        <div class="grade">
-            <th:block th:each="c : ${concursos}"><article th:replace="~{base :: cartao(${c})}"></article></th:block>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+            <div class="col" th:each="c : ${concursos}"><article th:replace="~{base :: cartao(${c})}"></article></div>
         </div>
     </section>
 </main>

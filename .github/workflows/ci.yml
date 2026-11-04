@@ -80,6 +80,10 @@ jobs:
           java-version: "25"
           cache: maven
 
+      # O CSS do site é gerado do Sass (Bootstrap enxuto) e commitado; aqui confere que não ficou desatualizado.
+      - name: Estilo do site (CSS confere com o Sass)
+        run: site/estilo/compilar.sh --conferir
+
       - name: Site (compilar + testes unitários e de integração como site_app)
         env:
           SITE_DB_URL: jdbc:postgresql://localhost:5432/concursos

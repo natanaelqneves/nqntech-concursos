@@ -14,13 +14,14 @@
     <meta property="og:title" th:content="${meta.titulo()}">
     <meta property="og:description" th:content="${meta.descricao()}">
     <meta th:if="${!#strings.isEmpty(meta.canonica())}" property="og:url" th:content="${meta.canonica()}">
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#ffffff">
     <meta name="google-adsense-account" content="ca-pub-5630145382573940">
     <link rel="icon" href="/assets/icone.svg" type="image/svg+xml">
     <!-- Aplica o tema salvo antes de desenhar a página (evita piscar branco → escuro). Arquivo próprio: a CSP não
          libera script inline. -->
     <script src="/assets/tema.js"></script>
+    <link rel="preload" href="/assets/fontes/AtkinsonHyperlegibleNext-Regular.woff2" as="font" type="font/woff2" crossorigin>
+    <!-- Bootstrap 5.3 enxuto + estilo do site, compilado de site/estilo/ (ver compilar.sh). -->
     <link rel="stylesheet" href="/assets/site.css">
     <!-- JSON já escapado (Json.escrever troca <, > e & por <...), por isso utext é seguro aqui. -->
     <script th:if="${!#strings.isEmpty(meta.jsonLd())}" type="application/ld+json" th:utext="${meta.jsonLd()}"></script>
@@ -31,68 +32,78 @@
 <body>
 
 <header th:fragment="cabecalho" class="topo">
-  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
-  <div class="largura topo__linha">
+  <a class="visually-hidden-focusable pular" href="#conteudo">Pular para o conteúdo</a>
+  <div class="container topo__linha">
     <a class="marca" href="/" aria-label="NqnTech Concursos, página inicial">
-      <span class="marca__icone" aria-hidden="true">NT</span>
-      <span class="marca__nome">NqnTech <strong>Concursos</strong></span>
+      <span class="marca__selo" aria-hidden="true">NT</span>
+      <span class="marca__nome">NqnTech <span>Concursos</span></span>
     </a>
-    <div class="topo__acoes">
-      <nav id="menu-principal" class="navegacao" aria-label="Principal">
-        <ul class="menu">
-          <li><a href="/">Início</a></li>
-          <li><a href="/inscricoes-abertas/">Inscrições abertas</a></li>
-          <li><a href="/isencao-em-prazo/">Isenção em prazo</a></li>
-          <li><a href="/isencoes/">Tipos de isenção</a></li>
-          <li><a href="/brasil/">Por região</a></li>
-          <li><a href="/sobre/">Sobre</a></li>
-        </ul>
-      </nav>
-      <button id="alternar-tema" class="botao-tema" type="button" aria-pressed="false"
-              aria-label="Usar tema escuro" title="Alternar tema claro/escuro">
-        <svg class="icone-lua" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M21 14.5A9 9 0 0 1 9.5 3a9 9 0 1 0 11.5 11.5z"/></svg>
-        <svg class="icone-sol" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg>
-      </button>
-    </div>
+    <nav id="menu-principal" class="topo__nav" aria-label="Principal">
+      <ul class="topo__menu">
+        <li><a href="/" th:attr="aria-current=${meta.url() == '/'} ? 'page' : null">Início</a></li>
+        <li><a href="/inscricoes-abertas/" th:attr="aria-current=${meta.url() == '/inscricoes-abertas/'} ? 'page' : null">Inscrições abertas</a></li>
+        <li><a href="/isencao-em-prazo/" th:attr="aria-current=${meta.url() == '/isencao-em-prazo/'} ? 'page' : null">Isenção em prazo</a></li>
+        <li><a href="/isencoes/" th:attr="aria-current=${meta.url() == '/isencoes/'} ? 'page' : null">Tipos de isenção</a></li>
+        <li><a href="/brasil/" th:attr="aria-current=${meta.url() == '/brasil/'} ? 'page' : null">Por região</a></li>
+        <li><a href="/sobre/" th:attr="aria-current=${meta.url() == '/sobre/'} ? 'page' : null">Sobre</a></li>
+      </ul>
+    </nav>
+    <button id="alternar-tema" class="botao-tema" type="button" aria-pressed="false"
+            aria-label="Usar tema escuro" title="Alternar tema claro/escuro">
+      <svg class="icone-lua" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M21 14.5A9 9 0 0 1 9.5 3a9 9 0 1 0 11.5 11.5z"/></svg>
+      <svg class="icone-sol" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg>
+    </button>
   </div>
 </header>
 
 <footer th:fragment="rodape" class="rodape">
-    <div class="largura">
+    <div class="container">
         <p class="rodape__aviso">Informações extraídas automaticamente de fontes oficiais. <strong>Confira sempre o
             edital.</strong></p>
         <p th:if="${!#strings.isEmpty(site.atualizacao())}">Última atualização: <span th:text="${site.atualizacao()}">--</span>.</p>
-        <p>
-            <a href="/sobre/">Sobre</a> · <a href="/privacidade/">Privacidade</a> ·
-            <a href="https://github.com/natanaelqneves/nqntech-concursos">Código aberto</a>
-        </p>
-        <p class="rodape__licenca">Informação gratuita. Textos do site sob CC BY 4.0.</p>
+        <ul class="rodape__links">
+            <li><a href="/sobre/">Sobre</a></li>
+            <li><a href="/privacidade/">Privacidade</a></li>
+            <li><a href="https://github.com/natanaelqneves/nqntech-concursos">Código aberto</a></li>
+        </ul>
+        <p class="mb-0">Informação gratuita. Textos do site sob CC BY 4.0.</p>
     </div>
 </footer>
 
-<!-- Cartão de concurso usado em todas as listas. data-* ficam para recortes no navegador. -->
-<article th:fragment="cartao(c)" class="cartao"
-         th:attr="data-uf=${c.uf()},data-abrangencia=${c.abrangencia()},data-situacao=${c.situacao()},data-areas=${#strings.listJoin(c.areas(), ' ')},data-niveis=${#strings.listJoin(c.escolaridades(), ' ')},data-isencao=${c.temIsencao()},data-busca=${#strings.toLowerCase(c.nomeExibicao() + ' ' + c.titulo())}">
-    <ul class="selos">
-        <li th:if="${c.unificado()}" class="selo selo--cnu">CNU</li>
-        <li th:if="${c.inscricoesAbertas(fmt.hoje())}" class="selo selo--aberto">Inscrições abertas</li>
-        <li th:unless="${c.inscricoesAbertas(fmt.hoje())}" class="selo"
-            th:text="${c.situacao() == 'PREVISTO'} ? 'Previsto' : (${c.situacao() == 'INSCRICOES_ABERTAS'} ? 'Abre em breve' : 'Isenção em prazo')">Situação</li>
-        <li class="selo" th:text="${c.nacional()} ? 'Nacional' : (${c.municipio() != null} ? ${c.municipio() + '/' + c.uf()} : ${c.uf()})">PB</li>
-        <li th:if="${c.isencaoEmPrazo(fmt.hoje())}" class="selo selo--isencao"
-            th:attr="data-prazo=${fmt.dataIso(c.isencaoFim())}"
-            th:text="${'Isenção até ' + fmt.data(c.isencaoFim())}">Isenção</li>
-    </ul>
-    <h3 class="cartao__titulo">
-        <a th:href="${'/concurso/' + c.slug() + '/'}" th:text="${c.nomeExibicao()}">Órgão</a>
-    </h3>
-    <dl class="cartao__dados">
-        <div th:if="${c.totalVagas() != null and c.totalVagas() > 0}"><dt>Vagas</dt><dd th:text="${fmt.numero(c.totalVagas())}">0</dd></div>
-        <div th:if="${c.salarioMax() != null}"><dt>Até</dt><dd th:text="${fmt.reais(c.salarioMax())}">R$</dd></div>
-        <div th:if="${c.inscricaoFim() != null}"><dt>Inscrições</dt><dd th:text="${'até ' + fmt.data(c.inscricaoFim()).substring(0, 5)}">--</dd></div>
-        <div th:if="${c.dataProva() != null}"><dt>Prova</dt><dd th:text="${fmt.data(c.dataProva())}">--</dd></div>
-        <div th:if="${!c.escolaridades().isEmpty()}"><dt>Nível</dt><dd th:text="${fmt.niveis(c.escolaridades())}">Superior</dd></div>
-    </dl>
+<!-- Cartão de concurso usado em todas as listas. O canhoto mostra a data que mais importa agora (Concurso.marco). -->
+<article th:fragment="cartao(c)" class="cartao card h-100"
+         th:with="m=${c.marco(fmt.hoje())}, aberto=${c.inscricoesAbertas(fmt.hoje())}"
+         th:classappend="${aberto} ? 'cartao--aberto' : ''"
+         th:attr="data-uf=${c.uf()},data-abrangencia=${c.abrangencia()},data-situacao=${c.situacao()},data-areas=${#strings.listJoin(c.areas(), ' ')},data-niveis=${#strings.listJoin(c.escolaridades(), ' ')},data-isencao=${c.temIsencao()}">
+    <div class="cartao__canhoto">
+        <span class="cartao__rotulo" th:text="${m.rotulo()}">Inscrições até</span>
+        <time th:if="${m.data() != null}" th:attr="datetime=${fmt.dataIso(m.data())}" th:title="${fmt.data(m.data())}">
+            <span class="cartao__dia d-block" th:text="${fmt.dia(m.data())}">18</span>
+            <span class="cartao__mes d-block" th:text="${fmt.mes(m.data())}">nov</span>
+        </time>
+        <span th:unless="${m.data() != null}" class="cartao__mes">a definir</span>
+    </div>
+    <div class="cartao__corpo">
+        <ul class="selos">
+            <li th:if="${c.unificado()}" class="selo selo--cnu">CNU</li>
+            <li th:if="${aberto}" class="selo selo--aberto">Inscrições abertas</li>
+            <li th:unless="${aberto}" class="selo"
+                th:text="${c.situacao() == 'PREVISTO'} ? 'Previsto' : (${c.situacao() == 'INSCRICOES_ABERTAS'} ? 'Abre em breve' : 'Isenção em prazo')">Situação</li>
+            <li class="selo" th:text="${c.nacional()} ? 'Nacional' : (${c.municipio() != null} ? ${c.municipio() + '/' + c.uf()} : ${c.uf()})">PB</li>
+            <li th:if="${c.isencaoEmPrazo(fmt.hoje())}" class="selo selo--isencao"
+                th:attr="data-prazo=${fmt.dataIso(c.isencaoFim())}"
+                th:text="${'Isenção até ' + fmt.data(c.isencaoFim())}">Isenção</li>
+        </ul>
+        <h3 class="cartao__titulo">
+            <a class="stretched-link" th:href="${'/concurso/' + c.slug() + '/'}" th:text="${c.nomeExibicao()}">Órgão</a>
+        </h3>
+        <dl class="cartao__dados">
+            <div th:if="${c.totalVagas() != null and c.totalVagas() > 0}"><dt>Vagas</dt><dd th:text="${fmt.numero(c.totalVagas())}">0</dd></div>
+            <div th:if="${c.salarioMax() != null}"><dt>Salário até</dt><dd th:text="${fmt.reais(c.salarioMax())}">R$</dd></div>
+            <div th:if="${c.dataProva() != null and c.dataProva() != m.data()}"><dt>Prova</dt><dd th:text="${fmt.data(c.dataProva())}">--</dd></div>
+            <div th:if="${!c.escolaridades().isEmpty()}"><dt>Nível</dt><dd th:text="${fmt.niveis(c.escolaridades())}">Superior</dd></div>
+        </dl>
+    </div>
 </article>
 
 </body>

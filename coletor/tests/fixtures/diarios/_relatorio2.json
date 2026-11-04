@@ -1,0 +1,54 @@
+{
+ "sp_periodo": {
+  "url": "https://do-api-web-search.doe.sp.gov.br/v2/advanced-search/publications?Terms%5B0%5D=edital+de+abertura&FromDate=2026-10-28&ToDate=2026-11-04&PageNumber=1&PageSize=20&periodStartingDate=personalized",
+  "status": 200,
+  "inicio": "{\"items\":[{\"isLegacy\":false,\"id\":\"f53ec95e-bd06-47d9-3522-08df2e3dc023\",\"publicationTypeId\":\"12248581-8ac5-40b1-94a9-f6c6dd64b14c\",\"secondLevelSectionId\":\"f29b9600-317c-4c45-867c-08db6b96895a\",\"thirdLevelSectionId\":\"297e2b0e-59cd-4a6c-4c77-08db6b9689d9\",\"date\":\"2026-10-28T01:02:47.6243639\",\"title\":\"TERMOS DE CONTRATOS - CLT\",\"slug\":\"executivo/universidade-de-sao-paulo/termos-de-contratos-clt-20261027124013132222237547\",\"excerpt\":\"findos os quais, não havendo denúncia das partes, passarão a viger sem determinação de prazo, origem do recurso \\\"orçamento USP\\\": HELIO TERUO KANENOBU, Edital de Abertura RH 10/2023, publicado no D.O.E. de 18/07/2023, Edital de Convocação RH 211/2026, publicado no D.O.E. de 13/07/2026, Posto de Trabalho 1181190, vaga de\",\"hierarchy\":\"Executivo > Atos de Pessoal > Universidade de São Paulo > Reitoria > Gabinete do Vice-reitor > Coordenadoria de Administração Geral > Departamento de Recursos Humanos\",\"totalTermsFound\":14,\"termsFound\":[{\"term\":\"edital de abertura\",\"matchesFound\":14}]},{\"isLegacy\":false,\"id\":\"bd936be7-8232-4819-2f9e-08df2e3de7b6\",\"publicationTypeId\":\"bb2d3809-6dc0-4e7c-b5b7-6cde11811a18\",\"secondLevelSectionId\":\"5fb21e72-8a94-42b5-bfa0-5b4121f9adc4\",\"thirdLevelSectionId\":\"b47e8657-f694-4dd1-8d55-dd681cb8cce6\",\"date\":\"2026-10-28T01:02:57.0803888\",\"title\":\"EDITAL Nº 145/2026STGP/DTAD, DE 27 DE OUTUBRO DE 2026\",\"slug\":\"executivo/universidade-estadual-paulista/edital-n-145-2026stgp-dtad-de-27-de-outubro-de-2026-202610271344421162237843\",\"excerpt\":\"acerca dos recursos regimentais cabíveis para a hipótese de indeferimento. 8.1.1. As inscrições que não se enquadrarem nas exigências estabelecidas no edital de abertura de inscrição serão indeferidas e publicadas no DOE, juntamente com as deferidas e não submetidas. 8.1.2. O candidato poderá requerer através do endere\",\"hierarchy\":\"Executivo > Atos de Gestão e Despesas > Universidade Estadual Paulista > Unidades Universitárias > Campus de Araçatuba > Faculdade de Odontologia > Divisão Técnica Administrativa\",\"totalTermsFound\":1,\"termsFound\":[{\"term\":\"edital de abertura\",\"matchesFound\":1}]},{\"isLegacy\":false,\"id\":\"e4b54218-001e-4fa5-b1f4-08df346002c1\",\"publicationTypeId\":\"bb2d3809-6dc0-4e7c-b5b7-6cde11811a18\",\"secondLevelSectionId\":\"5fb21e72-8a94-42b5-bfa0-5b4121f9adc4\",\"thirdLevelSectionId\":\"b47e8657-f694-4dd1-8d55-dd681cb8cce6\",\"date\":\"2026-10-28T01:03:27.6608626\",\"title\":\"EDITAL Nº 321, DE 27 DE OUTUBRO DE 2026\",\"slug\":\"executivo/universidade-estadual-paulista/edital-n-321-de-27-de-outubro-de-2026-202610271344410162238743\",\"excerpt\":\"acerca dos recursos regimentais cabíveis para a hipótese de indeferimento. 8.1.1. As inscrições que não se enquadrarem nas exigências estabelecidas no edital de abertura de inscrição serão indeferidas e publicadas no DOE, juntamente com as deferidas e não submetidas. 8.1.2. O candidato poderá requerer através do endere\",\"hierarchy\":\"Executivo > Atos de Gestão e Despesas > Universidade Estadual Paulista > Unidades Universitárias > Campus"
+ },
+ "sp_concurso": {
+  "url": "https://do-api-web-search.doe.sp.gov.br/v2/advanced-search/publications?Terms%5B0%5D=concurso+p%C3%BAblico&FromDate=2026-10-28&ToDate=2026-11-04&PageNumber=1&PageSize=20&periodStartingDate=personalized&SortField=Date",
+  "status": 200,
+  "inicio": "{\"items\":[{\"isLegacy\":false,\"id\":\"75cf35d7-92d6-41c1-34da-08df2e3dc023\",\"publicationTypeId\":\"bb2d3809-6dc0-4e7c-b5b7-6cde11811a18\",\"secondLevelSectionId\":\"e57e5c64-8120-4dc8-8315-f1e82479dbd6\",\"thirdLevelSectionId\":\"3772aa77-17fa-493e-bb81-c023e2b142c4\",\"date\":\"2026-10-28T01:02:46.8396512\",\"title\":\"EDITAL Nº 01-P-24824/2025, DE 27 DE OUTUBRO DE 2026\",\"slug\":\"executivo/universidade-estadual-de-campinas/edital-n-01-p-24824-2025-de-27-de-outubro-de-2026-20261027134322762236713\",\"excerpt\":\"25) O Núcleo de Estudos de Políticas Públicas - NEPP, da Universidade Estadual de Campinas - Unicamp, conforme Edital de Abertura nº 01-P-24824/2025 do Concurso Público de Provas e Títulos para Pesquisador (Pq), nível C para área de Direitos, Desigualdade e Proteção Social, torna público: 1 - CANDIDATOS HABILITADOS E C\",\"hierarchy\":\"Executivo > Atos de Gestão e Despesas > Universidade Estadual de Campinas > Reitoria > Secretaria Geral\",\"totalTermsFound\":1,\"termsFound\":[{\"term\":\"concurso público\",\"matchesFound\":1}]},{\"isLegacy\":false,\"id\":\"f53ec95e-bd06-47d9-3522-08df2e3dc023\",\"publicationTypeId\":\"12248581-8ac5-40b1-94a9-f6c6dd64b14c\",\"secondLevelSectionId\":\"f29b9600-317c-4c45-867c-08db6b96895a\",\"thirdLevelSectionId\":\"297e2b0e-59cd-4a6c-4c77-08db6b9689d9\",\"date\":\"2026-10-28T01:02:47.6243639\",\"title\":\"TERMOS DE CONTRATOS - CLT\",\"slug\":\"executivo/universidade-de-sao-paulo/termos-de-contratos-clt-20261027124013132222237547\",\"excerpt\":\" Faixa T1, Grau A, em jornada de 40 horas semanais de trabalho (Ato de Criação do Emprego Público – Lei Complementar 1.074/2008), mediante aprovação em Concurso Público, conforme os editais de Abertura e de Convocação abaixo citados, vigorando os contratos a contar das respectivas datas, pelo prazo de 90 dias, a título\",\"hierarchy\":\"Executivo > Atos de Pessoal > Universidade de São Paulo > Reitoria > Gabinete do Vice-reitor > Coordenadoria de Administração Geral > Departamento de Recursos Humanos\",\"totalTermsFound\":1,\"termsFound\":[{\"term\":\"concurso público\",\"matchesFound\":1}]},{\"isLegacy\":false,\"id\":\"27896ef8-80d5-45b3-355d-08df2e3dc023\",\"publicationTypeId\":\"bb2d3809-6dc0-4e7c-b5b7-6cde11811a18\",\"secondLevelSectionId\":\"5fb21e72-8a94-42b5-bfa0-5b4121f9adc4\",\"thirdLevelSectionId\":\"b47e8657-f694-4dd1-8d55-dd681cb8cce6\",\"date\":\"2026-10-28T01:02:48.445831\",\"title\":\"EDITAL Nº 498/2026, DE 27 DE OUTUBRO DE 2026-STGP – HOMOLOGAÇÃO DO CONCURSO 426/2026-DEPTO DE COMPUTAÇÃO\",\"slug\":\"executivo/universidade-estadual-paulista/edital-n-498-2026-de-27-de-outubro-de-2026-stgp-homologacao-do-concurso-426-2026-depto-de-computacao-20261027134445362237569\",\"excerpt\":\"tiva da Faculdade de Ciências HOMOLOGA “ad referendum” da Congregação conforme Despacho 110/2026-D.FC/DTA de 27 de outubro de 2026 o resultado final do concurso público de títulos e provas para contratação de 01 Professor Substituto, em Regime Jurídico da CLT, referente ao Edital nº 426/2026-STGP, área de conhecimento:\",\"hierarchy\":\"Executivo > Atos de Gestão e Despesas > Universidade Estadual Pa"
+ },
+ "doe_sp_gov_br_busca_avancada": {
+  "status": 200,
+  "forms": [],
+  "scripts": [
+   "/ruxitagentjs_ICA7NVfqrux_10345260810170330.js",
+   "/_next/static/chunks/polyfills-c67a75d1b6f99dc8.js",
+   "/_next/static/chunks/webpack-211c438de79acdca.js",
+   "/_next/static/chunks/framework-7be3037db26766eb.js",
+   "/_next/static/chunks/main-f8b777cc49ae9b3d.js",
+   "/_next/static/chunks/pages/_app-d4e53c0360a5052e.js",
+   "/_next/static/chunks/810-1b3895fcf9c80ab9.js",
+   "/_next/static/chunks/664-49bfed7960604cc4.js",
+   "/_next/static/chunks/126-eba24de7c76b7678.js",
+   "/_next/static/chunks/344-2e55bf38d87ff721.js",
+   "/_next/static/chunks/612-f686c8acdde21b12.js",
+   "/_next/static/chunks/647-b3841d6fbf8a90c1.js",
+   "/_next/static/chunks/739-dbd19cd653199dfe.js",
+   "/_next/static/chunks/pages/busca-avancada-ed70aaf34e0ca89f.js",
+   "/_next/static/UHh2VCy5JZSArAic3ApH8/_buildManifest.js"
+  ]
+ },
+ "www_diariomunicipal_com_br_famup_pesquisar": {
+  "status": 200,
+  "forms": [
+   "<form name=\"busca_avancada\" method=\"get\" class=\"form-busca\" id=\"form-busca\"> <div class=\"form-busca__linha\"> <div class=\"form-busca__campo form-busca__campo--largo\"> <label for=\"busca_avancada_texto\">Palavra-chave no texto</label> <input type=\"search\" id=\"busca_avancada_texto\" name=\"busca_avancada[texto]\" class=\"campo-texto\" placeholder=\"Ex.: reajuste salarial\" /> </div> <div class=\"form-busca__campo form-busca__campo--largo\"> <label for=\"busca_avancada_titulo\">Título da matéria</label> <input type=\"search\" id=\"busca_avancada_titulo\" name=\"busca_avancada[titulo]\" class=\"campo-texto\" placeholder=\"Ex.: portaria, decreto\" /> </div> </div> <div class=\"form-busca__linha\"> <div class=\"form-busca__campo\"> <label for=\"busca_avancada_entidade\">Município (entidade)</label> <select id=\"busca_avancada_entidade\" name=\"busca_avancada[entidade]\" class=\"campo-texto\" data-busca=\"entidade\"><option value=\"\">Todos os municípios</option><option value=\"2101564\">Consorcio Publico Intermunicpal de Segurança Pública da Paraíba – UNISEG</option><option value=\"334\">Federação das Associações de Municípios da Paraíba - FAMUP</option><option value=\"53328\">Município de Aguiar</option><option value=\"1216820\">Município de Areia de Baraúnas</option><option value=\"58999\">Município de Caaporã</option><option value=\"6279\">Município de Cabaceiras</option><option value=\"581\">Município de Conceição</option><option value=\"68023\">Município de Condado</option><option value=\"59715\">Município de Ibiara</option><option value=\"909950\">Município de Jericó</option><option value=\"254922\">Município de Juarez Távora</option><option value=\"2160\">Município de Junco do Seridó</option><option value=\"2222013\">Município de Lagoa</option><option value=\"65374\">Município de Livramento</option><option value=\"309524\">Município de Nova Palmeira</option><option value=\"53212\">Município de Olho d&#039;Água</option><option value=\"80053\">Município de Patos</option><option value=\"424\">Município de Pedra Branca</option><option value=\"252325\">Município de Remígio</option><option value=\"309507\">Município de Salgadinho</option><option value=\"65362\">Município de Santa Luzia</option><option value=\"59303\">Município de Santana de Mangueira</option><option value=\"37182\">Município de Santa Teresinha</option><option value=\"1095911\">Município de São José de Piranhas</option><option value=\"1582\">Município de São Mamede</option><option value=\"249533\">Município de Serra Redonda</option><option value=\"2671044\">Município de Sossêgo</option><"
+  ],
+  "scripts": [
+   "/dist/lib/npm/bootstrap.bundle.min.js",
+   "/dist/lib/npm/jquery.min.js",
+   "/dist/lib/js/lib.min.js",
+   "/dist/lib/npm/jquery.mask.min.js",
+   "/dist/lib/npm/parsley.min.js",
+   "/dist/lib/npm/sweetalert2.min.js",
+   "/dist/js/pt-br.js",
+   "/dist/js/index.js",
+   "/dist/js/valida-mask.js",
+   "/dist/js/popup-homepage.js",
+   "/dist/js/menu.js",
+   "/dist/js/compartilhar.js",
+   "/dist/js/search-materias.js"
+  ]
+ }
+}

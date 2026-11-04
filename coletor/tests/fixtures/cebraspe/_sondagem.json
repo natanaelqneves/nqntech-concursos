@@ -48,7 +48,48 @@
    "https://www.cebraspe.org.br/inc/js/jquery/ui/effect-fold.min.js",
    "https://www.cebraspe.org.br/inc/js/jquery/ui/effect-highlight.min.js"
   ],
-  "rotas_api": []
+  "rotas_api": [
+   "/concursos/em-andamento",
+   "/concursos/encerrado",
+   "/subprogramas/:subprograma/:etapa",
+   "http://www.cespe.unb.br/",
+   "http://www.cespe.unb.br/vestibular/",
+   "http://www.w3.org/1998/Math/MathML",
+   "http://www.w3.org/1999/xhtml",
+   "http://www.w3.org/1999/xlink",
+   "http://www.w3.org/2000/svg",
+   "http://www.w3.org/XML/1998/namespace",
+   "https://apis.cebraspe.org.br/cebraspe/",
+   "https://apis.cebraspe.org.br/cebraspe/eventos",
+   "https://areadocandidato.cebraspe.org.br/",
+   "https://cdn.cebraspe.org.br/",
+   "https://cdn.cebraspe.org.br/assets/Eventos/PAS/Banner-001.png",
+   "https://drei.cebraspe.org.br/Inscricao/Concurso/PaginaInicial",
+   "https://reactjs.org/docs/error-decoder.html?invariant=",
+   "https://security.cebraspe.org.br/acompanhamento/default1.asp",
+   "https://security.cebraspe.org.br/cadastro/",
+   "https://vlibras.gov.br/app/vlibras-plugin.js",
+   "https://www.cebraspe.org.br",
+   "https://www.cebraspe.org.br/",
+   "https://www.cebraspe.org.br/contents/data/2018/12/icone_pg_acompanhamento.png",
+   "https://www.cebraspe.org.br/contents/data/2018/12/logo-cebraspe.png"
+  ]
  },
- "rotas_permitidas": {}
+ "rotas_permitidas": {
+  "/concursos/em-andamento": true,
+  "/concursos/encerrado": true,
+  "/subprogramas/:subprograma/:etapa": true,
+  "https://apis.cebraspe.org.br/cebraspe/": true,
+  "https://apis.cebraspe.org.br/cebraspe/eventos": true,
+  "https://areadocandidato.cebraspe.org.br/": true,
+  "https://cdn.cebraspe.org.br/": true,
+  "https://cdn.cebraspe.org.br/assets/Eventos/PAS/Banner-001.png": true,
+  "https://drei.cebraspe.org.br/Inscricao/Concurso/PaginaInicial": true,
+  "https://security.cebraspe.org.br/acompanhamento/default1.asp": true,
+  "https://security.cebraspe.org.br/cadastro/": true,
+  "https://www.cebraspe.org.br": true,
+  "https://www.cebraspe.org.br/": true,
+  "https://www.cebraspe.org.br/contents/data/2018/12/icone_pg_acompanhamento.png": true,
+  "https://www.cebraspe.org.br/contents/data/2018/12/logo-cebraspe.png": true
+ }
 }

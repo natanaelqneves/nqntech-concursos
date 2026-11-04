@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import logging
 import time
 from collections.abc import Callable, Iterator, Sequence
@@ -261,6 +262,26 @@ class Repositorio:
         ).fetchone()
         return linha is not None
 
+    def gravar_texto_se_pendente(self, url: str, texto: str) -> None:
+        """Documento cuja fonte já entrega o texto (diário oficial): grava como se tivesse baixado e extraído."""
+        util = len(texto.strip())
+        status = "OK" if util >= 200 else "SEM_TEXTO"
+        self.conn.execute(
+            """UPDATE documento SET texto_extraido = %s, hash_sha256 = %s, status_extracao = %s
+               WHERE url_origem = %s AND status_extracao = 'PENDENTE'""",
+            (texto, hashlib.sha256(texto.encode()).hexdigest(), status, url),
+        )
+
+    def tirar_texto_do_sinal(self, sinal_id: int) -> None:
+        self.conn.execute(
+            """UPDATE sinal_descoberta
+               SET payload = jsonb_set(payload, '{arquivos}',
+                                       (SELECT coalesce(jsonb_agg(a - 'texto'), '[]'::jsonb)
+                                        FROM jsonb_array_elements(payload -> 'arquivos') a))
+               WHERE id = %s""",
+            (sinal_id,),
+        )
+
     def marcar_encerrado(self, concurso_id: int, desde: datetime | None) -> bool:
         """A fonte deu o concurso por finalizado. `desde` aproxima quando (última publicação); sem ela, agora."""
         cursor = self.conn.execute(
@@ -419,7 +440,8 @@ class Repositorio:
                       e.hash_sha256
                FROM concurso c
                         LEFT JOIN orgao o ON o.id = c.orgao_id
-                        JOIN banca b ON b.id = c.banca_id
+                        -- Diário oficial não tem banca: só a IA lê (extrator por banca não se aplica).
+                        LEFT JOIN banca b ON b.id = c.banca_id
                         JOIN LATERAL (SELECT d.id, d.texto_extraido, d.hash_sha256 FROM documento d
                                       WHERE d.concurso_id = c.id AND d.tipo = 'EDITAL' AND d.status_extracao = 'OK'
                                       ORDER BY d.data_publicacao DESC NULLS LAST, d.id DESC LIMIT 1) e ON true

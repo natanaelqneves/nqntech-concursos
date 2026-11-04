@@ -128,6 +128,7 @@ def executar_vinculacao(
                     tem_edital=bool(arquivos_pdf),
                 )
                 novos_concursos += not ja_existia
+                tinha_texto = False
                 for arquivo in arquivos_pdf:
                     data = date.fromisoformat(arquivo["data"]) if arquivo.get("data") else None
                     novos_documentos += repo.garantir_documento(
@@ -138,6 +139,11 @@ def executar_vinculacao(
                         arquivo["url"],
                         data,
                     )
+                    if arquivo.get("texto"):  # diários oficiais: o texto vem da API, não há PDF para baixar
+                        repo.gravar_texto_se_pendente(arquivo["url"], arquivo["texto"])
+                        tinha_texto = True
+                if tinha_texto:
+                    repo.tirar_texto_do_sinal(sinal["id"])  # o texto fica só no documento
                 if estruturado is not None:
                     estruturado = completar_escolaridade(estruturado, inferidor)
                     repo.aplicar_dados_fonte(concurso_id, estruturado, situacao_da_fonte(estruturado, hoje()))

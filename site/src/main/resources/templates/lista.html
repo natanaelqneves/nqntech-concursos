@@ -15,29 +15,6 @@
         </ul>
     </nav>
 
-    <form th:if="${filtros}" class="filtros" id="filtros" role="search" aria-label="Filtrar concursos" hidden>
-        <label>Buscar <input type="search" name="q" placeholder="órgão ou cargo" autocomplete="off"></label>
-        <label>Estado
-            <select name="uf"><option value="">Todos</option></select></label>
-        <label>Área
-            <select name="area"><option value="">Todas</option></select></label>
-        <label>Nível
-            <select name="nivel">
-                <option value="">Todos</option>
-                <option value="FUNDAMENTAL">Fundamental</option>
-                <option value="MEDIO">Médio</option>
-                <option value="TECNICO">Técnico</option>
-                <option value="SUPERIOR">Superior</option>
-            </select></label>
-        <label>Situação
-            <select name="situacao">
-                <option value="">Todas</option>
-                <option value="INSCRICOES_ABERTAS">Inscrições abertas</option>
-                <option value="PREVISTO">Previstos</option>
-            </select></label>
-        <label class="filtros__caixa"><input type="checkbox" name="isencao"> Só com isenção</label>
-        <p class="filtros__resultado" aria-live="polite"></p>
-    </form>
 
     <p th:if="${concursos.isEmpty()}" class="vazio">Nenhum concurso aberto ou previsto aqui no momento.</p>
     <div class="grade" id="resultados">

@@ -92,9 +92,13 @@ public class GeradorSite {
         List<String> urls = new ArrayList<>();
         PaginaGerada.adicionar(arquivos, urls, paginas.inicio(
                 Ordenacao.telaInicial(concursos, hoje), Ordenacao.isencaoEmPrazo(concursos, hoje), concursos.size()));
-        PaginaGerada.adicionar(arquivos, urls, paginas.lista("/concursos/", "Todos os concursos",
-                "Concursos públicos com inscrições abertas, previstos e com prazo para pedir isenção da taxa.",
-                Ordenacao.lista(concursos, hoje), true, List.of()));
+        // Abas do menu. A antiga /concursos/ (filtros no navegador) saiu; _redirects leva o endereço antigo daqui.
+        PaginaGerada.adicionar(arquivos, urls, paginas.lista("/inscricoes-abertas/",
+                "Concursos com inscrições abertas", "Concursos públicos com inscrições abertas hoje em todo o Brasil, com resumo de cada edital.",
+                Ordenacao.lista(filtrar(concursos, c -> c.inscricoesAbertas(hoje)), hoje), false, List.of()));
+        PaginaGerada.adicionar(arquivos, urls, paginas.lista("/isencao-em-prazo/", "Isenção da taxa em prazo",
+                "Concursos com o prazo para pedir isenção da taxa de inscrição em andamento.",
+                Ordenacao.isencaoEmPrazo(concursos, hoje), false, List.of()));
 
         for (Concurso c : concursos) {
             PaginaGerada.adicionar(arquivos, urls, paginas.concurso(c, tipos));

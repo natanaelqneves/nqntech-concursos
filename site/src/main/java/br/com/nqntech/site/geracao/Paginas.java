@@ -65,7 +65,7 @@ public class Paginas {
         String titulo = c.nomeExibicao() + (c.unificado() ? " (CNU)" : "");
         String descricao = c.resumo().length() > 300 ? c.resumo().substring(0, 297) + "..." : c.resumo();
         Meta meta = new Meta("Concurso " + titulo + " | " + GeradorSite.NOME, descricao, url, urlBase + url,
-                Json.escrever(trilha(List.of(new Atalho("Concursos", "/concursos/", 0), new Atalho(titulo, url, 0)))));
+                Json.escrever(trilha(List.of(new Atalho("Concursos", "/inscricoes-abertas/", 0), new Atalho(titulo, url, 0)))));
         Map<String, TipoIsencao> porCodigo = tipos.stream()
                 .collect(Collectors.toMap(TipoIsencao::codigo, Function.identity()));
         Map<String, Object> variaveis = new LinkedHashMap<>();

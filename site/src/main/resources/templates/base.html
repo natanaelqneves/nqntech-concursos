@@ -16,16 +16,16 @@
     <meta th:if="${!#strings.isEmpty(meta.canonica())}" property="og:url" th:content="${meta.canonica()}">
     <meta name="theme-color" content="#ffffff">
     <meta name="google-adsense-account" content="ca-pub-5630145382573940">
-    <link rel="icon" href="/assets/icone.svg" type="image/svg+xml">
+    <link rel="icon" th:href="${site.asset('icone.svg')}" type="image/svg+xml">
     <!-- Aplica o tema salvo antes de desenhar a página (evita piscar branco → escuro). Arquivo próprio: a CSP não
          libera script inline. -->
-    <script src="/assets/tema.js"></script>
+    <script th:src="${site.asset('tema.js')}"></script>
     <link rel="preload" href="/assets/fontes/AtkinsonHyperlegibleNext-Regular.woff2" as="font" type="font/woff2" crossorigin>
     <!-- Bootstrap 5.3 enxuto + estilo do site, compilado de site/estilo/ (ver compilar.sh). -->
-    <link rel="stylesheet" href="/assets/site.css">
+    <link rel="stylesheet" th:href="${site.asset('site.css')}">
     <!-- JSON já escapado (Json.escrever troca <, > e & por <...), por isso utext é seguro aqui. -->
     <script th:if="${!#strings.isEmpty(meta.jsonLd())}" type="application/ld+json" th:utext="${meta.jsonLd()}"></script>
-    <script src="/assets/site.js" defer></script>
+    <script th:src="${site.asset('site.js')}" defer></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5630145382573940"
      crossorigin="anonymous"></script>
 </head>

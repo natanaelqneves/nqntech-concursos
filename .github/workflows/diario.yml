@@ -49,6 +49,7 @@ jobs:
       # Camada 2 (IA). Sem as chaves, a IA fica desligada e só as regras rodam.
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       COLETOR_IA_MAX_CHAMADAS: ${{ vars.COLETOR_IA_MAX_CHAMADAS || '30' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

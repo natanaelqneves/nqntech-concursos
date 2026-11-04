@@ -108,33 +108,4 @@
   }
 
   document.addEventListener("DOMContentLoaded", iniciarTema);
-
-  // Menu do celular: o botão recolhe e abre a navegação; Esc fecha; abrir um submenu fecha o outro.
-  function iniciarMenu() {
-    var botao = document.getElementById("abrir-menu");
-    var nav = document.getElementById("menu-principal");
-    if (!botao || !nav) return;
-    function definir(aberto) {
-      nav.classList.toggle("navegacao--aberta", aberto);
-      botao.setAttribute("aria-expanded", String(aberto));
-      botao.setAttribute("aria-label", aberto ? "Fechar menu" : "Abrir menu");
-    }
-    botao.addEventListener("click", function () { definir(!nav.classList.contains("navegacao--aberta")); });
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") {
-        definir(false);
-        nav.querySelectorAll("details[open]").forEach(function (d) { d.open = false; });
-      }
-    });
-    var submenus = nav.querySelectorAll("details.submenu");
-    submenus.forEach(function (d) {
-      d.addEventListener("toggle", function () {
-        if (d.open) submenus.forEach(function (o) { if (o !== d) o.open = false; });
-      });
-    });
-    document.addEventListener("click", function (e) {
-      if (!nav.contains(e.target)) submenus.forEach(function (d) { d.open = false; });
-    });
-  }
-  document.addEventListener("DOMContentLoaded", iniciarMenu);
 })();

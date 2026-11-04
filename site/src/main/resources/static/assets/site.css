@@ -52,37 +52,16 @@ p { margin: 0 0 1rem; }
 .topo { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--fundo) 85%, transparent);
     backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--borda); }
 .topo__linha { display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; height: 64px; }
-.marca { display: inline-flex; align-items: center; flex: none; }
-.marca img { display: block; border-radius: 9px; }
+.marca { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; letter-spacing: -.01em; }
+.marca__icone { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px;
+    background: var(--texto); color: var(--fundo); font-size: .8rem; font-weight: 800; }
+.marca__nome strong { color: var(--marca); font-weight: 700; }
 
-.topo__acoes { display: flex; align-items: center; gap: 8px; order: 3; }
-.navegacao { flex: 1; order: 2; }
-.menu { display: flex; align-items: center; gap: 2px; list-style: none; margin: 0; padding: 0; }
-.menu > li { position: relative; }
-.menu a, .submenu > summary { display: block; padding: 8px 12px; border-radius: 999px; text-decoration: none; font-size: .93rem;
+.topo__acoes { display: flex; align-items: center; gap: 12px; }
+.menu { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; overflow-x: auto; }
+.menu a { display: block; padding: 8px 12px; border-radius: 999px; text-decoration: none; font-size: .93rem;
     font-weight: 550; color: var(--texto-suave); white-space: nowrap; }
-.menu a:hover, .submenu > summary:hover, .submenu[open] > summary { background: var(--fundo-suave); color: var(--texto); }
-.submenu > summary { display: flex; align-items: center; gap: 4px; padding: 8px 12px; border-radius: 999px;
-    cursor: pointer; list-style: none; font-size: .93rem; font-weight: 550; color: var(--texto-suave); }
-.submenu > summary::-webkit-details-marker { display: none; }
-.submenu > summary::after { content: ""; width: 6px; height: 6px; border: solid currentColor; border-width: 0 2px 2px 0;
-    transform: rotate(45deg) translateY(-2px); margin-left: 4px; transition: transform .15s; }
-.submenu[open] > summary::after { transform: rotate(-135deg) translateY(-1px); }
-.submenu ul { list-style: none; margin: 0; padding: 0; }
-.submenu > ul, .submenu__grupos { position: absolute; top: calc(100% + 6px); left: 0; z-index: 6; min-width: 200px;
-    padding: 8px; background: var(--fundo); border: 1px solid var(--borda); border-radius: 14px;
-    box-shadow: 0 12px 32px rgb(0 0 0 / .12); }
-.submenu a { border-radius: 8px; display: flex; justify-content: space-between; gap: 12px; }
-.submenu small { color: var(--texto-suave); font-weight: 600; }
-.submenu--largo .submenu__grupos { display: grid; grid-template-columns: repeat(5, minmax(150px, 1fr)); gap: 4px 12px;
-    width: min(900px, calc(100vw - 40px)); left: auto; right: 20px; }
-.submenu__titulo { margin: 6px 12px 2px; font-size: .75rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .04em; color: var(--texto-suave); }
-.botao-menu { display: none; background: transparent; border: 1px solid var(--borda); border-radius: 10px;
-    width: 40px; height: 38px; place-items: center; cursor: pointer; color: var(--texto); }
-/* O painel de estados se alinha à faixa do cabeçalho, não ao item do menu (evita sair da tela). */
-.topo__linha { position: relative; }
-.menu > li:has(.submenu--largo) { position: static; }
+.menu a:hover { background: var(--fundo-suave); color: var(--texto); }
 
 /* Botão de Alternar Tema (Sol/Lua) */
 .botao-tema { background: transparent; border: 1px solid var(--borda); border-radius: 50%; width: 38px; height: 38px;
@@ -97,24 +76,14 @@ ins.adsbygoogle { display: block; max-width: 100%; overflow: hidden; }
 ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
 .google-auto-placed { margin: 24px auto; max-width: 100%; }
 
-@media (max-width: 860px) {
-    .topo__linha { flex-wrap: wrap; height: auto; min-height: 60px; padding-top: 10px; padding-bottom: 10px; }
-    .topo__acoes { margin-left: auto; order: 2; }
-    .navegacao { order: 3; flex-basis: 100%; }
-    .menu { flex-direction: column; align-items: stretch; padding: 8px 0 4px; }
-    .menu a, .submenu > summary { border-radius: 10px; padding: 12px; font-size: 1rem; }
-    .submenu > summary { justify-content: space-between; }
-    .submenu > ul, .submenu__grupos, .submenu--largo .submenu__grupos { position: static; width: auto; box-shadow: none;
-        border: 0; padding: 0 0 6px 12px; background: transparent; min-width: 0; }
-    .submenu--largo .submenu__grupos { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
-    .js .botao-menu { display: grid; }
-    .js .navegacao { display: none; max-height: calc(100vh - 70px); overflow-y: auto; }
-    .js .navegacao--aberta { display: block; }
-}
+@media (max-width: 640px) {
+    .topo__linha { height: auto; flex-direction: column; align-items: flex-start; padding: 12px 20px 6px; }
+    .topo__acoes { width: 100%; justify-content: space-between; }
+    .menu { width: 100%; margin-left: -12px; }
 }
 
 /* Restante do CSS mantido idêntico... */
-.abertura { padding: 56px 0 24px; max-width: 760px; }
+.abertura { padding: 56px 0 24px; }
 .abertura__texto { font-size: 1.15rem; color: var(--texto-suave); }
 .busca { display: flex; gap: 8px; margin: 24px 0 12px; }
 .busca input { flex: 1; min-width: 0; font: inherit; padding: 14px 18px; border: 1px solid var(--borda);
@@ -162,3 +131,7 @@ thead th { font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; 
 .calendario li::before { content: ""; position: absolute; left: 4px; top: 20px; width: 8px; height: 8px; border-radius: 50%; background: var(--marca); }
 .rodape { margin-top: 64px; border-top: 1px solid var(--borda); padding: 32px 0; font-size: .9rem; color: var(--texto-suave); }
 .rodape a { color: var(--texto-suave); }
+
+/* Textos corridos justificados, ocupando a mesma largura da grade de cartões (bordas alinhadas). */
+main p { text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
+main .cartao p, main .vazio, main .contador, main .filtros__resultado { text-align: left; }

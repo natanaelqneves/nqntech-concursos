@@ -13,7 +13,19 @@ from coletor.config import carregar_config
 from coletor.extratores.base import CargoExtraido, EditalExtraido
 from coletor.ia.esquema import ESQUEMA, VERSAO, para_edital
 from coletor.ia.extrator import ExtratorIA, combinar, precisa_de_ia
-from coletor.ia.provedores import GEMINI_URL, GROQ_URL, ConfigIA, FalhaIA, Gemini, Groq, LimiteAtingido, Rodizio
+from coletor.ia.provedores import (
+    GEMINI_URL,
+    GROQ_URL,
+    OPENROUTER_URL,
+    ConfigIA,
+    FalhaIA,
+    Gemini,
+    Groq,
+    LimiteAtingido,
+    OpenRouter,
+    Rodizio,
+    criar_provedores,
+)
 from coletor.ia.recorte import recortar
 from coletor.ia.triagem import triar
 
@@ -178,6 +190,33 @@ def test_groq_usa_json_schema_estrito():
     assert str(pedidos[0].url) == GROQ_URL
     assert pedidos[0].headers["authorization"] == "Bearer chave-groq"
     assert corpo["response_format"]["json_schema"]["strict"] is True
+
+
+def test_openrouter_so_usa_modelos_com_json_schema():
+    pedidos = []
+
+    def responder(request: httpx.Request) -> httpx.Response:
+        pedidos.append(request)
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(RESPOSTA_TJPB)}}]})
+
+    OpenRouter("chave-or", "openrouter/free", _cliente(responder)).gerar_json("instr", "trecho", ESQUEMA)
+    corpo = json.loads(pedidos[0].content)
+    assert str(pedidos[0].url) == OPENROUTER_URL
+    assert pedidos[0].headers["authorization"] == "Bearer chave-or"
+    assert corpo["provider"]["require_parameters"] is True
+    assert corpo["response_format"]["json_schema"]["strict"] is True
+
+
+def test_ordem_dos_provedores():
+    config = ConfigIA(gemini_chave="a", groq_chave="b", openrouter_chave="c")
+    assert [p.nome for p in criar_provedores(config, _cliente(lambda r: httpx.Response(500)))] == [
+        "gemini",
+        "groq",
+        "openrouter",
+    ]
+    assert ConfigIA(openrouter_chave="segredo-or").ativa and "segredo-or" not in repr(
+        ConfigIA(openrouter_chave="segredo-or")
+    )
 
 
 def test_429_e_resposta_invalida_viram_erros_tipados():

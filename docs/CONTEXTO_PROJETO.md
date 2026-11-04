@@ -93,7 +93,7 @@ aplicativo móvel.
 | Banco | PostgreSQL 17 no Neon, schema `concursos` | Gratuito; 1 GB; dorme quando ocioso |
 | Migrations | Flyway 12 | Mesmo esquema em todos os ambientes |
 | Hospedagem do site | Cloudflare Workers (assets estáticos) + domínio próprio | Grátis, comercial permitido, CDN; deploy pelo GitHub Actions |
-| E-mail dos alertas | Serviço transacional com faixa gratuita (escolher na fase 7) | Gmail não serve para envio a muitas pessoas |
+| E-mail dos alertas | Brevo (conta do usuário; decisão de 04/11/2026), faixa gratuita conferida na fase 7 | Gmail não serve para envio a muitas pessoas |
 | Painel administrativo | Angular (opcional, fase 9) | Portfólio; não precisa de SEO |
 
 ---
@@ -229,7 +229,8 @@ execucao_coleta  (id, fonte_id?, etapa, inicio, fim, status, itens_novos, mensag
 ★ assinante      (id, nome, email UNIQUE (minúsculo), status[PENDENTE|ATIVO|DESCADASTRADO], criado_em,
                   confirmado_em?, consentimento_em, versao_politica, ultimo_envio_em?)
 ★ assinante_filtro (assinante_id PK, ufs text[], areas text[], escolaridades text[], somente_com_isencao,
-                  frequencia[DIARIA|SEMANAL])
+                  isencoes text[] (tipos de isencao_tipo; vazio = qualquer), frequencia[DIARIA|SEMANAL])
+★ assinante.consentimento_isencoes_em  -- aceite específico para guardar os tipos de isenção (dado sensível)
 ★ token_acesso   (id, assinante_id, finalidade[CONFIRMAR|GERENCIAR|DESCADASTRAR], hash_sha256, expira_em, usado_em?)
 ★ alerta_envio   (id, assinante_id, enviado_em, status, qtd_concursos, mensagem_erro)
 ★ alerta_item    (alerta_envio_id, concurso_id)          UNIQUE (assinante, concurso) — nunca repetir
@@ -362,8 +363,13 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
 - Sem senha: gerenciar filtro e descadastrar por **links com token de uso único/expiração**; no banco fica só o
   **hash** do token.
 - Descadastro em um clique em todo e-mail; descadastro **apaga** os dados.
-- **O filtro de isenção é só "com qualquer isenção"**: não guardar qual isenção a pessoa usaria (revelaria
-  situação socioeconômica ou de saúde). Filtrar por tipo específico existe apenas na busca do site, sem cadastro.
+- **Filtro por tipo de isenção** (decisão de 04/11/2026, revê a regra anterior de "só qualquer isenção"): a pessoa
+  pode marcar os tipos que lhe interessam (ex.: doador de medula e de sangue) e as UFs. Como os tipos revelam dado
+  sensível (LGPD art. 5º, II e art. 11: saúde; e situação socioeconômica), só são guardados com **consentimento
+  específico e destacado** (caixa própria, desmarcada, separada do aceite geral), com finalidade única (escolher os
+  concursos do alerta), nunca usados para anúncio, perfil ou repasse, nunca em log, e apagados no descadastro ou ao
+  desmarcar. Sem esse aceite, o filtro vira "qualquer isenção". A política de privacidade explica isso em linguagem
+  simples.
 - Política de privacidade simples e honesta, publicada em `/privacidade/`.
 - API: validação de entrada, limite de requisições por IP, proteção anti-robô no formulário (ex.: desafio
   invisível gratuito), CORS restrito ao domínio do site, nunca revelar se um e-mail já está cadastrado.
@@ -398,7 +404,7 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
 | 4 | Resumo automático + slug + campos desnormalizados | Resumo correto para os concursos de teste |
 | 5 | **Site estático** na Cloudflare: páginas, filtros, isenções, sitemap, SEO, domínio próprio | **Site no ar (MVP)** |
 | 6 | Mais fontes: DOU (INLABS), Querido Diário, Vunesp/Selecon (se liberarem) + deduplicação | Cobertura nacional crescente |
-| 7 | Alertas: API de cadastro, double opt-in, links mágicos, envio diário/semanal, privacidade | Assinante recebe alerta do seu filtro |
+| 7 | Alertas: API de cadastro, double opt-in, links mágicos, filtro por UF e tipos de isenção (com consentimento), envio pelo Brevo, privacidade | Assinante recebe alerta do seu filtro |
 | 8 | Robustez: monitoramento, retenção, backup, alertas de falha para o administrador | Serviço se mantém sozinho |
 | 9 | (Opcional) Painel administrativo Angular, resumo por LLM, monetização (doações → afiliados → anúncios) | — |
 

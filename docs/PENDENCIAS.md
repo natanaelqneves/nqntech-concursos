@@ -201,7 +201,9 @@ Passo a passo em `scripts/importar/LEIA-ME.md`: `.env` na raiz com host do Neon 
 
 ## Próximas fases (só para você se planejar)
 
-- **Fase 7 (alertas):** conta no serviço de e-mail transacional escolhido e hospedagem da API.
+- **Fase 7 (alertas):** e-mail pelo **Brevo** (conta já existe): domínio `ntconcursos.com.br` autenticado no Brevo
+  (registros DNS na Cloudflare) e chave de API em secret; o Claude passa o passo a passo na fase. Hospedagem da API a
+  escolher.
 
 ## Trocar uma senha
 

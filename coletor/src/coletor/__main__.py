@@ -5,6 +5,7 @@ python -m coletor descobrir --fonte fgv --dry-run
 python -m coletor documentos --limite 5
 python -m coletor classificar             # reaplica config/areas.yml etc. sem coletar nada
 python -m coletor resumir                 # refaz resumos, slugs e publicação sem coletar nada
+python -m coletor importar-pdfs PASTA --banca FCC [--link https://...]   # PDFs baixados à mão
 """
 
 from __future__ import annotations
@@ -13,11 +14,13 @@ import argparse
 import logging
 import os
 import sys
+from pathlib import Path
 
 from dotenv import load_dotenv
 
 from coletor.config import ConfigInvalida, carregar_config, resolver_caminho
 from coletor.db import Repositorio, conectar
+from coletor.importacao_manual import ImportacaoInvalida, importar_pasta
 from coletor.pipeline.comum import ResumoEtapa
 from coletor.pipeline.orquestrador import ETAPAS, Orquestrador, codigo_de_saida
 
@@ -54,6 +57,10 @@ def criar_parser() -> argparse.ArgumentParser:
     sub.add_parser("estruturar", help="etapa 4: texto do edital → cargos, datas e taxas")
     sub.add_parser("classificar", help="etapa 5: área e escolaridade dos cargos, local do concurso e CNU")
     sub.add_parser("resumir", help="etapa 6: resumo, slug, campos do site e publicação")
+    importar = sub.add_parser("importar-pdfs", help="lê PDFs de uma pasta local e aplica as etapas 4 a 6")
+    importar.add_argument("pasta", help="pasta com os PDFs (opcional: <nome>.url com o link oficial de cada um)")
+    importar.add_argument("--banca", required=True, help="sigla da banca (FCC, VUNESP, CESGRANRIO... ou OUTRA)")
+    importar.add_argument("--link", help="link oficial do concurso para os PDFs sem arquivo .url")
     return parser
 
 
@@ -84,8 +91,11 @@ def main(argv: list[str] | None = None) -> int:
         anotar_github([ResumoEtapa("CONFIGURACAO", "FALHA", 0, str(erro))])
         return 2
 
+    importacao = args.comando == "importar-pdfs"
     etapas = (
-        ETAPAS
+        ("estruturar", "classificar", "resumir")
+        if importacao
+        else ETAPAS
         if args.comando == "executar"
         else {
             "descobrir": ("descobrir",),
@@ -108,7 +118,13 @@ def main(argv: list[str] | None = None) -> int:
     try:
         with Repositorio(conn, reconectar=lambda: conectar(config.banco)) as repo:
             orquestrador = Orquestrador(config, repo)
-            resumos = orquestrador.executar(
+            if importacao:
+                try:
+                    resumos.append(importar_pasta(repo, Path(args.pasta), args.banca, args.link, config.pdf_max_bytes))
+                except ImportacaoInvalida as erro:
+                    log.error("%s", erro)
+                    return 2
+            resumos += orquestrador.executar(
                 etapas,
                 fonte=getattr(args, "fonte", None),
                 dry_run=getattr(args, "dry_run", False),

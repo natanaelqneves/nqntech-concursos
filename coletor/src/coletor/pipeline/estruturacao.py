@@ -19,6 +19,9 @@ from coletor.pipeline.comum import ResumoEtapa, agora, hoje
 log = logging.getLogger(__name__)
 
 DIAS_FORA_DA_LISTA_PARA_ENCERRAR = 10
+# Bancas que declaram Content-Signal ai-train=no: o texto delas não vai a provedores de IA (só regras), venha o PDF
+# da coleta ou da importação manual.
+BANCAS_SEM_IA = frozenset({"IDECAN"})
 
 
 def situacao_por_datas(edital: EditalExtraido, referencia: date) -> str:
@@ -43,7 +46,7 @@ def executar_estruturacao(repo: Repositorio, ia: ExtratorIA | None = None) -> Re
         try:
             regras = extrator.extrair(texto) if extrator else None
             edital = regras
-            if ia is not None and precisa_de_ia(regras):
+            if ia is not None and concurso["banca"] not in BANCAS_SEM_IA and precisa_de_ia(regras):
                 resultado = ia.extrair(texto, concurso["hash_sha256"], dia)
                 usos_ia += resultado.origem not in ("cache", "triagem", "falha")
                 if resultado.edital is not None:

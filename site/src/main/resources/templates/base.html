@@ -11,9 +11,13 @@
     <meta property="og:title" th:content="${meta.titulo()}">
     <meta property="og:description" th:content="${meta.descricao()}">
     <meta th:if="${!#strings.isEmpty(meta.canonica())}" property="og:url" th:content="${meta.canonica()}">
-    <meta name="theme-color" content="#0b5d4b">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
     <meta name="google-adsense-account" content="ca-pub-5630145382573940">
     <link rel="icon" href="/assets/icone.svg" type="image/svg+xml">
+    <!-- Aplica o tema salvo antes de desenhar a página (evita piscar branco → escuro). Arquivo próprio: a CSP não
+         libera script inline. -->
+    <script src="/assets/tema.js"></script>
     <link rel="stylesheet" href="/assets/site.css">
     <!-- JSON já escapado (Json.escrever troca <, > e & por <...), por isso utext é seguro aqui. -->
     <script th:if="${!#strings.isEmpty(meta.jsonLd())}" type="application/ld+json" th:utext="${meta.jsonLd()}"></script>
@@ -39,9 +43,10 @@
           <li><a href="/sobre/">Sobre</a></li>
         </ul>
       </nav>
-      <!-- Botão de alternância de tema -->
-      <button id="alternar-tema" class="botao-tema" aria-label="Alternar modo escuro" title="Alternar tema claro/escuro">
-        🌓
+      <button id="alternar-tema" class="botao-tema" type="button" aria-pressed="false"
+              aria-label="Usar tema escuro" title="Alternar tema claro/escuro">
+        <svg class="icone-lua" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M21 14.5A9 9 0 0 1 9.5 3a9 9 0 1 0 11.5 11.5z"/></svg>
+        <svg class="icone-sol" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg>
       </button>
     </div>
   </div>

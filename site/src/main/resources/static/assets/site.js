@@ -88,26 +88,24 @@
     iniciarFiltros();
   });
 
-    document.addEventListener("DOMContentLoaded", () => {
-        const botaoTema = document.getElementById("alternar-tema");
-        const htmlEl = document.documentElement;
-
-        // O padrão é claro, a menos que o usuário tenha salvo explicitamente 'dark'
-        const temaSalvo = localStorage.getItem("tema");
-        if (temaSalvo === "dark") {
-            htmlEl.setAttribute("data-tema", "dark");
-        }
-
-        if (botaoTema) {
-            botaoTema.addEventListener("click", () => {
-                if (htmlEl.getAttribute("data-tema") === "dark") {
-                    htmlEl.removeAttribute("data-tema");
-                    localStorage.setItem("tema", "light");
-                } else {
-                    htmlEl.setAttribute("data-tema", "dark");
-                    localStorage.setItem("tema", "dark");
-                }
-            });
-        }
+  // Botão claro/escuro: troca o atributo no <html> e lembra a escolha (tema.js aplica antes de desenhar).
+  function iniciarTema() {
+    var botao = document.getElementById("alternar-tema");
+    if (!botao) return;
+    var html = document.documentElement;
+    function refletir() {
+      var escuro = html.getAttribute("data-tema") === "dark";
+      botao.setAttribute("aria-pressed", String(escuro));
+      botao.setAttribute("aria-label", escuro ? "Usar tema claro" : "Usar tema escuro");
+    }
+    botao.addEventListener("click", function () {
+      var escuro = html.getAttribute("data-tema") !== "dark";
+      if (escuro) html.setAttribute("data-tema", "dark"); else html.removeAttribute("data-tema");
+      try { localStorage.setItem("tema", escuro ? "dark" : "light"); } catch (e) { /* sem armazenamento */ }
+      refletir();
     });
+    refletir();
+  }
+
+  document.addEventListener("DOMContentLoaded", iniciarTema);
 })();

@@ -169,8 +169,13 @@ Um resumo por LLM pode ser plugado depois (fase opcional), validado contra os ca
   nunca dentro do resumo), blocos discretos em páginas de área/estado e no rodapé dos alertas; no máximo 1–2 por
   página; rótulo "Publicidade"/"Link de parceiro"; `rel="sponsored nofollow"`; parceiros em `config/parceiros.yml`
   por área/banca. Páginas de isenção mostram só material gratuito. Só links simples (sem scripts de afiliado).
-- **Cookies**: o site não cria cookies; filtros podem lembrar escolhas em `localStorage`; estatísticas pelo
-  Cloudflare Web Analytics (sem cookies). Banner de consentimento só se entrarem anúncios com cookies.
+- **Cookies e anúncios** (revisto em 04/11/2026): o site não cria cookies próprios; tema e filtros ficam em
+  `localStorage`. **Google AdSense** (anúncios automáticos) com a **CMP do Google** (Privacidade e mensagens, no
+  painel do AdSense) para o consentimento; política em `/privacidade/`. CSP sem restrição de scripts/frames porque o
+  AdSense só suporta CSP com nonce por requisição (inviável em site estático); `object-src`, `base-uri`,
+  `form-action` e `frame-ancestors` continuam fechados.
+- **Tema**: claro (fundo branco) por padrão; escuro só por escolha no botão do topo, lembrada no navegador
+  (`assets/tema.js` aplica antes de desenhar).
 
 ## 5. Modelo de dados (schema `concursos`)
 

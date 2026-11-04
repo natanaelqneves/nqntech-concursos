@@ -67,6 +67,14 @@ p { margin: 0 0 1rem; }
 .botao-tema { background: transparent; border: 1px solid var(--borda); border-radius: 50%; width: 38px; height: 38px;
     display: grid; place-items: center; cursor: pointer; color: var(--texto); transition: background .15s; }
 .botao-tema:hover { background: var(--fundo-suave); }
+.botao-tema .icone-sol { display: none; }
+[data-tema="dark"] .botao-tema .icone-sol { display: block; }
+[data-tema="dark"] .botao-tema .icone-lua { display: none; }
+
+/* Anúncios automáticos do AdSense: não deixam o layout "pular" nem invadem o rodapé fixo. */
+ins.adsbygoogle { display: block; max-width: 100%; overflow: hidden; }
+ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
+.google-auto-placed { margin: 24px auto; max-width: 100%; }
 
 @media (max-width: 640px) {
     .topo__linha { height: auto; flex-direction: column; align-items: flex-start; padding: 12px 20px 6px; }

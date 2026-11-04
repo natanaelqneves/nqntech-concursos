@@ -132,7 +132,8 @@ def executar_vinculacao(
                     data = date.fromisoformat(arquivo["data"]) if arquivo.get("data") else None
                     novos_documentos += repo.garantir_documento(
                         concurso_id,
-                        classificar_tipo_documento(arquivo.get("titulo", "")),
+                        # A fonte pode dizer o tipo (Cebraspe: todo documento começa com "Edital nº N").
+                        arquivo.get("tipo") or classificar_tipo_documento(arquivo.get("titulo", "")),
                         arquivo.get("titulo") or "Documento",
                         arquivo["url"],
                         data,

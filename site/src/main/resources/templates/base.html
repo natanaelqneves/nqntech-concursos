@@ -24,27 +24,21 @@
 <body>
 
 <header th:fragment="cabecalho" class="topo">
-  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
-  <div class="largura topo__linha">
-    <a class="marca" href="/" aria-label="NqnTech Concursos, página inicial">
-      <span class="marca__icone" aria-hidden="true">NT</span>
-      <span class="marca__nome">NqnTech <strong>Concursos</strong></span>
-    </a>
-    <div class="topo__acoes">
-      <nav aria-label="Principal">
-        <ul class="menu">
-          <li><a href="/concursos/">Concursos</a></li>
-          <li><a href="/brasil/">Por estado</a></li>
-          <li><a href="/isencoes/">Isenção</a></li>
-          <li><a href="/sobre/">Sobre</a></li>
-        </ul>
-      </nav>
-      <!-- Botão de alternância de tema -->
-      <button id="alternar-tema" class="botao-tema" aria-label="Alternar modo escuro" title="Alternar tema claro/escuro">
-        🌓
-      </button>
+    <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+    <div class="largura topo__linha">
+        <a class="marca" href="/" aria-label="NqnTech Concursos, página inicial">
+            <span class="marca__icone" aria-hidden="true">NT</span>
+            <span class="marca__nome">NqnTech <strong>Concursos</strong></span>
+        </a>
+        <nav aria-label="Principal">
+            <ul class="menu">
+                <li><a href="/concursos/">Concursos</a></li>
+                <li><a href="/brasil/">Por estado</a></li>
+                <li><a href="/isencoes/">Isenção</a></li>
+                <li><a href="/sobre/">Sobre</a></li>
+            </ul>
+        </nav>
     </div>
-  </div>
 </header>
 
 <footer th:fragment="rodape" class="rodape">

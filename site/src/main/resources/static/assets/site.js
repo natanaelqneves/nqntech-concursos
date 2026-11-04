@@ -87,27 +87,4 @@
     atualizarPrazos();
     iniciarFiltros();
   });
-
-    document.addEventListener("DOMContentLoaded", () => {
-        const botaoTema = document.getElementById("alternar-tema");
-        const htmlEl = document.documentElement;
-
-        // O padrão é claro, a menos que o usuário tenha salvo explicitamente 'dark'
-        const temaSalvo = localStorage.getItem("tema");
-        if (temaSalvo === "dark") {
-            htmlEl.setAttribute("data-tema", "dark");
-        }
-
-        if (botaoTema) {
-            botaoTema.addEventListener("click", () => {
-                if (htmlEl.getAttribute("data-tema") === "dark") {
-                    htmlEl.removeAttribute("data-tema");
-                    localStorage.setItem("tema", "light");
-                } else {
-                    htmlEl.setAttribute("data-tema", "dark");
-                    localStorage.setItem("tema", "dark");
-                }
-            });
-        }
-    });
 })();

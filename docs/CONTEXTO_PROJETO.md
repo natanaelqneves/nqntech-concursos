@@ -514,8 +514,9 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       completados pelo órgão lido do edital (regras/IA). Sem as chaves de IA a Cebraspe fica com dados mínimos
       (não há extrator de regras para ela).
 - [x] Mais bancas (04/11/2026, PR #16): sondagem `captura-sondagem` (robots.txt e rotas a partir do GitHub Actions)
-      das 12 bancas pedidas. **Entraram:** Cebraspe (API JSON, PR #15) e Instituto AOCP (API JSON
-      `/api/concursos`, só status SUBSCRIBE; sem PDF na API, então só dados da listagem + link oficial).
+      das 12 bancas pedidas. **Entrou:** Cebraspe (API JSON, PR #15). Instituto AOCP: adaptador pronto (API JSON
+      `/api/concursos`, status SUBSCRIBE), mas a API respondeu 403 ao coletor no mesmo dia em que respondeu 200 à
+      sondagem: fonte desativada pela V15 até a banca liberar.
       **Ficaram fora, sem contornar nada:** FCC (robots.txt bloqueia `/concursos/`, inclusive `bannersConcurso.js`,
       e `*.pdf`; a webapi liberada lista formulários com prazos vencidos, sem confirmar inscrição aberta),
       Cesgranrio, Vunesp, IBFC e Consulplan (robots.txt 403), Quadrix e IDECAN (403 anti-robô nas listagens),

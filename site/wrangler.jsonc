@@ -4,7 +4,9 @@
   "$schema": "https://unpkg.com/wrangler@4/config-schema.json",
   "name": "nqntech-concursos",
   "compatibility_date": "2026-10-29",
-  "workers_dev": true,
+  // Desligado: o site responde só no domínio próprio (Custom Domain no painel). Com o workers.dev ativo, o mesmo
+  // conteúdo ficava em dois endereços, e o Google tratava o domínio como cópia.
+  "workers_dev": false,
   "preview_urls": false,
   "assets": {
     "directory": "./saida-site",

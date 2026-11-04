@@ -45,24 +45,14 @@ jobs:
       - name: Compilar o gerador
         run: mvn -B -ntp -f site/pom.xml -DskipTests package
 
-      # Endereço público: domínio próprio (variável SITE_URL do repositório) ou o *.workers.dev da conta.
+      # Endereço público: variável SITE_URL do repositório ou, sem ela, o domínio próprio. Nunca o *.workers.dev:
+      # ele fica desligado no wrangler.jsonc, e URL canônica nele faria o Google indexar o endereço errado.
       - name: Endereço do site
         id: url
         env:
           SITE_URL: ${{ vars.SITE_URL }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          if [ -z "$SITE_URL" ]; then
-            resposta=$(curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-              "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain")
-            sub=$(echo "$resposta" | python3 -c 'import json,sys; print((json.load(sys.stdin).get("result") or {}).get("subdomain") or "")')
-            if [ -z "$sub" ]; then
-              echo "::error title=Cloudflare::conta sem subdomínio workers.dev (abra Workers & Pages no painel uma vez) ou token sem permissão"
-              exit 1
-            fi
-            SITE_URL="https://nqntech-concursos.${sub}.workers.dev"
-          fi
+          SITE_URL="${SITE_URL:-https://ntconcursos.com.br}"
           echo "url=${SITE_URL%/}" >> "$GITHUB_OUTPUT"
 
       - name: Gerar o site

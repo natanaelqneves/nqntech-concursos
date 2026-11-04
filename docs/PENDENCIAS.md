@@ -123,17 +123,15 @@ Nenhum dos dois vai para o `wrangler.jsonc` nem para o código (repositório pú
 
 ## Fase 5 — Site no ar
 
-- [x] Nada obrigatório: o site sai no endereço gratuito `https://nqntech-concursos.<sua-conta>.workers.dev`,
-      publicado pelo workflow **site** depois de cada coleta.
-- [ ] (Opcional) **Domínio próprio**, quando quiser:
-  1. Registre o domínio (Registro.br para `.com.br`, ~R$ 40/ano).
-  2. Cloudflare → **Add a domain** (plano Free) e troque os servidores DNS no Registro.br pelos dois que a
-     Cloudflare indicar. Espere o domínio ficar *Active*.
-  3. Cloudflare → **Workers & Pages → nqntech-concursos → Settings → Domains & Routes → Add → Custom domain**
-     com o domínio.
-  4. GitHub → **Settings → Secrets and variables → Actions → aba Variables → New variable**: `SITE_URL` =
-     `https://seu-dominio.com.br` (é variável, não secret). A próxima publicação usa esse endereço nas URLs
-     canônicas e no sitemap.
+- [x] **Domínio próprio** `ntconcursos.com.br`, ligado como Custom Domain do Worker no painel da Cloudflare.
+      O workflow **site** usa esse domínio nas URLs canônicas, no `og:url` e no sitemap (a variável `SITE_URL`
+      do repositório, se existir, tem prioridade). O `*.workers.dev` fica desligado no `wrangler.jsonc`, para
+      o mesmo conteúdo não aparecer em dois endereços.
+- [ ] **E-mail de contato:** Cloudflare → `ntconcursos.com.br` → **Email → Email Routing** → ativar e criar a
+      regra `contato@ntconcursos.com.br` → seu Gmail (confirme o e-mail de verificação). É o endereço que aparece
+      nas páginas Contato e Privacidade.
+- [ ] **Google Search Console:** adicionar a propriedade de domínio `ntconcursos.com.br` (verificação por DNS
+      TXT na Cloudflare) e enviar `https://ntconcursos.com.br/sitemap.xml`.
 
 ## Anúncios (AdSense) — ~5 min, no painel do AdSense
 
@@ -141,8 +139,8 @@ Nenhum dos dois vai para o `wrangler.jsonc` nem para o código (repositório pú
       (LGPD/"Regulamentações dos EUA e outras") → criar a mensagem para o site e **publicar**. Ela aparece sozinha
       pelo script que já está nas páginas; não precisa de código.
 - [ ] **Anúncios automáticos:** AdSense → **Anúncios → Por site** → ligar "Anúncios automáticos" para o domínio.
-- [ ] O `ads.txt` já está publicado na raiz do site. Se trocar para domínio próprio, adicione o novo domínio em
-      **Sites** no AdSense (a aprovação é por domínio).
+- [x] O `ads.txt` está na raiz do site e `ntconcursos.com.br` foi enviado para análise em **Sites** (04/11/2026).
+      Durante a análise, não tire o script do AdSense do `<head>` nem bloqueie o site.
 
 ## Extração com IA (Camada 2) — ~10 min
 

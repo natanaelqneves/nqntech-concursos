@@ -75,4 +75,28 @@ class PaginasTest {
                 .html();
         assertThat(html).contains("Nenhum concurso aberto ou previsto aqui no momento.");
     }
+
+    @Test
+    void fichaSemDadosSaiDoIndiceMasContinuaComCanonica() {
+        Concurso base = concurso("cgu-2026", "CGU", "NACIONAL", null, false, "INSCRICOES_ABERTAS",
+                HOJE.minusDays(1), HOJE.plusDays(10), null, null);
+        Concurso vazio = new Concurso(base.id(), base.slug(), base.titulo(), base.orgao(), base.banca(), base.situacao(),
+                base.abrangencia(), null, null, null, false, base.inscricaoInicio(), base.inscricaoFim(), null, null,
+                null, null, null, List.of(), List.of(), false, null, null, "Resumo.", null, null, null,
+                base.atualizadoEm(), List.of(), List.of(), List.of());
+
+        assertThat(vazio.dadosInsuficientes()).isTrue();
+        assertThat(paginas.concurso(vazio, tipos).html())
+                .contains("<meta name=\"robots\" content=\"noindex, follow\">")
+                .contains("<link rel=\"canonical\" href=\"https://exemplo.dev/concurso/cgu-2026/\">");
+    }
+
+    @Test
+    void paginaDeContatoTemEmailEEhIndexada() {
+        String html = paginas.texto("/contato/", "contato", "Contato", "Como falar com o site.").html();
+        assertThat(html)
+                .contains("href=\"mailto:contato@ntconcursos.com.br\"")
+                .contains("index, follow")
+                .contains("href=\"/contato/\"");
+    }
 }

@@ -584,3 +584,7 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       sondagem de 04/11/2026 a partir do GitHub Actions: o servidor fecha a conexão já no robots.txt (bloqueio a
       IPs de datacenter); nada contornado. Caminho viável: o usuário baixa o arquivo no navegador e importa
       localmente (como os PDFs manuais). Decisão do usuário: não pedir liberação a bancas (AOCP, IDECAN etc.).
+- [x] Ajustes para a aprovação no AdSense (04/11/2026): URL canônica, `og:url` e sitemap no domínio
+      `ntconcursos.com.br` (antes apontavam para o `*.workers.dev`); `workers.dev` desligado; fichas de concurso
+      sem nenhum dado útil (`Concurso.dadosInsuficientes`) com `noindex` e fora do sitemap; página `/contato/`
+      com e-mail e link no rodapé

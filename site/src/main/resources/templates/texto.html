@@ -57,8 +57,23 @@
         <p>Quando os alertas entrarem no ar, pediremos só nome, e-mail e o filtro escolhido, com confirmação por
             e-mail e descadastro em um clique, que apaga seus dados.</p>
         <h2 class="secao">Contato</h2>
-        <p>Dúvidas e pedidos sobre privacidade: pelo repositório do projeto no GitHub.</p>
+        <p>Dúvidas e pedidos sobre privacidade: <a href="mailto:contato@ntconcursos.com.br">contato@ntconcursos.com.br</a>
+            ou pela página de <a href="/contato/">contato</a>.</p>
         <p class="nota">Atualizada em 04/11/2026.</p>
+    </th:block>
+    <th:block th:if="${fragmento == 'contato'}">
+        <p>O NqnTech Concursos é um projeto independente e gratuito. Fale com a gente para corrigir uma informação, sugerir uma banca ou fonte nova, ou fazer um pedido de
+            privacidade.</p>
+        <h2 class="secao">E-mail</h2>
+        <p><a href="mailto:contato@ntconcursos.com.br">contato@ntconcursos.com.br</a>.</p>
+        <h2 class="secao">Encontrou um erro num concurso?</h2>
+        <p>Mande o endereço da página do concurso e o trecho do edital com a informação certa. A correção entra na
+            próxima atualização do site, que acontece todos os dias.</p>
+        <h2 class="secao">Sugestões e problemas técnicos</h2>
+        <p>Também dá para abrir uma issue no
+            <a href="https://github.com/natanaelqneves/nqntech-concursos/issues">repositório do projeto no GitHub</a>.</p>
+        <p class="nota">O site não representa nenhuma banca nem órgão público e não faz inscrições. Dúvidas sobre o
+            concurso em si vão para a banca organizadora, pelos canais indicados no edital.</p>
     </th:block>
 </main>
 <footer th:replace="~{base :: rodape}"></footer>

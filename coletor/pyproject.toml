@@ -10,6 +10,7 @@ requires-python = ">=3.13"
 dependencies = [
     "requests>=2.31,<3",
     "httpx>=0.28,<1",
+    "certifi>=2024.2.2",
     "beautifulsoup4>=4.13,<5",
     "lxml>=5.3",
     "pdfplumber>=0.11.5,<0.12",
@@ -26,6 +27,9 @@ nqntech-coletor = "coletor.__main__:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+coletor = ["certificados/*.pem"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

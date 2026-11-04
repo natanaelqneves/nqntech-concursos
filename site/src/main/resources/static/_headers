@@ -1,9 +1,12 @@
+# CSP: o AdSense só funciona com CSP "strict" baseada em nonce por requisição, impossível num site estático
+# (support.google.com/adsense/answer/16283098). Por isso scripts e frames não são restritos aqui; a proteção contra
+# XSS vem do escape de tudo no Thymeleaf, de links só http(s) e de JS sem innerHTML. O resto continua fechado.
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
+  Content-Security-Policy: object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
 
 /assets/*
   Cache-Control: public, max-age=86400

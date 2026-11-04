@@ -135,6 +135,15 @@ Nenhum dos dois vai para o `wrangler.jsonc` nem para o código (repositório pú
      `https://seu-dominio.com.br` (é variável, não secret). A próxima publicação usa esse endereço nas URLs
      canônicas e no sitemap.
 
+## Anúncios (AdSense) — ~5 min, no painel do AdSense
+
+- [ ] **Mensagem de consentimento (CMP do Google):** AdSense → **Privacidade e mensagens** → **Consentimento**
+      (LGPD/"Regulamentações dos EUA e outras") → criar a mensagem para o site e **publicar**. Ela aparece sozinha
+      pelo script que já está nas páginas; não precisa de código.
+- [ ] **Anúncios automáticos:** AdSense → **Anúncios → Por site** → ligar "Anúncios automáticos" para o domínio.
+- [ ] O `ads.txt` já está publicado na raiz do site. Se trocar para domínio próprio, adicione o novo domínio em
+      **Sites** no AdSense (a aprovação é por domínio).
+
 ## Próximas fases (só para você se planejar)
 
 - **Fase 7 (alertas):** conta no serviço de e-mail transacional escolhido e hospedagem da API.

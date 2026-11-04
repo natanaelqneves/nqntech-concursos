@@ -1,0 +1,184 @@
+{
+ "DOU": {
+  "url": "https://www.in.gov.br/leiturajornal",
+  "erro": "ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+ },
+ "DOU-dados-abertos": {
+  "url": "https://www.in.gov.br/acesso-a-informacao/dados-abertos/base-de-dados",
+  "erro": "ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+ },
+ "INLABS": {
+  "url": "https://inlabs.in.gov.br/",
+  "robots_status": 404,
+  "robots": "",
+  "permitido": true,
+  "status": 200,
+  "tipo": "text/html",
+  "bytes": 18660,
+  "trecho": "ManutenÃ§Ã£o Programada â Imprensa Nacional - INLABS Estamos em manutenÃ§Ã£o Para melhorar a sua experiÃªncia, estamos realizando atualizaÃ§Ãµes em nossos sistemas. Durante este perÃ­odo, o acesso poderÃ¡ ficar temporariamente indisponÃ­vel. Agradecemos a compreensÃ£o. Trabalhando para voltar o mais rÃ¡pido possÃ­velâ¦ Os dados abertos disponibilizados no INLabs estÃ£o temporariamente disponÃ­v",
+  "links_busca": []
+ },
+ "Querido-Diario-API": {
+  "url": "https://api.queridodiario.ok.org.br/gazettes?querystring=concurso&size=1",
+  "erro": "SSLError: HTTPSConnectionPool(host='api.queridodiario.ok.org.br', port=443): Max retries exceeded with url: /robots.txt (Caused by SSLError(SSLError(1, '[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE] sslv3 alert handshak"
+ },
+ "DOE-SP": {
+  "url": "https://doe.sp.gov.br/",
+  "robots_status": 404,
+  "robots": "",
+  "permitido": true,
+  "status": 200,
+  "tipo": "text/html; charset=utf-8",
+  "bytes": 32575,
+  "trecho": "Diário Oficial do Estado de São Paulo LEITURA DO DIÁRIO BUSCA AVANÇADA E-Negócios Públicos PUBLICAR NO DIÁRIO AUTENTICAR PUBLICAÇÃO TRANSPARÊNCIA BALANÇOS Gestão Financeira nas Empresas Públicas de São Paulo CONSULTA A LEIS E DECRETOS Consulta a leis, leis complementares e decretos do Estado de São Paulo ARTIGO 115 RELAÇÕES DE CARGOS Relações de cargos, funções, atividades e empregos públicos SAIB",
+  "links_busca": [
+   "/busca-avancada",
+   "https://fonts.googleapis.com"
+  ]
+ },
+ "DOE-SP-api": {
+  "url": "https://do-api-web-search.doe.sp.gov.br/v2/advanced-search/publications?Terms[0]=concurso&PageNumber=1&PageSize=5",
+  "robots_status": 404,
+  "robots": "",
+  "permitido": true,
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "bytes": 115,
+  "trecho": "{\"items\":[],\"currentPage\":1,\"totalPages\":0,\"totalItems\":0,\"pageSize\":5,\"hasPreviousPage\":false,\"hasNextPage\":false}",
+  "links_busca": []
+ },
+ "DOERJ": {
+  "url": "https://www.ioerj.com.br/portal/",
+  "robots_status": 200,
+  "robots": "User-agent: *\r\nDisallow: /portal/modules/conteudoonline/view_pdf.php?ie=OTAzMg*\r\nDisallow: /portal/modules/conteudoonline/view_pdf.php?ie=ODg4NQ*\r\nDisallow: /portal/modules/conteudoonline/view_pdf.php?ie=MTQ0OQ*\r\nAllow: /\r\n",
+  "permitido": true,
+  "status": 200,
+  "tipo": "text/html",
+  "bytes": 34005,
+  "trecho": "Imprensa Oficial do Estado do Rio de Janeiro : Nosso papel Ã© servir a sociedade --> CSS ============================================= --> &quot;,&quot;library&quot;:&quot;fa-solid&quot;},&quot;toggle&quot;:&quot;burger&quot;}\" data-widget_type=\"nav-menu.default\"> Menu CoronavÃÂ­rus TransparÃÂªncia Acesso Ã&nbsp; InformaÃÂ§ÃÂ£o Acessibilidade Facebook Instagram Linkedin &quot;,&quot;library&q",
+  "links_busca": [
+   "https://fonts.googleapis.com/css?family=Poppins:100,200,400,300,500,600,700"
+  ]
+ },
+ "DOE-MG": {
+  "url": "https://www.jornalminasgerais.mg.gov.br/",
+  "erro": "SSLError: HTTPSConnectionPool(host='www.jornalminasgerais.mg.gov.br', port=443): Max retries exceeded with url: /robots.txt (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] cert"
+ },
+ "DOE-PR": {
+  "url": "https://www.documentos.dioe.pr.gov.br/dioe/consultaPublicaPDF.do",
+  "erro": "SSLError: HTTPSConnectionPool(host='www.documentos.dioe.pr.gov.br', port=443): Max retries exceeded with url: /robots.txt (Caused by SSLError(SSLCertVerificationError(1, \"[SSL: CERTIFICATE_VERIFY_FAILED] certif"
+ },
+ "DOE-RS": {
+  "url": "https://www.diariooficial.rs.gov.br/",
+  "robots_status": 200,
+  "robots": "<!doctype html>\n<html lang=\"pt-BR\">\n\n<head>\n  <meta charset=\"utf-8\">\n  <meta http-equiv=\"expires\" content=\"-1\"/>\n\n  <meta name=\"author\" content=\"PROCERGS\">\n  <meta name=\"description\" content=\"Site do DiÃ¡rio Oficial EletrÃ´nico do Estado do Rio Grande do Sul\">\n  <meta name=\"keywords\" content=\"diÃ¡rio oficial do rs,diÃ¡rio oficial,diÃ¡rio oficial do rio grande do sul,Rio Grande do Sul,jornal rio grande do sul,doe,doe rs,dic,dic rs\">\n\n  <meta property=\"og:site_name\" content=\"DiÃ¡rio Oficial do Rio Grande do Sul\"/>\n  <meta property=\"og:title\" content=\"DiÃ¡rio Oficial do Rio Grande do Sul\"/>\n  <me",
+  "permitido": true,
+  "status": 200,
+  "tipo": "text/html",
+  "bytes": 2700,
+  "trecho": "DiÃ¡rio Oficial do Rio Grande do Sul Para visualizar esse site Ã© necessÃ¡rio ativar o JavaScript. Carregando...",
+  "links_busca": []
+ },
+ "DOE-SC": {
+  "url": "https://portal.doe.sea.sc.gov.br/",
+  "robots_status": 200,
+  "robots": "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n    <meta charset=\"UTF-8\">\r\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n    <title>Redirect</title>\r\n</head>\r\n<body>\r\n    <p id=\"redirectMessage\">Verificando redirecionamento...</p>\r\n\r\n    <script type=\"text/javascript\">\r\n        document.addEventListener(\"DOMContentLoaded\", function() {\r\n            console.log(\"ð Script iniciado!\");\r\n\r\n            var currentURL = window.location.href;\r\n            console.log(\"ð URL Atual:\", currentURL);\r\n\r\n            ",
+  "permitido": true,
+  "status": 200,
+  "tipo": "text/html",
+  "bytes": 2419,
+  "trecho": "Redirect Verificando redirecionamento...",
+  "links_busca": []
+ },
+ "DOE-BA": {
+  "url": "https://dool.egba.ba.gov.br/",
+  "erro": "ConnectTimeout: HTTPSConnectionPool(host='dool.egba.ba.gov.br', port=443): Max retries exceeded with url: /robots.txt (Caused by ConnectTimeoutError(<HTTPSConnection(host='dool.egba.ba.gov.br', port=443) at 0x7fda421"
+ },
+ "DOE-PE": {
+  "url": "https://diariooficial.cepe.com.br/diariooficialweb/",
+  "robots_status": 404,
+  "robots": "",
+  "permitido": true,
+  "status": 200,
+  "tipo": "text/html",
+  "bytes": 1653,
+  "trecho": "CEPE Checking language requirements...",
+  "links_busca": []
+ },
+ "DOE-CE": {
+  "url": "https://www.ceara.gov.br/diario-oficial/",
+  "erro": "SSLError: HTTPSConnectionPool(host='www.ce.gov.br', port=443): Max retries exceeded with url: /robots.txt (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify fai"
+ },
+ "DOE-PB": {
+  "url": "https://auniao.pb.gov.br/doe",
+  "erro": "ConnectTimeout: HTTPSConnectionPool(host='auniao.pb.gov.br', port=443): Max retries exceeded with url: /robots.txt (Caused by ConnectTimeoutError(<HTTPSConnection(host='auniao.pb.gov.br', port=443) at 0x7fda421cd1d0>"
+ },
+ "DOE-GO": {
+  "url": "https://diariooficial.abc.go.gov.br/",
+  "robots_status": 404,
+  "robots": "",
+  "permitido": true,
+  "status": 200,
+  "tipo": "text/html; charset=UTF-8",
+  "bytes": 17282,
+  "trecho": "ABC - Agência Brasil Central / Home Toggle navigation INSTITUCIONAL COMO PUBLICAR LEGISLAÇÃO ACESSO À INFORMAÇÃO FALE CONOSCO NORMAS PARA ACESSO TERMOS DE USO POLÍTICA DE PRIVACIDADE TBC RBC FM RBC AM --> h | Quarta-feira, 04 de novembro de 2026 LOGIN ESQUECI MINHA SENHA CADASTRE-SE DIÁRIO OFICIAL DO ESTADO DE GOIÁS BUSCAR POR DATA Buscar por nome completo ou palavra-chave Início Fim ÚLTIMAS EDIÇÕ",
+  "links_busca": [
+   "/buscanova",
+   "/buscanova/"
+  ]
+ },
+ "DODF": {
+  "url": "https://dodf.df.gov.br/",
+  "erro": "ConnectTimeout: HTTPSConnectionPool(host='dodf.df.gov.br', port=443): Max retries exceeded with url: /robots.txt (Caused by ConnectTimeoutError(<HTTPSConnection(host='dodf.df.gov.br', port=443) at 0x7fda421cd810>, 'C"
+ },
+ "DOE-PA": {
+  "url": "https://www.ioepa.com.br/",
+  "robots_status": 200,
+  "robots": "# As a condition of accessing this website, you agree to abide by the following\n# content signals:\n\n# (a)  If a content-signal = yes, you may collect content for the corresponding\n#      use.\n# (b)  If a content-signal = no, you may not collect content for the\n#      corresponding use.\n# (c)  If the website operator does not include a content signal for a\n#      corresponding use, the website operator neither grants nor restricts\n#      permission via content signal with respect to the corresponding use.\n\n# The content signals and their meanings are:\n\n# search:   building a search index and pr",
+  "permitido": true,
+  "status": 200,
+  "tipo": "text/html; charset=iso-8859-1",
+  "bytes": 16019,
+  "trecho": "Belém, 4 de Novembro de 2026 PRINCIPAL INSTITUCIONAL HISTÓRIA CERTIFICAÇÃO DIGITAL GRÁFICA NOTÍCIAS CONTATO TRANSPARÊNCIA PÚBLICA A versão online do Diário Oficial agora é certificada digitalmente e o conteúdo é garantido pela IOE. saiba mais A emissão de certificados digitais é mais um serviço que a IOE oferece à sociedade. Adquira o seu. saiba mais Principal Institucional História Certificação D",
+  "links_busca": []
+ },
+ "DOE-ES": {
+  "url": "https://ioes.dio.es.gov.br/",
+  "robots_status": 404,
+  "robots": "",
+  "permitido": true,
+  "erro": "ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+ },
+ "DOM-FAMUP-PB": {
+  "url": "https://www.diariomunicipal.com.br/famup/",
+  "robots_status": 200,
+  "robots": "# www.robotstxt.org/\n# www.google.com/support/webmasters/bin/answer.py?hl=en&answer=156449\n\nUser-agent: *\nDisallow:\n",
+  "permitido": true,
+  "status": 200,
+  "tipo": "text/html; charset=UTF-8",
+  "bytes": 49533,
+  "trecho": "Diário Oficial dos Municípios SIGPub - Sistema Gerenciador de Publicações Legais Edição do dia Nenhuma edição publicada nesta data Baixar a edição Arquivo PDF Baixar a versão certificada Requer software de leitura As edições publicadas são arquivos em PDF assinados com certificado digital , o que assegura a autenticidade, a integridade e a validade jurídica do documento eletrônico. A assinatura us",
+  "links_busca": [
+   "/famup/pesquisar/identificador",
+   "https://fonts.googleapis.com",
+   "https://fonts.googleapis.com/css2?family=Inter:wght@200;300;500;600;700&display=swap",
+   "https://www.diariomunicipal.com.br/famup/pesquisar"
+  ]
+ },
+ "DOM-AMM-MG": {
+  "url": "https://www.diariomunicipal.com.br/amm-mg/",
+  "robots_status": 200,
+  "robots": "# www.robotstxt.org/\n# www.google.com/support/webmasters/bin/answer.py?hl=en&answer=156449\n\nUser-agent: *\nDisallow:\n",
+  "permitido": true,
+  "status": 200,
+  "tipo": "text/html; charset=UTF-8",
+  "bytes": 49466,
+  "trecho": "Diário Oficial dos Municípios SIGPub - Sistema Gerenciador de Publicações Legais Edição do dia Nenhuma edição publicada nesta data Baixar a edição Arquivo PDF Baixar a versão certificada Requer software de leitura As edições publicadas são arquivos em PDF assinados com certificado digital , o que assegura a autenticidade, a integridade e a validade jurídica do documento eletrônico. A assinatura us",
+  "links_busca": [
+   "/amm-mg/pesquisar/identificador",
+   "https://fonts.googleapis.com",
+   "https://fonts.googleapis.com/css2?family=Inter:wght@200;300;500;600;700&display=swap",
+   "https://www.diariomunicipal.com.br/amm-mg/pesquisar"
+  ]
+ }
+}

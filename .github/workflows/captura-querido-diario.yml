@@ -1,0 +1,30 @@
+# Utilitário: sondagem do Querido Diário (robots.txt e busca de editais). Roda só em push na branch
+# captura/querido-diario e grava o resultado nela; nunca na main.
+name: captura-querido-diario
+on:
+  push:
+    branches: [captura/querido-diario]
+    paths: [scripts/captura/sondar_querido_diario.py, .github/workflows/captura-querido-diario.yml]
+permissions:
+  contents: write
+concurrency:
+  group: captura-querido-diario
+  cancel-in-progress: false
+jobs:
+  sondar:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - run: pip install requests
+      - run: python scripts/captura/sondar_querido_diario.py
+      - name: Gravar o resultado na branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f coletor/tests/fixtures/querido_diario
+          git commit -m "captura: sondagem Querido Diário [skip ci]" || echo "nada novo"
+          git pull --rebase || true; git push || echo "push falhou; ver o log"

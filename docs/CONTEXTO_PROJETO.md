@@ -523,3 +523,13 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       FUNDEP (concursos em fundep.selecao.net.br, robots 403), FUMARC e COMPERVE (certificado TLS inválido; a
       verificação não é desligada), CPCON (recusa conexão). Caminho para elas: diários oficiais (fase 6). Detalhes
       em `banca.observacao` (V14).
+- [x] Correção PC-PE (04/11/2026, PR #18): "horário oficial de Brasília/DF" no período de inscrição era lido como UF
+      do concurso; agora é ignorado na resolução de local, e siglas da Cebraspe ("PC PE 26") viram o nome do órgão.
+- [x] COMPERVE (04/11/2026, PR #19): fonte `comperve` (categorias NOVOS e INSCRIÇÕES ABERTAS; edital consolidado,
+      órgão e período de inscrição), V16. O servidor não envia o intermediário GlobalSign RSA OV SSL CA 2018: ele fica
+      em `coletor/src/coletor/certificados/` e `ClienteHttp` usa certifi + intermediário, com verificação completa e
+      PARTIAL_CHAIN desligado (a raiz continua obrigatória). FUMARC tem o mesmo problema de TLS, mas os dados ficam
+      atrás de um app SharePoint sem rota pública: continua fora.
+- [ ] Fase 6 (diários oficiais): sondagem do Querido Diário em 04/11/2026 a partir do GitHub Actions falhou no
+      handshake TLS (`SSLV3_ALERT_HANDSHAKE_FAILURE`, recusa do servidor); nada contornado, tentar de novo depois.
+      DOU via INLABS depende de conta do usuário (PENDENCIAS).

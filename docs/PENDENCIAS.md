@@ -159,6 +159,13 @@ Sem estas chaves, o coletor continua só com as regras (nada quebra).
 - Na faixa gratuita do Gemini, o Google pode usar o conteúdo enviado para melhorar os modelos. Aqui só vão trechos
   de editais públicos, sem dado pessoal.
 
+## Fase 6 — Diários oficiais — ~5 min
+
+1. **INLABS (DOU):** crie uma conta gratuita em https://inlabs.in.gov.br e cadastre os secrets `INLABS_EMAIL` e
+   `INLABS_SENHA` no repositório (Settings → Secrets and variables → Actions). Sem isso o DOU não entra.
+2. **AOCP e IDECAN (opcional):** envie o e-mail pedindo liberação do User-Agent `NqnTechConcursos/0.1` (rascunho
+   na conversa). Se liberarem, a AOCP volta com um `UPDATE fonte SET ativa = true` depois de nova sondagem.
+
 ## Próximas fases (só para você se planejar)
 
 - **Fase 7 (alertas):** conta no serviço de e-mail transacional escolhido e hospedagem da API.

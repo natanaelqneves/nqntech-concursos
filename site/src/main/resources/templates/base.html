@@ -6,7 +6,10 @@
     <title th:text="${meta.titulo()}">Título</title>
     <meta name="description" th:content="${meta.descricao()}">
     <link th:if="${!#strings.isEmpty(meta.canonica())}" rel="canonical" th:href="${meta.canonica()}">
+    <meta name="robots" th:content="${meta.url() == '/404.html'} ? 'noindex, follow' : 'index, follow, max-snippet:-1, max-image-preview:large'">
     <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_BR">
+    <meta name="twitter:card" content="summary">
     <meta property="og:site_name" th:content="${site.nome()}">
     <meta property="og:title" th:content="${meta.titulo()}">
     <meta property="og:description" th:content="${meta.descricao()}">
@@ -37,10 +40,10 @@
     <div class="topo__acoes">
       <nav aria-label="Principal">
         <ul class="menu">
-          <li><a href="/concursos/">Concursos</a></li>
-          <li><a href="/brasil/">Por estado</a></li>
-          <li><a href="/isencoes/">Isenção</a></li>
-          <li><a href="/sobre/">Sobre</a></li>
+          <li><a href="/">Início</a></li>
+          <li><a href="/inscricoes-abertas/">Inscrições abertas</a></li>
+          <li><a href="/isencao-em-prazo/">Isenção em prazo</a></li>
+          <li><a href="/brasil/">Por região</a></li>
         </ul>
       </nav>
       <button id="alternar-tema" class="botao-tema" type="button" aria-pressed="false"
@@ -65,7 +68,7 @@
     </div>
 </footer>
 
-<!-- Cartão de concurso usado em todas as listas. data-* alimentam os filtros do navegador (/concursos/). -->
+<!-- Cartão de concurso usado em todas as listas. data-* ficam para recortes no navegador. -->
 <article th:fragment="cartao(c)" class="cartao"
          th:attr="data-uf=${c.uf()},data-abrangencia=${c.abrangencia()},data-situacao=${c.situacao()},data-areas=${#strings.listJoin(c.areas(), ' ')},data-niveis=${#strings.listJoin(c.escolaridades(), ' ')},data-isencao=${c.temIsencao()},data-busca=${#strings.toLowerCase(c.nomeExibicao() + ' ' + c.titulo())}">
     <ul class="selos">

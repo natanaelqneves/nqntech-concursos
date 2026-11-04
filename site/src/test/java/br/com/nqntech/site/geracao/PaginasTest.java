@@ -58,7 +58,10 @@ class PaginasTest {
                 .contains("href=\"/concurso/inss-2026/\"")
                 .contains("data-prazo=\"2026-10-28\"")
                 .contains("Confira sempre o")
-                .contains("\"@type\":\"WebSite\"");
+                .contains("\"@type\":\"WebSite\"")
+                .contains("href=\"/inscricoes-abertas/\"", "href=\"/isencao-em-prazo/\"", "href=\"/brasil/\"")
+                .contains("index, follow")
+                .doesNotContain("href=\"/concursos/\"");
     }
 
     @Test

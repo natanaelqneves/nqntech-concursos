@@ -18,9 +18,10 @@ UA = "NqnTechConcursos/0.1 (site publico e gratuito de concursos; respeita robot
 DESTINO = Path("coletor/tests/fixtures/tls")
 INTERMEDIARIO = DESTINO / "intermediario_www_fumarc_com_br.pem"
 ALVOS = [
-    "https://www.comperve.ufrn.br/conteudo/concursos.php",
-    "https://www.comperve.ufrn.br/conteudo/concursos/cref_202601/informacoes.php",
-    "https://www.fumarc.com.br/sites/app/ClientSideAssets/1e6dd93b-1f99-440b-a6c4-5c6af3330182/concursos-web-part_a63cd5f36174102910a8ad528ad46729.js",
+    "https://www.comperve.ufrn.br/conteudo/concursos/cref_202601/documentos.php",
+    "https://www.comperve.ufrn.br/conteudo/concursos/mossoro_202601/informacoes.php",
+    "https://www.comperve.ufrn.br/conteudo/concursos/mossoro_202601/documentos.php",
+    "https://www.comperve.ufrn.br/conteudo/concursos/mossoro_202601/inscricoes.php",
 ]
 
 
@@ -68,14 +69,6 @@ def main() -> int:
             relatorio[nome]["trechos"] = re.findall(r".{0,120}(?:_api|getbytitle).{0,200}", r.text)[:15]
         else:
             (DESTINO / f"{nome}.html").write_text(r.text, encoding="utf-8")
-    # Rotas SharePoint usadas pelo módulo de concursos (se o robots permitir).
-    for rota in relatorio.get(next((k for k in relatorio if k.endswith("js")), ""), {}).get("rotas", [])[:10]:
-        alvo = urljoin("https://www.fumarc.com.br/", rota)
-        if "_api" in alvo:
-            nome = "fumarc_api_" + re.sub(r"[^a-z0-9]+", "_", alvo.lower())[-50:]
-            r = baixar(nome, alvo)
-            if r is not None and r.ok and "json" in (r.headers.get("Content-Type") or ""):
-                (DESTINO / f"{nome}.json").write_text(r.text[:2_000_000], encoding="utf-8")
     bundle.unlink()
     (DESTINO / "_tls2.json").write_text(json.dumps(relatorio, ensure_ascii=False, indent=1), encoding="utf-8")
     print(json.dumps(relatorio, ensure_ascii=False, indent=1)[:8000])

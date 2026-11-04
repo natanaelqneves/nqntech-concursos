@@ -58,8 +58,21 @@ def main() -> int:
                 js = s.get(alvo, timeout=25)
                 if js.ok:
                     rotas |= set(re.findall(r'["\'`]((?:https://[a-z0-9.-]*cebraspe\.org\.br)?/(?:api|_api|wp-json)[^"\'`\s]{1,160})["\'`]', js.text))
-            relatorio[caminho]["rotas_api"] = sorted(rotas)[:60]
-            relatorio["rotas_permitidas"] = {rota: permitido(urljoin(BASE, rota)) for rota in sorted(rotas)[:60]}
+            # A lista é um app React (/concursos/static/js/*.chunk.js): as URLs de dados estão no bundle.
+            for src in re.findall(r'(/concursos/static/js/[^"]+\.js)', p.text):
+                alvo = urljoin(url, src)
+                if not permitido(alvo):
+                    continue
+                time.sleep(2)
+                js = s.get(alvo, timeout=25)
+                if js.ok:
+                    (DESTINO / Path(src).name).write_text(js.text, encoding="utf-8")
+                    rotas |= set(re.findall(r'["\'`](https?://[^"\'`\s]{8,200})["\'`]', js.text))
+                    rotas |= set(re.findall(r'["\'`](/[a-zA-Z0-9_-]+/[^"\'`\s]{2,160})["\'`]', js.text))
+            relatorio[caminho]["rotas_api"] = sorted(rotas)[:200]
+            relatorio["rotas_permitidas"] = {
+                rota: permitido(urljoin(BASE, rota)) for rota in sorted(rotas)[:200] if "cebraspe" in rota or rota[0] == "/"
+            }
         break
     (DESTINO / "_sondagem.json").write_text(json.dumps(relatorio, ensure_ascii=False, indent=1), encoding="utf-8")
     print(json.dumps(relatorio, ensure_ascii=False, indent=1)[:6000])

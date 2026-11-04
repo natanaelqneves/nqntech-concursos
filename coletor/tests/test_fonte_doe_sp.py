@@ -61,7 +61,8 @@ def test_descobrir_pagina_a_busca_e_le_cada_edital(fixture_texto):
     assert resultado.sinais and not resultado.falhas
     # 3 termos × até 5 páginas (a resposta simulada diz que há 13); a mesma publicação é lida uma vez só
     assert sum(p.endswith("/advanced-search/publications") for p in pedidos) == 15
-    assert len({s.url for s in resultado.sinais}) == len(resultado.sinais)
+    detalhes = [p for p in pedidos if "/publications/" in p]
+    assert len(detalhes) == len(set(detalhes)) == len(resultado.sinais)  # cada publicação lida uma vez
 
 
 @pytest.mark.db

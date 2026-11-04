@@ -70,9 +70,15 @@ def main() -> int:
             relatorio[nome]["trechos"] = re.findall(r".{0,120}(?:_api|getbytitle).{0,200}", r.text)[:15]
         else:
             (DESTINO / f"{nome}.html").write_text(r.text, encoding="utf-8")
+            corpo = re.sub(r"<script.*?</script>|<style.*?</style>", "", r.text, flags=re.S | re.I)
+            relatorio[nome]["links"] = [
+                (h, " ".join(re.sub(r"<[^>]+>", " ", t).split())[:100])
+                for h, t in re.findall(r'<a[^>]+href="([^"#]+)"[^>]*>(.*?)</a>', corpo, flags=re.S | re.I)
+            ][:60]
+            relatorio[nome]["texto"] = " ".join(re.sub(r"<[^>]+>", " ", corpo).split())[:2500]
     bundle.unlink()
     (DESTINO / "_tls2.json").write_text(json.dumps(relatorio, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(json.dumps(relatorio, ensure_ascii=False, indent=1)[:8000])
+    print(json.dumps(relatorio, ensure_ascii=False, indent=1)[:60000])
     return 0
 
 

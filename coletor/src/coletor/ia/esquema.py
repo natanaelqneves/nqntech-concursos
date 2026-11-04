@@ -14,7 +14,7 @@ from typing import Any
 
 from coletor.extratores.base import CargoExtraido, EditalExtraido, IsencaoPrevista
 
-VERSAO = "1"  # muda quando o esquema ou o prompt mudam: invalida o cache
+VERSAO = "2"  # muda quando o esquema ou o prompt mudam: invalida o cache
 
 ESCOLARIDADES = ("FUNDAMENTAL", "MEDIO", "TECNICO", "SUPERIOR")
 ISENCOES = (
@@ -42,8 +42,8 @@ MAX_VAGAS = 100_000
 
 
 CAMPOS = [
-    "orgao", "uf", "numero_edital", "ano", "cargos", "inscricao_inicio", "inscricao_fim", "data_prova",
-    "taxa_min", "taxa_max", "isencoes", "isencao_inicio", "isencao_fim",
+    "orgao", "esfera", "uf", "municipio", "numero_edital", "ano", "cargos", "inscricao_inicio", "inscricao_fim",
+    "data_prova", "taxa_min", "taxa_max", "isencoes", "isencao_inicio", "isencao_fim",
 ]  # fmt: skip
 
 
@@ -64,7 +64,9 @@ ESQUEMA: dict[str, Any] = {
     "additionalProperties": False,
     "required": CAMPOS,
     "properties": {
-        "orgao": _texto("órgão que abre o concurso, por extenso"),
+        "orgao": _texto("órgão que abre o concurso, por extenso, sem a banca (ex.: Prefeitura Municipal de Sapé)"),
+        "esfera": _texto("FEDERAL, ESTADUAL ou MUNICIPAL (órgão do município, inclusive câmara e autarquia)"),
+        "municipio": _texto("município do órgão, só se a esfera for MUNICIPAL (sem a UF)"),
         # Enum só em campos não nulos: os provedores divergem sobre null dentro de enum. O resto valida depois.
         "uf": _texto("sigla da UF do órgão (ex.: PB); null se o concurso é nacional"),
         "numero_edital": _texto("número do edital, ex.: 01/2026"),
@@ -75,7 +77,15 @@ ESQUEMA: dict[str, Any] = {
             "items": {
                 "type": "object",
                 "additionalProperties": False,
-                "required": ["nome", "especialidade", "escolaridade", "vagas", "cadastro_reserva", "salario"],
+                "required": [
+                    "nome",
+                    "especialidade",
+                    "escolaridade",
+                    "vagas",
+                    "cadastro_reserva",
+                    "salario",
+                    "uf_lotacao",
+                ],
                 "properties": {
                     "nome": {"type": "string"},
                     "especialidade": _texto("especialidade/área/perfil, se houver"),
@@ -83,6 +93,7 @@ ESQUEMA: dict[str, Any] = {
                     "vagas": {"type": ["integer", "null"], "description": "vagas imediatas (total do cargo)"},
                     "cadastro_reserva": {"type": "boolean"},
                     "salario": _numero("remuneração inicial em reais"),
+                    "uf_lotacao": _texto("sigla da UF de lotação, só quando o edital separa vagas por estado"),
                 },
             },
         },
@@ -107,8 +118,14 @@ INSTRUCOES = (
     "Datas em AAAA-MM-DD. Valores em reais como número (7526.14). Em 'cargos', um item por cargo ou "
     "especialidade com vagas próprias; vagas = total de vagas imediatas do cargo. Em 'isencoes', só os tipos "
     "previstos no item de isenção da taxa (OUTRA para casos fora da lista, como doadoras de leite). Ignore "
-    "conteúdo programático."
+    "conteúdo programático. 'orgao' é quem abre o concurso (nunca a banca organizadora, como FGV, Cebraspe, "
+    "Vunesp, IBFC). 'esfera': MUNICIPAL para prefeitura, câmara, autarquia ou consórcio municipal; ESTADUAL para "
+    "órgãos do estado e do DF; FEDERAL para União, autarquias e empresas federais. 'uf' é a do órgão, não a do "
+    'horário oficial ("horário de Brasília" não é DF); null para concurso nacional. Some as vagas de cada '
+    "cargo somando ampla concorrência e cotas; cadastro_reserva = true quando o cargo tem CR."
 )
+
+ESFERAS = ("FEDERAL", "ESTADUAL", "MUNICIPAL")
 
 
 def para_edital(dados: Mapping[str, Any], hoje: date) -> tuple[EditalExtraido, str | None]:
@@ -163,6 +180,7 @@ def para_edital(dados: Mapping[str, Any], hoje: date) -> tuple[EditalExtraido, s
         vagas = vagas if isinstance(vagas, int) and not isinstance(vagas, bool) and 0 <= vagas <= MAX_VAGAS else None
         escolaridade = bruto.get("escolaridade") if bruto.get("escolaridade") in ESCOLARIDADES else None
         especialidade = " ".join(str(bruto.get("especialidade") or "").split())[:200] or None
+        uf_lotacao = bruto.get("uf_lotacao") if bruto.get("uf_lotacao") in UFS else None
         cargos.append(
             CargoExtraido(
                 nome=nome,
@@ -171,6 +189,7 @@ def para_edital(dados: Mapping[str, Any], hoje: date) -> tuple[EditalExtraido, s
                 vagas=vagas,
                 cadastro_reserva=bool(bruto.get("cadastro_reserva")),
                 salario=valor(bruto.get("salario"), SALARIO, "salário"),
+                uf_lotacao=uf_lotacao,
             )
         )
     if not cargos:
@@ -182,7 +201,12 @@ def para_edital(dados: Mapping[str, Any], hoje: date) -> tuple[EditalExtraido, s
         avisos.append("período para pedir isenção não identificado: confira o edital")
     ano = dados.get("ano")
     uf = dados.get("uf") if dados.get("uf") in UFS else None
+    esfera = dados.get("esfera") if dados.get("esfera") in ESFERAS else None
+    municipio = " ".join(str(dados.get("municipio") or "").split())[:120] or None
     edital = EditalExtraido(
+        esfera=esfera,
+        uf=uf,
+        municipio=municipio if esfera == "MUNICIPAL" else None,
         orgao=(" ".join(str(dados.get("orgao") or "").split())[:300] or None),
         numero_edital=(str(dados.get("numero_edital") or "").strip()[:40] or None),
         ano=ano if isinstance(ano, int) and hoje.year - 2 <= ano <= hoje.year + 2 else None,

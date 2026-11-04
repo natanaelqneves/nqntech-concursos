@@ -53,6 +53,10 @@ class EditalExtraido:
     isencao_fim: date | None = None
     eventos: tuple[EventoCalendario, ...] = ()
     avisos: tuple[str, ...] = field(default=())
+    # Local do órgão lido no edital (hoje só a IA preenche): completa o cadastro do órgão quando falta UF.
+    esfera: str | None = None  # FEDERAL, ESTADUAL ou MUNICIPAL
+    uf: str | None = None
+    municipio: str | None = None
 
 
 class Extrator(Protocol):

@@ -33,14 +33,16 @@ HOJE = date(2026, 10, 25)
 
 RESPOSTA_TJPB = {
     "orgao": "Tribunal de Justiça do Estado da Paraíba",
+    "esfera": "ESTADUAL",
     "uf": "PB",
+    "municipio": None,
     "numero_edital": "01/2026",
     "ano": 2026,
     "cargos": [
         {"nome": "Analista", "especialidade": "Judiciária", "escolaridade": "SUPERIOR", "vagas": 25,
-         "cadastro_reserva": False, "salario": 7526.14},
+         "cadastro_reserva": False, "salario": 7526.14, "uf_lotacao": None},
         {"nome": "Analista", "especialidade": "TI – Banco de Dados", "escolaridade": "SUPERIOR", "vagas": 1,
-         "cadastro_reserva": False, "salario": 7526.14},
+         "cadastro_reserva": False, "salario": 7526.14, "uf_lotacao": None},
     ],
     "inscricao_inicio": "2026-10-20",
     "inscricao_fim": "2026-11-18",
@@ -360,3 +362,25 @@ def test_config_ia_desligada_sem_chave_e_sem_vazar_chave():
     assert config.ia.ativa and config.ia.max_chamadas == 5
     assert "segredo-gemini" not in repr(config)
     assert not ConfigIA(gemini_chave="x", max_chamadas=0).ativa
+
+
+def test_ia_traz_o_local_do_orgao_para_a_persistencia():
+    from coletor.pipeline.estruturacao import orgao_do_edital
+
+    resposta = {**RESPOSTA_TJPB, "orgao": "Prefeitura Municipal de Sapé", "esfera": "MUNICIPAL", "uf": "PB",
+                "municipio": "Sapé"}  # fmt: skip
+    edital, _ = para_edital(resposta, HOJE)
+    assert (edital.esfera, edital.uf, edital.municipio) == ("MUNICIPAL", "PB", "Sapé")
+    orgao = orgao_do_edital(edital)
+    assert (orgao.esfera, orgao.uf, orgao.municipio) == ("MUNICIPAL", "PB", "Sapé")
+    federal, _ = para_edital({**RESPOSTA_TJPB, "orgao": "Instituto Nacional do Seguro Social", "esfera": "FEDERAL",
+                              "uf": "DF", "municipio": "Brasília"}, HOJE)  # fmt: skip
+    assert federal.municipio is None and orgao_do_edital(federal).uf is None  # sede em Brasília não vira DF
+    estranho, _ = para_edital({**RESPOSTA_TJPB, "esfera": "PLANETARIA", "uf": "XX"}, HOJE)
+    assert estranho.esfera is None and estranho.uf is None
+
+
+def test_cargo_com_uf_de_lotacao():
+    cargos = [{**RESPOSTA_TJPB["cargos"][0], "uf_lotacao": "PB"}, {**RESPOSTA_TJPB["cargos"][1], "uf_lotacao": "ZZ"}]
+    edital, _ = para_edital({**RESPOSTA_TJPB, "cargos": cargos}, HOJE)
+    assert [c.uf_lotacao for c in edital.cargos] == ["PB", None]

@@ -130,6 +130,7 @@ def importar_drive(repo: Repositorio, max_bytes: int) -> int | None:
     import httpx
 
     from coletor.importacao_drive import Drive, ErroDrive, configuracao, importar_do_drive, token_da_conta_de_servico
+    from coletor.importacao_manual import corrigir_nomes
 
     dados = configuracao(os.environ)
     if dados is None:
@@ -139,6 +140,7 @@ def importar_drive(repo: Repositorio, max_bytes: int) -> int | None:
         token = token_da_conta_de_servico(dados[0])
         with httpx.Client(timeout=120, headers={"Authorization": f"Bearer {token}"}) as http:
             resumos = importar_do_drive(repo, Drive(http), dados[1], max_bytes)
+        corrigir_nomes(repo)  # também os importados antes desta correção (título = nome do arquivo)
     except ErroDrive as erro:
         log.error("%s", erro)
         anotar_github([ResumoEtapa("IMPORTACAO_DRIVE", "FALHA", 0, str(erro))])

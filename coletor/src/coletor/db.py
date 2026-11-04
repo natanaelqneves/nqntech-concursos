@@ -415,8 +415,10 @@ class Repositorio:
     # --- estruturação ----------------------------------------------------------------------------
     def concursos_para_estruturar(self) -> list[Linha]:
         return self.conn.execute(
-            """SELECT c.id, c.orgao_id, b.sigla AS banca, e.id AS documento_id, e.texto_extraido, e.hash_sha256
+            """SELECT c.id, c.orgao_id, o.uf AS orgao_uf, b.sigla AS banca, e.id AS documento_id, e.texto_extraido,
+                      e.hash_sha256
                FROM concurso c
+                        LEFT JOIN orgao o ON o.id = c.orgao_id
                         JOIN banca b ON b.id = c.banca_id
                         JOIN LATERAL (SELECT d.id, d.texto_extraido, d.hash_sha256 FROM documento d
                                       WHERE d.concurso_id = c.id AND d.tipo = 'EDITAL' AND d.status_extracao = 'OK'
@@ -492,6 +494,33 @@ class Repositorio:
                 "INSERT INTO concurso_evento (concurso_id, ordem, evento, inicio, fim) VALUES (%s, %s, %s, %s, %s)",
                 (concurso_id, ordem, evento.evento[:200], evento.inicio, fim),
             )
+
+    def concursos_manuais_sem_orgao(self) -> list[Linha]:
+        linhas = self.conn.execute(
+            """SELECT DISTINCT ON (c.id) c.id, d.texto_extraido
+               FROM concurso c
+                        JOIN sinal_descoberta s ON s.concurso_id = c.id
+                        JOIN fonte f ON f.id = s.fonte_id AND f.tipo = 'MANUAL'
+                        JOIN documento d ON d.concurso_id = c.id AND d.status_extracao = 'OK'
+               WHERE c.orgao_id IS NULL
+               ORDER BY c.id, (d.tipo = 'EDITAL') DESC, d.id DESC"""
+        ).fetchall()
+        self.conn.commit()
+        return linhas
+
+    def renomear_concurso(self, concurso_id: int, titulo: str) -> None:
+        """Título novo; o slug (feito do nome do arquivo) é refeito na etapa de resumo."""
+        with self.transacao():
+            self.conn.execute(
+                "UPDATE concurso SET titulo = %s, slug = NULL WHERE id = %s AND titulo IS DISTINCT FROM %s",
+                (titulo[:1000], concurso_id, titulo[:1000]),
+            )
+
+    def trocar_orgao(self, concurso_id: int, orgao: OrgaoInferido) -> None:
+        """Órgão com local completo lido no edital no lugar de um cadastro sem UF (o antigo fica para os outros)."""
+        with self.transacao():
+            orgao_id = self.garantir_orgao(orgao)
+            self.conn.execute("UPDATE concurso SET orgao_id = %s WHERE id = %s", (orgao_id, concurso_id))
 
     def definir_orgao_se_ausente(self, concurso_id: int, orgao: OrgaoInferido) -> bool:
         """Órgão lido do edital, só quando a fonte não informou (ex.: Cebraspe, com nomes abreviados)."""

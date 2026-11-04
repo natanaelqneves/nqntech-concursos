@@ -591,6 +591,12 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       Diário, DOE-MG, DOE-PR, DOE-CE, DOE-BA, DOE-PB, DODF e DOE-ES recusaram/erro de TLS a partir do Actions;
       DOERJ, DOE-RS, DOE-SC, DOE-PE, DOE-GO, DOE-PA e SIGPub (diários municipais por associação) respondem e são
       os próximos (SIGPub carrega a busca por JavaScript: falta achar a rota).
+- [x] Dados mínimos (04/11/2026): segunda leitura dirigida (`ia/lacunas.py`, cache `lacunas-1`) quando falta fim
+      das inscrições, data da prova, salário (cargos sem salário) ou prazo de isenção (se há isenção): varre o edital
+      inteiro (sem conteúdo programático) atrás de trechos de cronograma/inscrição/remuneração/isenção e pede só os
+      campos que faltam; nunca troca o que a primeira leitura achou. Ficha do concurso mostra "Salário até" e o
+      prazo de isenção; o que o edital não traz aparece como "a definir"/"confira no edital". Teto de IA no diario
+      passou a 60 chamadas.
 - [ ] Fase 6 (demais diários oficiais): sondagem do Querido Diário em 04/11/2026 a partir do GitHub Actions falhou no
       handshake TLS (`SSLV3_ALERT_HANDSHAKE_FAILURE`, recusa do servidor); nada contornado, tentar de novo depois.
       DOU: o INLABS indicou a base de dados abertos em in.gov.br/acesso-a-informacao/dados-abertos/base-de-dados;

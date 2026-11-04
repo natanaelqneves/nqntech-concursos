@@ -4,6 +4,7 @@ import json
 from datetime import date
 
 import httpx
+import pytest
 
 from coletor.fontes.cebraspe import (
     FonteCebraspe,
@@ -11,6 +12,7 @@ from coletor.fontes.cebraspe import (
     edital_de_abertura,
     identificadores,
     link_arquivo,
+    orgao_por_sigla,
     parse_evento,
 )
 from coletor.http_cliente import ClienteHttp
@@ -94,3 +96,32 @@ def test_descobrir_pede_so_novos_e_abertos(fixture_texto):
     assert [s.url.rsplit("/", 1)[-1] for s in resultado.sinais] == ["CD_26_ANALISTA"]  # TJ CE suspenso; CGU pulado
     assert len(resultado.falhas) == 1  # PC PE respondeu 500
     assert not any("encerrado" in p or "em-andamento" in p for p in pedidos)
+
+
+@pytest.mark.parametrize(
+    ("abreviado", "orgao"),
+    [
+        ("PC PE 26", "Polícia Civil do Estado de Pernambuco"),
+        ("CGU 26 AFFC", "Controladoria-Geral da União"),
+        ("TJ CE 25 NOTÁRIOS", "Tribunal de Justiça do Estado do Ceará"),
+        ("CBM DF 26", "Corpo de Bombeiros Militar do Distrito Federal"),
+        ("CÂMARA DOS DEPUTADOS 26 ANALISTA", "Câmara dos Deputados"),
+        ("XYZ 26", None),
+    ],
+)
+def test_siglas_viram_nome_do_orgao(abreviado, orgao):
+    assert orgao_por_sigla(abreviado) == orgao
+
+
+def test_pc_pe_e_estadual_de_pernambuco_e_nao_df(fixture_texto):
+    """Regressão (04/11/2026): "horário oficial de Brasília/DF" no período de inscrição virava UF do concurso."""
+    from coletor.classificacao.local import IndiceMunicipios, ResolvedorLocal
+    from coletor.pipeline.vinculacao import orgao_do_sinal
+
+    resolvedor = ResolvedorLocal(IndiceMunicipios([]))
+    for ident, esperado in [("PC_PE_26", ("ESTADUAL", "PE")), ("CGU_26_AFFC", ("NACIONAL", None))]:
+        sinal = parse_evento(_evento(fixture_texto, ident), "inscricoes-abertas")
+        local = resolvedor.resolver(
+            orgao_do_sinal(sinal.titulo, sinal.estruturado), contexto=sinal.payload["descricao"]
+        )
+        assert (local.abrangencia, local.uf) == esperado, ident

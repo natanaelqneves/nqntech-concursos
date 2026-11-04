@@ -1,0 +1,625 @@
+{
+ "fcc": {
+  "https://www.concursosfcc.com.br/": {
+   "permitido": true,
+   "status": 200,
+   "final": "https://www.concursosfcc.com.br/",
+   "tipo": "text/html; charset=ISO-8859-1",
+   "bytes": 10019,
+   "titulo": "Concursos Públicos",
+   "scripts": [
+    "/concursos/publicWeb2/modelo/3/calendar/calendar.js",
+    "/concursos/bannersConcurso.js",
+    "/concursos/bannersConcursoProximos.js",
+    "/concursos/publicWeb2/modelo/3/jquery/shadedborder.js",
+    "/concursos/publicWeb2/modelo/3/js/fcc.js",
+    "/concursos/publicWeb2/modelo/3/menu/menu.js",
+    "/concursos/publicWeb2/modelo/3/barraPesquisaTopo/barraPesquisaTopo.js",
+    "/concursos/publicWeb2/modelo/3/js/google_analytics.js",
+    "/js/jquery-1.8.1.min.js",
+    "/js/jquery.cycle.min.js",
+    "https://cdn.rybena.com.br/dom/master/latest/rybena.js?positionBar=right&positionPlayer=right",
+    "https://concursosfcc.com.br/portal_candidato/chat/chat-widget.iife.js"
+   ],
+   "links_concurso": [
+    "https://www.concursosfcc.com.br/concursos/alems125/index.html",
+    "https://www.concursosfcc.com.br/concursos/banes126/index.html",
+    "https://www.concursosfcc.com.br/concursos/dpeba125/index.html",
+    "https://www.concursosfcc.com.br/concursos/dpepb126/index.html",
+    "https://www.concursosfcc.com.br/concursos/dpesp126/index.html",
+    "https://www.concursosfcc.com.br/concursos/fazsp126/index.html",
+    "https://www.concursosfcc.com.br/concursos/jsp/localDeExame/index.jsp",
+    "https://www.concursosfcc.com.br/concursos/pomsp326/index.html",
+    "https://www.concursosfcc.com.br/concursos/publicWeb2/modelo/3/barraPesquisaTopo/barraPesquisaTopo.css",
+    "https://www.concursosfcc.com.br/concursos/publicWeb2/modelo/3/calendar/calendar.css",
+    "https://www.concursosfcc.com.br/concursos/publicWeb2/modelo/3/css/banner.css",
+    "https://www.concursosfcc.com.br/concursos/publicWeb2/modelo/3/css/fcc.css",
+    "https://www.concursosfcc.com.br/concursos/publicWeb2/modelo/3/css/impressao.css",
+    "https://www.concursosfcc.com.br/concursos/publicWeb2/modelo/3/menu/menu.css",
+    "https://www.concursosfcc.com.br/concursos/scmsp126/index.html",
+    "https://www.concursosfcc.com.br/concursos/scmsp226/index.html",
+    "https://www.concursosfcc.com.br/concursos/semef125/index.html",
+    "https://www.concursosfcc.com.br/concursos/tcego125/index.html",
+    "https://www.concursosfcc.com.br/concursos/tjuce125/index.html",
+    "https://www.concursosfcc.com.br/concursos/trt4r125/index.html",
+    "https://www.concursosfcc.com.br/concursos/trt8r126/index.html",
+    "https://www.concursosfcc.com.br/portal_candidato/"
+   ],
+   "scripts_bloqueados": [
+    "https://www.concursosfcc.com.br/concursos/publicWeb2/modelo/3/calendar/calendar.js",
+    "https://www.concursosfcc.com.br/concursos/bannersConcurso.js",
+    "https://www.concursosfcc.com.br/concursos/bannersConcursoProximos.js",
+    "https://www.concursosfcc.com.br/concursos/publicWeb2/modelo/3/jquery/shadedborder.js",
+    "https://www.concursosfcc.com.br/concursos/publicWeb2/modelo/3/js/fcc.js",
+    "https://www.concursosfcc.com.br/concursos/publicWeb2/modelo/3/menu/menu.js",
+    "https://www.concursosfcc.com.br/concursos/publicWeb2/modelo/3/barraPesquisaTopo/barraPesquisaTopo.js",
+    "https://www.concursosfcc.com.br/concursos/publicWeb2/modelo/3/js/google_analytics.js"
+   ],
+   "rotas": [
+    "/arquivos/concursos/publicWeb2/modelo/3/imagem/marca_24.png",
+    "/arquivos/concursos/publicWeb2/modelo/3/imagem/marca_fcc.jpg",
+    "/concursos/bannersConcurso.js",
+    "/concursos/bannersConcursoProximos.js",
+    "/concursos/publicWeb2/modelo/3/barraPesquisaTopo/barraPesquisaTopo.css",
+    "/concursos/publicWeb2/modelo/3/barraPesquisaTopo/barraPesquisaTopo.js",
+    "/concursos/publicWeb2/modelo/3/calendar/calendar.css",
+    "/concursos/publicWeb2/modelo/3/calendar/calendar.js",
+    "/concursos/publicWeb2/modelo/3/calendar/eventsCalendar.js",
+    "/concursos/publicWeb2/modelo/3/css/banner.css",
+    "/concursos/publicWeb2/modelo/3/css/fcc.css",
+    "/concursos/publicWeb2/modelo/3/css/impressao.css",
+    "/concursos/publicWeb2/modelo/3/jquery/shadedborder.js",
+    "/concursos/publicWeb2/modelo/3/js/fcc.js",
+    "/concursos/publicWeb2/modelo/3/js/google_analytics.js",
+    "/concursos/publicWeb2/modelo/3/menu/menu.css",
+    "/concursos/publicWeb2/modelo/3/menu/menu.js",
+    "/css/banner.css",
+    "https://concursosfcc.com.br/portal_candidato/chat/chat-widget.iife.js",
+    "https://concursosfcc.com.br/webapi/AtendSac/v1/Atendimento/InserirAtendimento",
+    "https://www.concursosfcc.com.br/concursos/alems125/index.html",
+    "https://www.concursosfcc.com.br/concursos/banes126/index.html",
+    "https://www.concursosfcc.com.br/concursos/dpeba125/index.html",
+    "https://www.concursosfcc.com.br/concursos/dpepb126/index.html",
+    "https://www.concursosfcc.com.br/concursos/dpesp126/index.html",
+    "https://www.concursosfcc.com.br/concursos/fazsp126/index.html",
+    "https://www.concursosfcc.com.br/concursos/jsp/localDeExame/index.jsp",
+    "https://www.concursosfcc.com.br/concursos/pomsp326/index.html",
+    "https://www.concursosfcc.com.br/concursos/scmsp126/index.html",
+    "https://www.concursosfcc.com.br/concursos/scmsp226/index.html",
+    "https://www.concursosfcc.com.br/concursos/semef125/index.html",
+    "https://www.concursosfcc.com.br/concursos/tcego125/index.html",
+    "https://www.concursosfcc.com.br/concursos/tjuce125/index.html",
+    "https://www.concursosfcc.com.br/concursos/trt4r125/index.html",
+    "https://www.concursosfcc.com.br/concursos/trt8r126/index.html",
+    "https://www.concursosfcc.com.br/portal_candidato/#/",
+    "https://www.concursosfcc.com.br/webapi/publicacao/v1/Publicacao/ListarPublicacaoLiberadas/0",
+    "https://www.concursosfcc.com.br/webapi/sgp.concurso/v1/Candidato/listar/idCandidato:int?idCandidato=",
+    "https://www.concursosfcc.com.br/webapi/sgp.concurso/v1/Login",
+    "https://www.extranet.fcc.org.br/webapi/AtendSac/v1/Candidato/CarregaInscricoes/"
+   ],
+   "rotas_permitidas": {
+    "/concursos/bannersConcurso.js": false,
+    "/concursos/bannersConcursoProximos.js": false,
+    "/concursos/publicWeb2/modelo/3/css/banner.css": false,
+    "/css/banner.css": true,
+    "https://concursosfcc.com.br/webapi/AtendSac/v1/Atendimento/InserirAtendimento": true,
+    "https://www.concursosfcc.com.br/webapi/publicacao/v1/Publicacao/ListarPublicacaoLiberadas/0": true,
+    "https://www.concursosfcc.com.br/webapi/sgp.concurso/v1/Candidato/listar/idCandidato:int?idCandidato=": true,
+    "https://www.concursosfcc.com.br/webapi/sgp.concurso/v1/Login": true,
+    "https://www.extranet.fcc.org.br/webapi/AtendSac/v1/Candidato/CarregaInscricoes/": false
+   }
+  },
+  "https://www1.concursosfcc.com.br/": {
+   "permitido": false
+  }
+ },
+ "_robots": {
+  "www.concursosfcc.com.br": {
+   "status": 200,
+   "texto": "User-Agent: *\nDisallow: /concursos/\nDisallow: /rss/\nDisallow: /*.pdf$\nDisallow: /*.PDF$ \n"
+  },
+  "concursosfcc.com.br": {
+   "status": 200,
+   "texto": "User-Agent: *\nDisallow: /concursos/\nDisallow: /rss/\nDisallow: /*.pdf$\nDisallow: /*.PDF$ \n"
+  },
+  "www.extranet.fcc.org.br": {
+   "erro": "HTTPSConnectionPool(host='www.extranet.fcc.org.br', port=443): Max retries exceeded with url: /robots.txt (Caused by NameResolutionError(\"HTTPSConnection(host='www.extranet.fcc.org.br', port=443): Fai"
+  },
+  "www1.concursosfcc.com.br": {
+   "erro": "HTTPSConnectionPool(host='www1.concursosfcc.com.br', port=443): Max retries exceeded with url: /robots.txt (Caused by SSLError(SSLCertVerificationError(1, \"[SSL: CERTIFICATE_VERIFY_FAILED] certificate"
+  },
+  "www.cesgranrio.org.br": {
+   "status": 403,
+   "texto": ""
+  },
+  "www.vunesp.com.br": {
+   "status": 403,
+   "texto": ""
+  },
+  "vunesp.com.br": {
+   "erro": "HTTPSConnectionPool(host='vunesp.com.br', port=443): Max retries exceeded with url: /robots.txt (Caused by NameResolutionError(\"HTTPSConnection(host='vunesp.com.br', port=443): Failed to resolve 'vune"
+  },
+  "www.institutoaocp.org.br": {
+   "status": 404,
+   "texto": ""
+  },
+  "fonts.googleapis.com": {
+   "status": 200,
+   "texto": "User-agent: *\nDisallow: \n"
+  },
+  "link.institutoaocp.org.br": {
+   "status": 404,
+   "texto": ""
+  },
+  "www.ibfc.org.br": {
+   "status": 403,
+   "texto": ""
+  },
+  "ibfc.org.br": {
+   "status": 403,
+   "texto": ""
+  },
+  "site.quadrix.org.br": {
+   "status": 200,
+   "texto": "# As a condition of accessing this website, you agree to abide by the following\n# content signals:\n\n# (a)  If a Content-Signal = yes, you may collect content for the corresponding\n#      use.\n# (b)  If a Content-Signal = no, you may not collect content for the\n#      corresponding use.\n# (c)  If the website operator does not include a Content-Signal for a\n#      corresponding use, the website operator neither grants nor restricts\n#      permission via Content-Signal with respect to the corresponding use.\n\n# The content signals and their meanings are:\n\n# search:   building a search index and providing search results (e.g., returning\n#           hyperlinks and short excerpts from your website's contents). Search does not\n#           include providing AI-generated search summaries.\n# ai-input: inputting content into one or more AI models (e.g., retrieval\n#           augmented generation, grounding, or other real-time taking of content for\n#           generative AI search answers).\n# ai-train: training or fine-tuning AI models.\n# use:      how AI systems may consume the content (immediate, reference, or full).\n\n# ANY RESTRICTIONS EXPRESSED VIA CONTENT SIGNALS ARE EXPRESS RESERVATIONS OF\n# RIGHTS UNDER ARTICLE 4 OF THE EUROPEAN UNION DIRECTIVE 2019/790 ON COPYRIGHT\n# AND RELATED RIGHTS IN THE DIGITAL SINGLE MARKET.\n\n# BEGIN Cloudflare Managed content\n\n\nUser-agent: *\nContent-Signal: search=yes,ai-train=no,use=reference\nAllow: /\n\n# Training crawlers\nUser-agent: Amazonbot\nDisallow: /\n\nUser-agent: Applebot-Extended\nDisallow: /\n\nUser-agent: Bytespider\nDisallow: /\n\nUser-agent: CCBot\nDisallow: /\n\nUser-agent: ClaudeBot\nDisallow: /\n\nUser-agent: Diffbot\nDisallow: /\n\nUser-agent: Google-Extended\nDisallow: /\n\nUser-agent: GPTBot\nDisallow: /\n\nUser-agent: omgili\nDisallow: /\n\nUser-agent: anthropic-ai\nDisallow: /\n\nUser-agent: Claude-Web\nDisallow: /\n\nUser-agent: cohere-ai\nDisallow: /\n\nUser-agent: MistralAI-Training\nDisallow: /\n\nUser-agent: meta-externalagent\nDisallow: /\n\nUser-agent: GoogleOther\nDisallow: /\n\nUser-agent: Baiduspider\nDisallow: /\n\nUser-agent: PetalBot\nDisallow: /\n\nUser-agent: AwarioSmartBot\nUser-agent: AwarioRssBot\nDisallow: /\n\nUser-agent: Google-CloudVertexBot\nDisallow: /\n\nUser-agent: QualifiedBot\nDisallow: /\n\nUser-agent: Cotoyogi\nDisallow: /\n\nUser-agent: ICC-Crawler\nDisallow: /\n\nUser-agent: atlassian-bot\nDisallow: /\n\nUser-agent: FishBot\nDisallow: /\n\nUser-agent: BorderxBot\nDisallow: /\n\nUser-agent: NavuBot\nDisallow: /\n\nUser-agent: SemrushBot-SWA\nDisallow: /\n\nUser-agent: WARDBot\nDisallow: /\n\nUser-agent: magpie-crawler\nDisallow: /\n\nUser-agent: KimiBot\nDisallow: /\n\nUser-agent: CitibotSiteCrawler\nDisallow: /\n\n# END Cloudflare Managed Content\n\n"
+  },
+  "www.quadrix.org.br": {
+   "status": 200,
+   "texto": "# As a condition of accessing this website, you agree to abide by the following\n# content signals:\n\n# (a)  If a Content-Signal = yes, you may collect content for the corresponding\n#      use.\n# (b)  If a Content-Signal = no, you may not collect content for the\n#      corresponding use.\n# (c)  If the website operator does not include a Content-Signal for a\n#      corresponding use, the website operator neither grants nor restricts\n#      permission via Content-Signal with respect to the corresponding use.\n\n# The content signals and their meanings are:\n\n# search:   building a search index and providing search results (e.g., returning\n#           hyperlinks and short excerpts from your website's contents). Search does not\n#           include providing AI-generated search summaries.\n# ai-input: inputting content into one or more AI models (e.g., retrieval\n#           augmented generation, grounding, or other real-time taking of content for\n#           generative AI search answers).\n# ai-train: training or fine-tuning AI models.\n# use:      how AI systems may consume the content (immediate, reference, or full).\n\n# ANY RESTRICTIONS EXPRESSED VIA CONTENT SIGNALS ARE EXPRESS RESERVATIONS OF\n# RIGHTS UNDER ARTICLE 4 OF THE EUROPEAN UNION DIRECTIVE 2019/790 ON COPYRIGHT\n# AND RELATED RIGHTS IN THE DIGITAL SINGLE MARKET.\n\n# BEGIN Cloudflare Managed content\n\n\nUser-agent: *\nContent-Signal: search=yes,ai-train=no,use=reference\nAllow: /\n\n# Training crawlers\nUser-agent: Amazonbot\nDisallow: /\n\nUser-agent: Applebot-Extended\nDisallow: /\n\nUser-agent: Bytespider\nDisallow: /\n\nUser-agent: CCBot\nDisallow: /\n\nUser-agent: ClaudeBot\nDisallow: /\n\nUser-agent: Diffbot\nDisallow: /\n\nUser-agent: Google-Extended\nDisallow: /\n\nUser-agent: GPTBot\nDisallow: /\n\nUser-agent: omgili\nDisallow: /\n\nUser-agent: anthropic-ai\nDisallow: /\n\nUser-agent: Claude-Web\nDisallow: /\n\nUser-agent: cohere-ai\nDisallow: /\n\nUser-agent: MistralAI-Training\nDisallow: /\n\nUser-agent: meta-externalagent\nDisallow: /\n\nUser-agent: GoogleOther\nDisallow: /\n\nUser-agent: Baiduspider\nDisallow: /\n\nUser-agent: PetalBot\nDisallow: /\n\nUser-agent: AwarioSmartBot\nUser-agent: AwarioRssBot\nDisallow: /\n\nUser-agent: Google-CloudVertexBot\nDisallow: /\n\nUser-agent: QualifiedBot\nDisallow: /\n\nUser-agent: Cotoyogi\nDisallow: /\n\nUser-agent: ICC-Crawler\nDisallow: /\n\nUser-agent: atlassian-bot\nDisallow: /\n\nUser-agent: FishBot\nDisallow: /\n\nUser-agent: BorderxBot\nDisallow: /\n\nUser-agent: NavuBot\nDisallow: /\n\nUser-agent: SemrushBot-SWA\nDisallow: /\n\nUser-agent: WARDBot\nDisallow: /\n\nUser-agent: magpie-crawler\nDisallow: /\n\nUser-agent: KimiBot\nDisallow: /\n\nUser-agent: CitibotSiteCrawler\nDisallow: /\n\n# END Cloudflare Managed Content\n\n"
+  },
+  "www.idecan.org.br": {
+   "status": 200,
+   "texto": "# As a condition of accessing this website, you agree to abide by the following\n# content signals:\n\n# (a)  If a Content-Signal = yes, you may collect content for the corresponding\n#      use.\n# (b)  If a Content-Signal = no, you may not collect content for the\n#      corresponding use.\n# (c)  If the website operator does not include a Content-Signal for a\n#      corresponding use, the website operator neither grants nor restricts\n#      permission via Content-Signal with respect to the corresponding use.\n\n# The content signals and their meanings are:\n\n# search:   building a search index and providing search results (e.g., returning\n#           hyperlinks and short excerpts from your website's contents). Search does not\n#           include providing AI-generated search summaries.\n# ai-input: inputting content into one or more AI models (e.g., retrieval\n#           augmented generation, grounding, or other real-time taking of content for\n#           generative AI search answers).\n# ai-train: training or fine-tuning AI models.\n# use:      how AI systems may consume the content (immediate, reference, or full).\n\n# ANY RESTRICTIONS EXPRESSED VIA CONTENT SIGNALS ARE EXPRESS RESERVATIONS OF\n# RIGHTS UNDER ARTICLE 4 OF THE EUROPEAN UNION DIRECTIVE 2019/790 ON COPYRIGHT\n# AND RELATED RIGHTS IN THE DIGITAL SINGLE MARKET.\n\n# BEGIN Cloudflare Managed content\n\n\nUser-agent: *\nContent-Signal: search=yes,ai-train=no,use=reference\nAllow: /\n\n# Training crawlers\nUser-agent: Amazonbot\nDisallow: /\n\nUser-agent: Applebot-Extended\nDisallow: /\n\nUser-agent: Bytespider\nDisallow: /\n\nUser-agent: CCBot\nDisallow: /\n\nUser-agent: ClaudeBot\nDisallow: /\n\nUser-agent: Diffbot\nDisallow: /\n\nUser-agent: Google-Extended\nDisallow: /\n\nUser-agent: GPTBot\nDisallow: /\n\nUser-agent: omgili\nDisallow: /\n\nUser-agent: anthropic-ai\nDisallow: /\n\nUser-agent: Claude-Web\nDisallow: /\n\nUser-agent: cohere-ai\nDisallow: /\n\nUser-agent: MistralAI-Training\nDisallow: /\n\nUser-agent: meta-externalagent\nDisallow: /\n\nUser-agent: GoogleOther\nDisallow: /\n\nUser-agent: Baiduspider\nDisallow: /\n\nUser-agent: PetalBot\nDisallow: /\n\nUser-agent: AwarioSmartBot\nUser-agent: AwarioRssBot\nDisallow: /\n\nUser-agent: Google-CloudVertexBot\nDisallow: /\n\nUser-agent: QualifiedBot\nDisallow: /\n\nUser-agent: Cotoyogi\nDisallow: /\n\nUser-agent: ICC-Crawler\nDisallow: /\n\nUser-agent: atlassian-bot\nDisallow: /\n\nUser-agent: FishBot\nDisallow: /\n\nUser-agent: BorderxBot\nDisallow: /\n\nUser-agent: NavuBot\nDisallow: /\n\nUser-agent: SemrushBot-SWA\nDisallow: /\n\nUser-agent: WARDBot\nDisallow: /\n\nUser-agent: magpie-crawler\nDisallow: /\n\nUser-agent: KimiBot\nDisallow: /\n\nUser-agent: CitibotSiteCrawler\nDisallow: /\n\n# END Cloudflare Managed Content\n\n"
+  },
+  "idecan.org.br": {
+   "status": 200,
+   "texto": "# As a condition of accessing this website, you agree to abide by the following\n# content signals:\n\n# (a)  If a Content-Signal = yes, you may collect content for the corresponding\n#      use.\n# (b)  If a Content-Signal = no, you may not collect content for the\n#      corresponding use.\n# (c)  If the website operator does not include a Content-Signal for a\n#      corresponding use, the website operator neither grants nor restricts\n#      permission via Content-Signal with respect to the corresponding use.\n\n# The content signals and their meanings are:\n\n# search:   building a search index and providing search results (e.g., returning\n#           hyperlinks and short excerpts from your website's contents). Search does not\n#           include providing AI-generated search summaries.\n# ai-input: inputting content into one or more AI models (e.g., retrieval\n#           augmented generation, grounding, or other real-time taking of content for\n#           generative AI search answers).\n# ai-train: training or fine-tuning AI models.\n# use:      how AI systems may consume the content (immediate, reference, or full).\n\n# ANY RESTRICTIONS EXPRESSED VIA CONTENT SIGNALS ARE EXPRESS RESERVATIONS OF\n# RIGHTS UNDER ARTICLE 4 OF THE EUROPEAN UNION DIRECTIVE 2019/790 ON COPYRIGHT\n# AND RELATED RIGHTS IN THE DIGITAL SINGLE MARKET.\n\n# BEGIN Cloudflare Managed content\n\n\nUser-agent: *\nContent-Signal: search=yes,ai-train=no,use=reference\nAllow: /\n\n# Training crawlers\nUser-agent: Amazonbot\nDisallow: /\n\nUser-agent: Applebot-Extended\nDisallow: /\n\nUser-agent: Bytespider\nDisallow: /\n\nUser-agent: CCBot\nDisallow: /\n\nUser-agent: ClaudeBot\nDisallow: /\n\nUser-agent: Diffbot\nDisallow: /\n\nUser-agent: Google-Extended\nDisallow: /\n\nUser-agent: GPTBot\nDisallow: /\n\nUser-agent: omgili\nDisallow: /\n\nUser-agent: anthropic-ai\nDisallow: /\n\nUser-agent: Claude-Web\nDisallow: /\n\nUser-agent: cohere-ai\nDisallow: /\n\nUser-agent: MistralAI-Training\nDisallow: /\n\nUser-agent: meta-externalagent\nDisallow: /\n\nUser-agent: GoogleOther\nDisallow: /\n\nUser-agent: Baiduspider\nDisallow: /\n\nUser-agent: PetalBot\nDisallow: /\n\nUser-agent: AwarioSmartBot\nUser-agent: AwarioRssBot\nDisallow: /\n\nUser-agent: Google-CloudVertexBot\nDisallow: /\n\nUser-agent: QualifiedBot\nDisallow: /\n\nUser-agent: Cotoyogi\nDisallow: /\n\nUser-agent: ICC-Crawler\nDisallow: /\n\nUser-agent: atlassian-bot\nDisallow: /\n\nUser-agent: FishBot\nDisallow: /\n\nUser-agent: BorderxBot\nDisallow: /\n\nUser-agent: NavuBot\nDisallow: /\n\nUser-agent: SemrushBot-SWA\nDisallow: /\n\nUser-agent: WARDBot\nDisallow: /\n\nUser-agent: magpie-crawler\nDisallow: /\n\nUser-agent: KimiBot\nDisallow: /\n\nUser-agent: CitibotSiteCrawler\nDisallow: /\n\n# END Cloudflare Managed Content\n\nUser-agent: *\nDisallow: /wp-admin/\nAllow: /wp-admin/admin-ajax.php\n\nSitemap: https://idecan.org.br/wp-sitemap.xml\n"
+  },
+  "api.w.org": {
+   "status": 200,
+   "texto": "User-agent: *\nDisallow: /\n\n"
+  },
+  "www.gestaodeconcursos.com.br": {
+   "status": 404,
+   "texto": ""
+  },
+  "www.fundep.ufmg.br": {
+   "status": 404,
+   "texto": ""
+  },
+  "www.fumarc.com.br": {
+   "erro": "HTTPSConnectionPool(host='www.fumarc.com.br', port=443): Max retries exceeded with url: /robots.txt (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify"
+  },
+  "fumarc.com.br": {
+   "erro": "HTTPSConnectionPool(host='fumarc.com.br', port=443): Max retries exceeded with url: /robots.txt (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify fai"
+  },
+  "www.institutoconsulplan.org.br": {
+   "status": 403,
+   "texto": ""
+  },
+  "institutoconsulplan.org.br": {
+   "status": 403,
+   "texto": ""
+  },
+  "cpcon.uepb.edu.br": {
+   "erro": "HTTPSConnectionPool(host='cpcon.uepb.edu.br', port=443): Max retries exceeded with url: /robots.txt (Caused by NewConnectionError(\"HTTPSConnection(host='cpcon.uepb.edu.br', port=443): Failed to establ"
+  },
+  "www.comperve.ufrn.br": {
+   "erro": "HTTPSConnectionPool(host='www.comperve.ufrn.br', port=443): Max retries exceeded with url: /robots.txt (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate ver"
+  },
+  "comperve.ufrn.br": {
+   "erro": "HTTPSConnectionPool(host='comperve.ufrn.br', port=443): Max retries exceeded with url: /robots.txt (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify "
+  }
+ },
+ "cesgranrio": {
+  "https://www.cesgranrio.org.br/": {
+   "permitido": false
+  },
+  "https://www.cesgranrio.org.br/concursos/": {
+   "permitido": false
+  }
+ },
+ "vunesp": {
+  "https://www.vunesp.com.br/": {
+   "permitido": false
+  },
+  "https://vunesp.com.br/": {
+   "permitido": false
+  }
+ },
+ "aocp": {
+  "https://www.institutoaocp.org.br/": {
+   "permitido": true,
+   "status": 200,
+   "final": "https://www.institutoaocp.org.br/",
+   "tipo": "text/html; charset=utf-8",
+   "bytes": 79195,
+   "titulo": "Instituto AOCP - Concursos Públicos",
+   "scripts": [
+    "/_next/static/chunks/fd9d1056-6f40e7c618a36d14.js",
+    "/_next/static/chunks/30-6a3ff9e04ea59209.js",
+    "/_next/static/chunks/main-app-1c457423715cb016.js",
+    "/_next/static/chunks/972-462b533fca2aa382.js",
+    "/_next/static/chunks/354-f2e224ebc6c0f04a.js",
+    "/_next/static/chunks/878-6d922f649d823cc7.js",
+    "/_next/static/chunks/602-f93564d3e750b91e.js",
+    "/_next/static/chunks/app/page-140a85f3c8409fa4.js",
+    "/_next/static/chunks/337-c2997afc119d90e9.js",
+    "/_next/static/chunks/app/layout-860d15c1520c8cdf.js",
+    "/_next/static/chunks/app/error-7832c4f0a10eb931.js",
+    "/_next/static/chunks/polyfills-42372ed130431b0a.js",
+    "/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js",
+    "/_next/static/chunks/webpack-572f33227df9db7d.js"
+   ],
+   "links_concurso": [
+    "https://www.institutoaocp.org.br/concursos/status/em-andamento",
+    "https://www.institutoaocp.org.br/concursos/status/finalizados",
+    "https://www.institutoaocp.org.br/concursos/status/inscricoes-abertas",
+    "https://www.institutoaocp.org.br/concursos/status/novos",
+    "https://www.institutoaocp.org.br/concursos/status/resultados-disponiveis"
+   ],
+   "rotas": [
+    "/api/concursos",
+    "/api/concursos/proseleta/",
+    "/banners",
+    "/concursos/",
+    "/concursos/status/",
+    "/concursos/status/em-andamento",
+    "/concursos/status/finalizados",
+    "/concursos/status/inscricoes-abertas",
+    "/concursos/status/novos",
+    "/concursos/status/resultados-disponiveis",
+    "https://fonts.googleapis.com/css",
+    "https://fonts.googleapis.com/icon?family=Material+Icons",
+    "https://link.institutoaocp.org.br/api"
+   ],
+   "rotas_permitidas": {
+    "/api/concursos": true,
+    "/api/concursos/proseleta/": true,
+    "/banners": true,
+    "https://fonts.googleapis.com/css": true,
+    "https://fonts.googleapis.com/icon?family=Material+Icons": true,
+    "https://link.institutoaocp.org.br/api": true
+   }
+  },
+  "https://www.institutoaocp.org.br/concursos": {
+   "permitido": true,
+   "status": 404,
+   "final": "https://www.institutoaocp.org.br/concursos",
+   "tipo": "text/html; charset=utf-8",
+   "bytes": 55987
+  }
+ },
+ "ibfc": {
+  "https://www.ibfc.org.br/": {
+   "permitido": false
+  },
+  "https://ibfc.org.br/": {
+   "permitido": false
+  }
+ },
+ "quadrix": {
+  "https://site.quadrix.org.br/": {
+   "permitido": true,
+   "status": 403,
+   "final": "https://site.quadrix.org.br/",
+   "tipo": "text/html; charset=UTF-8",
+   "bytes": 5612
+  },
+  "https://www.quadrix.org.br/": {
+   "permitido": true,
+   "status": 403,
+   "final": "https://quadrix.org.br/",
+   "tipo": "text/html; charset=UTF-8",
+   "bytes": 5607
+  }
+ },
+ "idecan": {
+  "https://www.idecan.org.br/": {
+   "permitido": true,
+   "status": 200,
+   "final": "https://idecan.org.br/",
+   "tipo": "text/html; charset=UTF-8",
+   "bytes": 108634,
+   "titulo": "IDECAN &#8211; Instituto de Desenvolvimento Educacional, Cultural e Assistencial Nacional",
+   "scripts": [
+    "https://vlibras.gov.br/app/vlibras-plugin.js?ver=1.0",
+    "https://idecan.org.br/wp-includes/js/jquery/jquery.min.js?ver=3.7.1",
+    "https://idecan.org.br/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1",
+    "https://www.googletagmanager.com/gtag/js?id=GT-5TN8PTTV",
+    "/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js",
+    "https://idecan.org.br/wp-content/themes/hello-elementor/assets/js/hello-frontend.js?ver=3.5.1",
+    "https://idecan.org.br/wp-content/plugins/elementor/assets/js/webpack.runtime.min.js?ver=4.3.5",
+    "https://idecan.org.br/wp-content/plugins/elementor/assets/js/frontend-modules.min.js?ver=4.3.5",
+    "https://idecan.org.br/wp-includes/js/jquery/ui/core.min.js?ver=1.14.2",
+    "https://idecan.org.br/wp-content/plugins/elementor/assets/js/frontend.min.js?ver=4.3.5",
+    "https://idecan.org.br/wp-content/plugins/elementor-pro/assets/lib/smartmenus/jquery.smartmenus.min.js?ver=1.2.1",
+    "https://idecan.org.br/wp-content/plugins/elementor-pro/assets/lib/sticky/jquery.sticky.min.js?ver=4.3.2",
+    "https://idecan.org.br/wp-content/plugins/elementor/assets/lib/swiper/v8/swiper.min.js?ver=8.4.5",
+    "https://idecan.org.br/wp-includes/js/imagesloaded.min.js?ver=5.0.0",
+    "https://idecan.org.br/wp-content/plugins/creame-whatsapp-me/public/js/joinchat.min.js?ver=6.4.2",
+    "https://idecan.org.br/wp-content/plugins/page-links-to/dist/new-tab.js?ver=3.4.1",
+    "https://idecan.org.br/wp-content/plugins/essential-addons-for-elementor-lite/assets/front-end/js/view/general.min.js?ver=6.8.8",
+    "https://idecan.org.br/wp-includes/js/dist/hooks.min.js?ver=f0f188028580e8dc1255",
+    "https://idecan.org.br/wp-includes/js/dist/i18n.min.js?ver=1dfe7db3940c23ea9216",
+    "https://idecan.org.br/wp-content/plugins/elementor-pro/assets/js/frontend.min.js?ver=4.3.2",
+    "https://idecan.org.br/wp-content/plugins/elementor-pro/assets/js/elements-handlers.min.js?ver=4.3.2"
+   ],
+   "links_concurso": [
+    "https://blog.grancursosonline.com.br/concurso-al-ce/",
+    "https://concurso.idecan.org.br/editais",
+    "https://concurso.idecan.org.br/editais/1",
+    "https://concurso.idecan.org.br/editais/28",
+    "https://concurso.idecan.org.br/editais/284",
+    "https://concurso.idecan.org.br/editais/285",
+    "https://concurso.idecan.org.br/editais/286",
+    "https://concurso.idecan.org.br/editais/287",
+    "https://concurso.idecan.org.br/editais/29",
+    "https://concurso.idecan.org.br/editais/290",
+    "https://concurso.idecan.org.br/editais/291",
+    "https://concurso.idecan.org.br/editais/48",
+    "https://concurso.idecan.org.br/editais/49",
+    "https://concurso.idecan.org.br/editais/50",
+    "https://concurso.idecan.org.br/login",
+    "https://g1.globo.com/se/sergipe/noticia/2026/05/29/edital-do-concurso-da-guarda-municipal-de-aracaju-e-publicado-salario-e-de-mais-de-r-4-mil.ghtml",
+    "https://idecanconcursos.com/",
+    "https://idecanconcursos.com/wp-content/uploads/elementor/google-fonts/css/barlow.css?ver=1742351143",
+    "https://idecanconcursos.com/wp-content/uploads/elementor/google-fonts/css/hindvadodara.css?ver=1742351138",
+    "https://idecanconcursos.com/wp-content/uploads/elementor/google-fonts/css/inter.css?ver=1761659110",
+    "https://idecanconcursos.com/wp-content/uploads/elementor/google-fonts/css/opensans.css?ver=1761661024",
+    "https://idecanconcursos.com/wp-content/uploads/elementor/google-fonts/css/poppins.css?ver=1761661008",
+    "https://www.estrategiaconcursos.com.br/blog/concurso-pm-es/"
+   ],
+   "rotas": [
+    "https://api.w.org/",
+    "https://blog.grancursosonline.com.br/concurso-al-ce/",
+    "https://concurso.idecan.org.br/editais",
+    "https://concurso.idecan.org.br/editais/1",
+    "https://concurso.idecan.org.br/editais/28",
+    "https://concurso.idecan.org.br/editais/284",
+    "https://concurso.idecan.org.br/editais/285",
+    "https://concurso.idecan.org.br/editais/286",
+    "https://concurso.idecan.org.br/editais/287",
+    "https://concurso.idecan.org.br/editais/29",
+    "https://concurso.idecan.org.br/editais/290",
+    "https://concurso.idecan.org.br/editais/291",
+    "https://concurso.idecan.org.br/editais/48",
+    "https://concurso.idecan.org.br/editais/49",
+    "https://concurso.idecan.org.br/editais/50",
+    "https://concurso.idecan.org.br/login",
+    "https://g1.globo.com/se/sergipe/noticia/2026/05/29/edital-do-concurso-da-guarda-municipal-de-aracaju-e-publicado-salario-e-de-mais-de-r-4-mil.ghtml",
+    "https://idecan.org.br/wp-admin/admin-ajax.php",
+    "https://idecan.org.br/wp-json/",
+    "https://idecan.org.br/wp-json/joinchat/v1/track-click",
+    "https://idecan.org.br/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fidecan.org.br%2F",
+    "https://idecan.org.br/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fidecan.org.br%2F&#038;format=xml",
+    "https://idecan.org.br/wp-json/wp/v2/pages/7",
+    "https://idecanconcursos.com/",
+    "https://idecanconcursos.com/wp-content/uploads/elementor/google-fonts/css/barlow.css?ver=1742351143",
+    "https://idecanconcursos.com/wp-content/uploads/elementor/google-fonts/css/hindvadodara.css?ver=1742351138",
+    "https://idecanconcursos.com/wp-content/uploads/elementor/google-fonts/css/inter.css?ver=1761659110",
+    "https://idecanconcursos.com/wp-content/uploads/elementor/google-fonts/css/opensans.css?ver=1761661024",
+    "https://idecanconcursos.com/wp-content/uploads/elementor/google-fonts/css/poppins.css?ver=1761661008",
+    "https://www.estrategiaconcursos.com.br/blog/concurso-pm-es/"
+   ],
+   "rotas_permitidas": {
+    "https://api.w.org/": false,
+    "https://idecan.org.br/wp-admin/admin-ajax.php": true,
+    "https://idecan.org.br/wp-json/": true,
+    "https://idecan.org.br/wp-json/joinchat/v1/track-click": true,
+    "https://idecan.org.br/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fidecan.org.br%2F": true,
+    "https://idecan.org.br/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fidecan.org.br%2F&#038;format=xml": true,
+    "https://idecan.org.br/wp-json/wp/v2/pages/7": true
+   }
+  },
+  "https://idecan.org.br/": {
+   "permitido": true,
+   "status": 200,
+   "final": "https://idecan.org.br/",
+   "tipo": "text/html; charset=UTF-8",
+   "bytes": 108634,
+   "titulo": "IDECAN &#8211; Instituto de Desenvolvimento Educacional, Cultural e Assistencial Nacional",
+   "scripts": [
+    "https://vlibras.gov.br/app/vlibras-plugin.js?ver=1.0",
+    "https://idecan.org.br/wp-includes/js/jquery/jquery.min.js?ver=3.7.1",
+    "https://idecan.org.br/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1",
+    "https://www.googletagmanager.com/gtag/js?id=GT-5TN8PTTV",
+    "/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js",
+    "https://idecan.org.br/wp-content/themes/hello-elementor/assets/js/hello-frontend.js?ver=3.5.1",
+    "https://idecan.org.br/wp-content/plugins/elementor/assets/js/webpack.runtime.min.js?ver=4.3.5",
+    "https://idecan.org.br/wp-content/plugins/elementor/assets/js/frontend-modules.min.js?ver=4.3.5",
+    "https://idecan.org.br/wp-includes/js/jquery/ui/core.min.js?ver=1.14.2",
+    "https://idecan.org.br/wp-content/plugins/elementor/assets/js/frontend.min.js?ver=4.3.5",
+    "https://idecan.org.br/wp-content/plugins/elementor-pro/assets/lib/smartmenus/jquery.smartmenus.min.js?ver=1.2.1",
+    "https://idecan.org.br/wp-content/plugins/elementor-pro/assets/lib/sticky/jquery.sticky.min.js?ver=4.3.2",
+    "https://idecan.org.br/wp-content/plugins/elementor/assets/lib/swiper/v8/swiper.min.js?ver=8.4.5",
+    "https://idecan.org.br/wp-includes/js/imagesloaded.min.js?ver=5.0.0",
+    "https://idecan.org.br/wp-content/plugins/creame-whatsapp-me/public/js/joinchat.min.js?ver=6.4.2",
+    "https://idecan.org.br/wp-content/plugins/page-links-to/dist/new-tab.js?ver=3.4.1",
+    "https://idecan.org.br/wp-content/plugins/essential-addons-for-elementor-lite/assets/front-end/js/view/general.min.js?ver=6.8.8",
+    "https://idecan.org.br/wp-includes/js/dist/hooks.min.js?ver=f0f188028580e8dc1255",
+    "https://idecan.org.br/wp-includes/js/dist/i18n.min.js?ver=1dfe7db3940c23ea9216",
+    "https://idecan.org.br/wp-content/plugins/elementor-pro/assets/js/frontend.min.js?ver=4.3.2",
+    "https://idecan.org.br/wp-content/plugins/elementor-pro/assets/js/elements-handlers.min.js?ver=4.3.2"
+   ],
+   "links_concurso": [
+    "https://blog.grancursosonline.com.br/concurso-al-ce/",
+    "https://concurso.idecan.org.br/editais",
+    "https://concurso.idecan.org.br/editais/1",
+    "https://concurso.idecan.org.br/editais/28",
+    "https://concurso.idecan.org.br/editais/284",
+    "https://concurso.idecan.org.br/editais/285",
+    "https://concurso.idecan.org.br/editais/286",
+    "https://concurso.idecan.org.br/editais/287",
+    "https://concurso.idecan.org.br/editais/29",
+    "https://concurso.idecan.org.br/editais/290",
+    "https://concurso.idecan.org.br/editais/291",
+    "https://concurso.idecan.org.br/editais/48",
+    "https://concurso.idecan.org.br/editais/49",
+    "https://concurso.idecan.org.br/editais/50",
+    "https://concurso.idecan.org.br/login",
+    "https://g1.globo.com/se/sergipe/noticia/2026/05/29/edital-do-concurso-da-guarda-municipal-de-aracaju-e-publicado-salario-e-de-mais-de-r-4-mil.ghtml",
+    "https://idecanconcursos.com/",
+    "https://idecanconcursos.com/wp-content/uploads/elementor/google-fonts/css/barlow.css?ver=1742351143",
+    "https://idecanconcursos.com/wp-content/uploads/elementor/google-fonts/css/hindvadodara.css?ver=1742351138",
+    "https://idecanconcursos.com/wp-content/uploads/elementor/google-fonts/css/inter.css?ver=1761659110",
+    "https://idecanconcursos.com/wp-content/uploads/elementor/google-fonts/css/opensans.css?ver=1761661024",
+    "https://idecanconcursos.com/wp-content/uploads/elementor/google-fonts/css/poppins.css?ver=1761661008",
+    "https://www.estrategiaconcursos.com.br/blog/concurso-pm-es/"
+   ],
+   "rotas": [
+    "https://api.w.org/",
+    "https://blog.grancursosonline.com.br/concurso-al-ce/",
+    "https://concurso.idecan.org.br/editais",
+    "https://concurso.idecan.org.br/editais/1",
+    "https://concurso.idecan.org.br/editais/28",
+    "https://concurso.idecan.org.br/editais/284",
+    "https://concurso.idecan.org.br/editais/285",
+    "https://concurso.idecan.org.br/editais/286",
+    "https://concurso.idecan.org.br/editais/287",
+    "https://concurso.idecan.org.br/editais/29",
+    "https://concurso.idecan.org.br/editais/290",
+    "https://concurso.idecan.org.br/editais/291",
+    "https://concurso.idecan.org.br/editais/48",
+    "https://concurso.idecan.org.br/editais/49",
+    "https://concurso.idecan.org.br/editais/50",
+    "https://concurso.idecan.org.br/login",
+    "https://g1.globo.com/se/sergipe/noticia/2026/05/29/edital-do-concurso-da-guarda-municipal-de-aracaju-e-publicado-salario-e-de-mais-de-r-4-mil.ghtml",
+    "https://idecan.org.br/wp-admin/admin-ajax.php",
+    "https://idecan.org.br/wp-json/",
+    "https://idecan.org.br/wp-json/joinchat/v1/track-click",
+    "https://idecan.org.br/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fidecan.org.br%2F",
+    "https://idecan.org.br/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fidecan.org.br%2F&#038;format=xml",
+    "https://idecan.org.br/wp-json/wp/v2/pages/7",
+    "https://idecanconcursos.com/",
+    "https://idecanconcursos.com/wp-content/uploads/elementor/google-fonts/css/barlow.css?ver=1742351143",
+    "https://idecanconcursos.com/wp-content/uploads/elementor/google-fonts/css/hindvadodara.css?ver=1742351138",
+    "https://idecanconcursos.com/wp-content/uploads/elementor/google-fonts/css/inter.css?ver=1761659110",
+    "https://idecanconcursos.com/wp-content/uploads/elementor/google-fonts/css/opensans.css?ver=1761661024",
+    "https://idecanconcursos.com/wp-content/uploads/elementor/google-fonts/css/poppins.css?ver=1761661008",
+    "https://www.estrategiaconcursos.com.br/blog/concurso-pm-es/"
+   ],
+   "rotas_permitidas": {
+    "https://api.w.org/": false,
+    "https://idecan.org.br/wp-admin/admin-ajax.php": true,
+    "https://idecan.org.br/wp-json/": true,
+    "https://idecan.org.br/wp-json/joinchat/v1/track-click": true,
+    "https://idecan.org.br/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fidecan.org.br%2F": true,
+    "https://idecan.org.br/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fidecan.org.br%2F&#038;format=xml": true,
+    "https://idecan.org.br/wp-json/wp/v2/pages/7": true
+   }
+  }
+ },
+ "fundep": {
+  "https://www.gestaodeconcursos.com.br/": {
+   "permitido": true,
+   "status": 200,
+   "final": "https://www.gestaodeconcursos.com.br/site/site/default.aspx",
+   "tipo": "text/html; charset=utf-8",
+   "bytes": 53138,
+   "titulo": "Gestão de Concursos",
+   "scripts": [
+    "../js/jquery-1.11.1.min.js",
+    "../js/jquery-ui.min.js",
+    "../js/bootstrap.min.js",
+    "../js/jquery.mask.js",
+    "../js/jquery.validate.js",
+    "../js/scripts.js",
+    "../include/javascript/jquery.cookie.js",
+    "../include/javascript/jquery.dimensions.min.js",
+    "../include/javascript/easyTooltip.js",
+    "../include/javascript/jquery.scrollTo-min.js",
+    "../include/javascript/jquery.meio.mask.min.js",
+    "../include/javascript/scripts-gerais.js",
+    "../include/javascript/scripts-listagem-concursos.js",
+    "../Common/common.js",
+    "https://www.googletagmanager.com/gtag/js?id=G-Z93ZWPJ51V",
+    "/site/ScriptResource.axd?d=xYosLuYCpXq13ZygND33QkrCETzObdfnHhPx3M30D_IRVqqMpekdXmhEtGO8awerYDVrfwEC74zsrGeRZOmRTrWh6VS31pXemYP6oAlhMjydiIEx5lQbchYyYh-Fc3h3CS4D-SwCY4emycENR3T1Y5ZM3GPkAflwcnm5QPC91MZL1r8L0&amp;t=5c0e0825"
+   ],
+   "links_concurso": [
+    "http://www.fundep.ufmg.br/pagina/43/servicos---gestao-de-concursos.aspx",
+    "https://www.gestaodeconcursos.com.br/site/Candidato/MinhasInscricoes.aspx",
+    "https://www.gestaodeconcursos.com.br/site/Site/AnexosConcursos.aspx",
+    "https://www.gestaodeconcursos.com.br/site/site/AnexosConcursos.aspx",
+    "mailto:concurso@fundep.com.br"
+   ],
+   "rotas": [
+    "/GetConcursos",
+    "/GetConcursosEmAndamento",
+    "/GetConcursosHomologados",
+    "/GetConcursosInscricaoAberta",
+    "/GetConcursosNovos",
+    "/GetInscricoesEmAndamento",
+    "/GetInscricoesEncerradas",
+    "/GetInscricoesHomologadas",
+    "http://www.fundep.ufmg.br/pagina/43/servicos---gestao-de-concursos.aspx",
+    "https://fonts.googleapis.com/css?family=Titillium+Web:200italic,200,300,300italic,400,700,600,400italic,700italic,600italic"
+   ],
+   "rotas_permitidas": {
+    "https://fonts.googleapis.com/css?family=Titillium+Web:200italic,200,300,300italic,400,700,600,400italic,700italic,600italic": true
+   }
+  },
+  "https://www.fundep.ufmg.br/": {
+   "permitido": true,
+   "status": 200,
+   "final": "https://www.fundep.ufmg.br/",
+   "tipo": "text/html; charset=utf-8",
+   "bytes": 110229,
+   "titulo": "Fundep",
+   "scripts": [
+    "/_next/static/chunks/0paxexg6-m0de.js",
+    "/_next/static/chunks/32wn9wmak2ilt.js",
+    "/_next/static/chunks/3lsn--1m3ckn-.js",
+    "/_next/static/chunks/turbopack-353l8r_3xmbfv.js",
+    "/_next/static/chunks/3o1uw2-qe54to.js",
+    "/_next/static/chunks/3ynpf5u-pbu8d.js",
+    "/_next/static/chunks/37nhfmkft1u3v.js",
+    "/_next/static/chunks/0s_fk9zy1w9x0.js",
+    "/_next/static/chunks/2im7c515bo69p.js",
+    "/_next/static/chunks/07do0bcr6hfuq.js",
+    "/_next/static/chunks/3m3kn1wuwyz63.js",
+    "/_next/static/chunks/2n2p-_d_2lw0c.js",
+    "/_next/static/chunks/0cz1d0mv5g_q7.js",
+    "/_next/static/chunks/37dfw5jk9wftc.js"
+   ],
+   "links_concurso": [],
+   "rotas": [
+    "/listBanner.jpg",
+    "/strapi-media"
+   ],
+   "rotas_permitidas": {
+    "/listBanner.jpg": true,
+    "/strapi-media": true
+   }
+  }
+ },
+ "fumarc": {
+  "https://www.fumarc.com.br/": {
+   "permitido": false
+  },
+  "https://fumarc.com.br/": {
+   "permitido": false
+  }
+ },
+ "consulplan": {
+  "https://www.institutoconsulplan.org.br/": {
+   "permitido": false
+  },
+  "https://institutoconsulplan.org.br/": {
+   "permitido": false
+  }
+ },
+ "cpcon": {
+  "https://cpcon.uepb.edu.br/": {
+   "permitido": false
+  }
+ },
+ "comperve": {
+  "https://www.comperve.ufrn.br/": {
+   "permitido": false
+  },
+  "https://comperve.ufrn.br/": {
+   "permitido": false
+  }
+ }
+}

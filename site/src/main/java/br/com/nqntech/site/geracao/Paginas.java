@@ -24,7 +24,11 @@ public class Paginas {
     /** Metadados de SEO de uma página. */
     public record Meta(String titulo, String descricao, String url, String canonica, String jsonLd) {}
 
-    public record Site(String nome, String urlBase, String atualizacao) {}
+    public record Site(String nome, String urlBase, String atualizacao) {
+        public String asset(String nome) {
+            return VersaoAssets.url(nome);
+        }
+    }
 
     private final TemplateEngine templates;
     private final String urlBase;

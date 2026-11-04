@@ -1,22 +1,31 @@
-"""Sondagem da Cebraspe (roda no GitHub Actions): robots.txt, página de concursos e possíveis rotas JSON citadas
-nos scripts da página. Só acessa o que o robots.txt permite; não segue nada bloqueado."""
+"""Sondagem da Cebraspe (roda no GitHub Actions): robots.txt do site e da API, e respostas reais da API JSON que o
+próprio app de concursos usa (fases "novos" e "inscricoes-abertas" + um detalhe), salvas como fixtures de teste.
+Só acessa o que o robots.txt de cada host permite."""
 
 from __future__ import annotations
 
 import json
-import re
 import sys
 import time
 import urllib.robotparser
 from pathlib import Path
-from urllib.parse import urljoin
 
 import requests
 
 UA = "NqnTechConcursos/0.1 (site publico e gratuito de concursos; respeita robots.txt)"
-BASE = "https://www.cebraspe.org.br"
-PAGINAS = ["/concursos/", "/concursos"]
+API = "https://apis.cebraspe.org.br/cebraspe/eventos"
+FASES = ("novos", "inscricoes-abertas")
 DESTINO = Path("coletor/tests/fixtures/cebraspe")
+
+
+def robots(sessao: requests.Session, host: str) -> tuple[urllib.robotparser.RobotFileParser, dict]:
+    r = sessao.get(f"https://{host}/robots.txt", timeout=20)
+    robo = urllib.robotparser.RobotFileParser()
+    robo.parse(r.text.splitlines() if r.ok else [])
+    if r.status_code in (401, 403) or r.status_code >= 500:
+        robo.disallow_all = True
+    (DESTINO / f"robots_{host}.txt").write_text(r.text if r.ok else f"HTTP {r.status_code}", encoding="utf-8")
+    return robo, {"status": r.status_code, "texto": r.text[:2000] if r.ok else ""}
 
 
 def main() -> int:
@@ -24,58 +33,42 @@ def main() -> int:
     s = requests.Session()
     s.headers["User-Agent"] = UA
     relatorio: dict = {}
-    r = s.get(f"{BASE}/robots.txt", timeout=20)
-    relatorio["robots_status"] = r.status_code
-    relatorio["robots"] = r.text[:4000] if r.ok else ""
-    (DESTINO / "robots.txt").write_text(r.text if r.ok else f"HTTP {r.status_code}", encoding="utf-8")
-    robo = urllib.robotparser.RobotFileParser()
-    robo.parse(r.text.splitlines() if r.ok else [])
-    if r.status_code in (401, 403) or r.status_code >= 500:
-        robo.disallow_all = True
-
-    def permitido(url: str) -> bool:
-        return robo.can_fetch(UA, url)
-
-    for caminho in PAGINAS:
-        url = BASE + caminho
-        relatorio[caminho] = {"permitido": permitido(url)}
-        if not permitido(url):
+    robo_api, relatorio["robots_api"] = robots(s, "apis.cebraspe.org.br")
+    _, relatorio["robots_site"] = robots(s, "www.cebraspe.org.br")
+    identificador = None
+    for fase in FASES:
+        url = f"{API}/tipo/concursos/fase/{fase}"
+        item: dict = {"permitido": robo_api.can_fetch(UA, url)}
+        relatorio[fase] = item
+        if not item["permitido"]:
             continue
         time.sleep(3)
-        p = s.get(url, timeout=25)
-        relatorio[caminho].update(status=p.status_code, tipo=p.headers.get("Content-Type"), final=p.url)
-        if p.ok and "html" in (p.headers.get("Content-Type") or ""):
-            (DESTINO / "concursos.html").write_text(p.text, encoding="utf-8")
-            scripts = re.findall(r'<script[^>]+src="([^"]+)"', p.text)
-            relatorio[caminho]["scripts"] = scripts[:40]
-            # Rotas de API citadas no HTML ou nos scripts próprios do site.
-            rotas = set(re.findall(r'["\'](/(?:api|_api|wp-json)[^"\'\s]{1,120})["\']', p.text))
-            for src in scripts:
-                alvo = urljoin(url, src)
-                if "cebraspe.org.br" not in alvo or not permitido(alvo):
-                    continue
-                time.sleep(2)
-                js = s.get(alvo, timeout=25)
-                if js.ok:
-                    rotas |= set(re.findall(r'["\'`]((?:https://[a-z0-9.-]*cebraspe\.org\.br)?/(?:api|_api|wp-json)[^"\'`\s]{1,160})["\'`]', js.text))
-            # A lista é um app React (/concursos/static/js/*.chunk.js): as URLs de dados estão no bundle.
-            for src in re.findall(r'(/concursos/static/js/[^"]+\.js)', p.text):
-                alvo = urljoin(url, src)
-                if not permitido(alvo):
-                    continue
-                time.sleep(2)
-                js = s.get(alvo, timeout=25)
-                if js.ok:
-                    (DESTINO / Path(src).name).write_text(js.text, encoding="utf-8")
-                    rotas |= set(re.findall(r'["\'`](https?://[^"\'`\s]{8,200})["\'`]', js.text))
-                    rotas |= set(re.findall(r'["\'`](/[a-zA-Z0-9_-]+/[^"\'`\s]{2,160})["\'`]', js.text))
-            relatorio[caminho]["rotas_api"] = sorted(rotas)[:200]
-            relatorio["rotas_permitidas"] = {
-                rota: permitido(urljoin(BASE, rota)) for rota in sorted(rotas)[:200] if "cebraspe" in rota or rota[0] == "/"
-            }
-        break
+        r = s.get(url, timeout=25, headers={"Accept": "application/json"})
+        item.update(status=r.status_code, tipo=r.headers.get("Content-Type"), bytes=len(r.content))
+        if r.ok:
+            (DESTINO / f"fase_{fase}.json").write_text(r.text, encoding="utf-8")
+            dados = r.json()
+            item["itens"] = len(dados) if isinstance(dados, list) else None
+            if isinstance(dados, list) and dados:
+                item["chaves"] = sorted(dados[0].keys()) if isinstance(dados[0], dict) else None
+                item["exemplo"] = dados[0]
+                identificador = identificador or next(
+                    (d.get(k) for d in dados for k in ("identificador", "slug", "id") if isinstance(d, dict) and d.get(k)),
+                    None,
+                )
+    if identificador is not None:
+        url = f"{API}/{identificador}"
+        relatorio["detalhe"] = {"url": url, "permitido": robo_api.can_fetch(UA, url)}
+        if relatorio["detalhe"]["permitido"]:
+            time.sleep(3)
+            r = s.get(url, timeout=25, headers={"Accept": "application/json"})
+            relatorio["detalhe"].update(status=r.status_code, bytes=len(r.content))
+            if r.ok:
+                (DESTINO / "detalhe.json").write_text(r.text, encoding="utf-8")
+                d = r.json()
+                relatorio["detalhe"]["chaves"] = sorted(d.keys()) if isinstance(d, dict) else None
     (DESTINO / "_sondagem.json").write_text(json.dumps(relatorio, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(json.dumps(relatorio, ensure_ascii=False, indent=1)[:6000])
+    print(json.dumps(relatorio, ensure_ascii=False, indent=1)[:8000])
     return 0
 
 

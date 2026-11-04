@@ -539,4 +539,7 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       Bancas com Content-Signal ai-train=no (IDECAN) nunca vão à IA (`BANCAS_SEM_IA`).
 - [ ] Fase 6 (diários oficiais): sondagem do Querido Diário em 04/11/2026 a partir do GitHub Actions falhou no
       handshake TLS (`SSLV3_ALERT_HANDSHAKE_FAILURE`, recusa do servidor); nada contornado, tentar de novo depois.
-      DOU via INLABS depende de conta do usuário (PENDENCIAS).
+      DOU: o INLABS indicou a base de dados abertos em in.gov.br/acesso-a-informacao/dados-abertos/base-de-dados;
+      sondagem de 04/11/2026 a partir do GitHub Actions: o servidor fecha a conexão já no robots.txt (bloqueio a
+      IPs de datacenter); nada contornado. Caminho viável: o usuário baixa o arquivo no navegador e importa
+      localmente (como os PDFs manuais). Decisão do usuário: não pedir liberação a bancas (AOCP, IDECAN etc.).

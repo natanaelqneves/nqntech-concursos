@@ -84,7 +84,7 @@ aplicativo móvel.
 |---|---|---|
 | Coletor | Python 3.13 (base copiada do Radar TI) | httpx, BeautifulSoup, pdfplumber já testados |
 | Gerador do site | Java 25 + Spring Boot 4.1 (modo linha de comando) + Thymeleaf | Domínio do desenvolvedor; páginas prontas para o Google |
-| Front-end | HTML + CSS próprio + JavaScript simples (filtros) | Leve, acessível, funciona em celular fraco |
+| Front-end | HTML + Bootstrap 5.3 enxuto (Sass, só os componentes usados, sem o JS do Bootstrap) + JavaScript simples | Visual moderno e manutenção fácil, ainda leve (CSS ~14 KB compactado) e acessível |
 | API de cadastro | Spring Boot 4.1 (web) + Validation | Fase 7 |
 | Alertas | Spring Boot (linha de comando) + Spring Mail + Thymeleaf | Mesmo padrão do notificador do Radar TI |
 | Banco | PostgreSQL 17 no Neon, schema `concursos` | Gratuito; 1 GB; dorme quando ocioso |
@@ -175,7 +175,7 @@ Um resumo por LLM pode ser plugado depois (fase opcional), validado contra os ca
   AdSense só suporta CSP com nonce por requisição (inviável em site estático); `object-src`, `base-uri`,
   `form-action` e `frame-ancestors` continuam fechados.
 - **Tema**: claro (fundo branco) por padrão; escuro só por escolha no botão do topo, lembrada no navegador
-  (`assets/tema.js` aplica antes de desenhar).
+  (`assets/tema.js` aplica `data-bs-theme="dark"` antes de desenhar).
 
 ## 5. Modelo de dados (schema `concursos`)
 
@@ -299,7 +299,7 @@ Páginas:
   que a preveem, prazo mais curto primeiro (destaque do site).
 - `/alertas/` — formulário (nome, e-mail, filtro) [fase 7]; `/privacidade/`; `/sobre/` (fontes e limitações).
 
-Requisitos: HTML semântico, mobile first, leve (sem framework JS pesado), contraste e navegação por teclado
+Requisitos: HTML semântico, mobile first, leve (sem framework JS; Bootstrap só como CSS compilado do Sass), contraste e navegação por teclado
 (WCAG AA), `title`/`meta description` por página, dados estruturados (JSON-LD), `sitemap.xml`, URL canônica,
 data de atualização visível. Rodapé com aviso: *"Informações extraídas automaticamente de fontes oficiais.
 Confira sempre o edital."*
@@ -320,6 +320,7 @@ nqntech-concursos/                 (repositório PÚBLICO)
 ├── coletor/                       Python (base do Radar TI)
 │   └── src/coletor/  fontes/  pipeline/  extratores/  classificacao/  resumo/
 ├── site/                          Java: gerador do site estático (Thymeleaf) + templates + css/js
+│   └── estilo/                    Sass (Bootstrap enxuto + componentes) → assets/site.css por compilar.sh
 ├── alertas/                       Java: envio dos alertas (fase 7)
 ├── api/                           Java: API de cadastro (fase 7)
 └── scripts/
@@ -549,6 +550,18 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       administrador baixa os PDFs no navegador e usa `importar-pdfs`. Workflow `buscar` (diário, 07:23) envia o
       relatório por e-mail (SMTP com senha de app; destino em secret). Menu volta a ser a linha completa, que quebra
       em linhas no celular (sem botão de abrir/fechar).
+- [x] Visual com Bootstrap (04/11/2026): Bootstrap 5.3.8 enxuto compilado do Sass em `site/estilo/` (só reboot,
+      tipografia, grid, tabelas, botões, card, breadcrumb, badge, helpers e as utilidades usadas, sem variantes por
+      breakpoint no espaçamento; sem o JS do Bootstrap). `estilo/compilar.sh` baixa o Dart Sass oficial (SHA-256
+      conferido) e o Bootstrap pela tag (commit conferido) e gera `assets/site.css`, que é commitado; a CI roda
+      `compilar.sh --conferir` e falha se o CSS não bater com o Sass. Para atualizar versões: trocar versão + hash no
+      script. Tema escuro pelo `data-bs-theme` do Bootstrap. Fonte Atkinson Hyperlegible Next (OFL, do Braille
+      Institute, feita para baixa visão), servida do próprio domínio (2 pesos, ~50 KB, `font-display: swap`).
+      Identidade: cartão com **canhoto de data** (picote de comprovante) mostrando a data que importa agora
+      (`Concurso.marco`: fim das inscrições, início se ainda vão abrir, prova, ou "a definir"); início com a contagem
+      de inscrições abertas no título; página do concurso em duas colunas com ficha de dados e botões (vem antes do
+      resumo no celular); prazos de isenção em âmbar, vermelho nos últimos 3 dias. Menu continua a linha completa que
+      quebra no celular; textos corridos continuam justificados. Código morto dos filtros de `/concursos/` saiu do JS.
 - [ ] Fase 6 (diários oficiais): sondagem do Querido Diário em 04/11/2026 a partir do GitHub Actions falhou no
       handshake TLS (`SSLV3_ALERT_HANDSHAKE_FAILURE`, recusa do servidor); nada contornado, tentar de novo depois.
       DOU: o INLABS indicou a base de dados abertos em in.gov.br/acesso-a-informacao/dados-abertos/base-de-dados;

@@ -3,43 +3,49 @@
 <head th:replace="~{base :: head(${meta})}"></head>
 <body>
 <header th:replace="~{base :: cabecalho}"></header>
-<main id="conteudo" class="largura">
+<main id="conteudo">
     <section class="abertura">
-        <h1>Oportunidades em concursos públicos, sem complicação.</h1>
-        <p class="abertura__texto">Inscrições abertas em todo o Brasil, com um resumo simples de cada edital e os
-            prazos para pedir <a href="/isencoes/">isenção da taxa</a>.</p>
-        <div class="numeros">
-            <div><strong th:text="${abertos.size()}">0</strong><span>inscrições abertas</span></div>
-            <div><strong th:text="${isencao.size()}">0</strong><span>com isenção em prazo</span></div>
-            <div><strong th:text="${total}">0</strong><span>oportunidades no total</span></div>
+        <div class="container">
+            <h1 class="abertura__titulo" th:text="${abertos.size() == 1} ? '1 concurso com inscrições abertas no Brasil agora.' : ${abertos.size() + ' concursos com inscrições abertas no Brasil agora.'}">
+                0 concursos com inscrições abertas no Brasil agora.</h1>
+            <p class="abertura__texto">Um resumo simples de cada edital, as datas que importam e os prazos para pedir
+                <a href="/isencoes/">isenção da taxa</a>, de graça e sem cadastro.</p>
+            <div class="abertura__acoes">
+                <a class="btn btn-primary" href="/inscricoes-abertas/">Ver inscrições abertas</a>
+                <a class="btn btn-outline-secondary" href="/isencao-em-prazo/"
+                   th:text="${isencao.size() == 1} ? '1 com isenção em prazo' : ${isencao.size() + ' com isenção em prazo'}">0 com isenção em prazo</a>
+            </div>
+            <p class="nota mt-3 mb-0 text-start" th:text="${total + ' oportunidades no total, entre abertas, por abrir e previstas.'}">0 oportunidades</p>
         </div>
     </section>
 
-    <section th:if="${!isencao.isEmpty()}" class="destaque" aria-labelledby="titulo-isencao">
-        <h2 id="titulo-isencao">Pedido de isenção da taxa aberto</h2>
-        <p>Estes editais preveem isenção da taxa e o prazo para pedir ainda está aberto. As regras mudam de um edital
-            para outro: confira quem pode pedir em cada um.</p>
-        <ul class="lista-compacta">
-            <li th:each="c : ${isencao}">
-                <a th:href="${'/concurso/' + c.slug() + '/'}" th:text="${c.nomeExibicao()}">Órgão</a>
-                <span class="prazo" th:attr="data-prazo=${fmt.dataIso(c.isencaoFim())}"
-                      th:text="${'pedidos até ' + fmt.data(c.isencaoFim())}">pedidos até</span>
-            </li>
-        </ul>
-    </section>
+    <div class="container">
+        <section th:if="${!isencao.isEmpty()}" class="painel-prazo" aria-labelledby="titulo-isencao">
+            <h2 id="titulo-isencao">Pedido de isenção da taxa aberto</h2>
+            <p class="mb-0">Estes editais preveem isenção da taxa e o prazo para pedir ainda está aberto. As regras mudam
+                de um edital para outro: confira quem pode pedir em cada um.</p>
+            <ul class="lista-prazos">
+                <li th:each="c : ${isencao}">
+                    <a th:href="${'/concurso/' + c.slug() + '/'}" th:text="${c.nomeExibicao()}">Órgão</a>
+                    <span class="prazo" th:attr="data-prazo=${fmt.dataIso(c.isencaoFim())}"
+                          th:text="${'pedidos até ' + fmt.data(c.isencaoFim())}">pedidos até</span>
+                </li>
+            </ul>
+        </section>
 
-    <section aria-labelledby="titulo-abertos">
-        <div class="cabeca-secao">
-            <h2 id="titulo-abertos">Inscrições abertas</h2>
-            <a href="/inscricoes-abertas/">Ver todos →</a>
-        </div>
-        <p class="nota">CNU e nacionais primeiro; depois, pela prova mais próxima.</p>
-        <p th:if="${abertos.isEmpty()}" class="vazio">Nenhum concurso com inscrições abertas no momento.
-            <a href="/isencao-em-prazo/">Veja os com isenção em prazo.</a></p>
-        <div class="grade">
-            <th:block th:each="c : ${abertos}"><article th:replace="~{base :: cartao(${c})}"></article></th:block>
-        </div>
-    </section>
+        <section aria-labelledby="titulo-abertos">
+            <div class="cabeca-secao">
+                <h2 id="titulo-abertos">Inscrições abertas</h2>
+                <a href="/inscricoes-abertas/">Ver todos</a>
+            </div>
+            <p class="nota">CNU e nacionais primeiro; depois, pela prova mais próxima.</p>
+            <p th:if="${abertos.isEmpty()}" class="vazio">Nenhum concurso com inscrições abertas no momento.
+                <a href="/isencao-em-prazo/">Veja os com isenção em prazo.</a></p>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+                <div class="col" th:each="c : ${abertos}"><article th:replace="~{base :: cartao(${c})}"></article></div>
+            </div>
+        </section>
+    </div>
 </main>
 <footer th:replace="~{base :: rodape}"></footer>
 </body>

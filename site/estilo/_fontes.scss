@@ -1,0 +1,17 @@
+// Atkinson Hyperlegible Next (SIL OFL 1.1, assets/fontes/OFL.txt): desenhada pelo Braille Institute para leitura
+// com baixa visão. Servida do próprio domínio; "swap" mostra o texto na fonte do sistema enquanto carrega.
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/fontes/AtkinsonHyperlegibleNext-Regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-style: normal;
+  font-weight: 600 800;
+  font-display: swap;
+  src: url("/assets/fontes/AtkinsonHyperlegibleNext-Bold.woff2") format("woff2");
+}

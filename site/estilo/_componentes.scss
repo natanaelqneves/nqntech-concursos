@@ -1,0 +1,257 @@
+// Componentes próprios do site, sobre as variáveis do Bootstrap. A peça de identidade é o canhoto de data dos
+// cartões (picote de comprovante): é a data que importa a quem procura concurso. O resto fica sóbrio.
+
+:root,
+[data-bs-theme="light"] {
+  --nt-verde-fundo: #{$verde-fundo};
+  --nt-ambar: #{$ambar};
+  --nt-ambar-fundo: #{$ambar-fundo};
+  --nt-urgente: #{$urgente};
+  --nt-sombra: 0 1px 2px rgb(22 36 44 / .06), 0 8px 24px -16px rgb(22 36 44 / .25);
+}
+
+@include color-mode(dark, true) {
+  --nt-verde-fundo: #{$verde-fundo-escuro};
+  --nt-ambar: #{$ambar-escuro};
+  --nt-ambar-fundo: #{$ambar-fundo-escuro};
+  --nt-urgente: #{$urgente-escuro};
+  --nt-sombra: 0 8px 24px -16px rgb(0 0 0 / .8);
+
+  // O Bootstrap calcula as cores dos botões na compilação, a partir do tema claro.
+  .btn-primary {
+    --bs-btn-color: #{$papel-escuro};
+    --bs-btn-bg: #{$verde-escuro};
+    --bs-btn-border-color: #{$verde-escuro};
+    --bs-btn-hover-color: #{$papel-escuro};
+    --bs-btn-hover-bg: #8fe4c4;
+    --bs-btn-hover-border-color: #8fe4c4;
+    --bs-btn-active-color: #{$papel-escuro};
+    --bs-btn-active-bg: #8fe4c4;
+    --bs-btn-active-border-color: #8fe4c4;
+  }
+  .btn-outline-secondary {
+    --bs-btn-color: #{$tinta-escuro};
+    --bs-btn-border-color: #{$linha-escuro};
+    --bs-btn-hover-color: #{$tinta-escuro};
+    --bs-btn-hover-bg: #{$nevoa-escuro};
+    --bs-btn-hover-border-color: #{$tinta-suave-escuro};
+  }
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { -webkit-font-smoothing: antialiased; }
+h1, h2, h3 { letter-spacing: -.01em; text-wrap: balance; }
+:focus-visible { outline: 3px solid var(--bs-link-color); outline-offset: 2px; border-radius: .25rem; }
+a:not(.btn):hover { text-decoration-thickness: 2px; }
+
+// Decisão do projeto: textos corridos justificados na largura da grade.
+main p { text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
+main .cartao p, main .vazio, main .nota, main .text-start { text-align: left; }
+
+.pular:focus { position: fixed !important; top: .5rem; left: .5rem; z-index: 1050; padding: .6rem 1rem;
+  background: var(--bs-body-bg); border: 2px solid var(--bs-link-color); border-radius: var(--bs-border-radius); }
+
+// Cabeçalho -------------------------------------------------------------------------------------------------------
+.topo {
+  position: sticky; top: 0; z-index: 1020;
+  background: color-mix(in srgb, var(--bs-body-bg) 90%, transparent);
+  backdrop-filter: saturate(1.4) blur(10px);
+  border-bottom: 1px solid var(--bs-border-color);
+}
+.topo__linha { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1.5rem; min-height: 4.25rem; }
+.marca { display: inline-flex; align-items: center; gap: .6rem; color: var(--bs-body-color); text-decoration: none;
+  font-weight: 700; font-size: 1.08rem; letter-spacing: -.01em;
+  &:hover { color: var(--bs-body-color); }
+}
+// Selo da marca com a borda picotada do canhoto, em miniatura.
+.marca__selo { display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: .45rem;
+  background: var(--bs-primary-text-emphasis); color: var(--bs-body-bg); font-size: .78rem; font-weight: 800;
+  outline: 2px dashed var(--bs-primary-text-emphasis); outline-offset: 2px; }
+[data-bs-theme="dark"] .marca__selo { background: #{$verde-escuro}; outline-color: #{$verde-escuro}; }
+.marca__nome span { font-weight: 400; }
+
+.topo__menu { display: flex; flex-wrap: wrap; gap: .15rem; margin: 0; padding: 0; list-style: none; }
+.topo__menu a { display: block; padding: .55rem .75rem; border-radius: var(--bs-border-radius); font-size: .95rem;
+  font-weight: 600; color: var(--bs-secondary-color); text-decoration: none; white-space: nowrap;
+  &:hover { color: var(--bs-body-color); background: var(--bs-tertiary-bg); }
+  &[aria-current="page"] { color: var(--bs-primary-text-emphasis); background: var(--nt-verde-fundo); }
+}
+.topo__nav { margin-left: auto; }
+.botao-tema { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; padding: 0;
+  border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); background: transparent;
+  color: var(--bs-body-color);
+  &:hover { background: var(--bs-tertiary-bg); }
+  .icone-sol { display: none; }
+}
+[data-bs-theme="dark"] .botao-tema { .icone-sol { display: block; } .icone-lua { display: none; } }
+
+// Até 1000px o menu completo continua à vista e quebra em linhas abaixo da marca (decisão do projeto).
+@media (max-width: 1000px) {
+  .topo__linha { padding-top: .6rem; padding-bottom: .5rem; }
+  .topo__nav { order: 3; flex-basis: 100%; margin-left: 0; }
+  .topo__menu { margin-left: -.6rem; }
+  .botao-tema { margin-left: auto; }
+}
+@media (max-width: 575.98px) {
+  .topo__menu a { padding: .5rem .6rem; font-size: .9rem; }
+}
+
+// Abertura (início) e cabeçalhos de página -----------------------------------------------------------------------
+.abertura { padding: 3.25rem 0 2.5rem; background: var(--bs-tertiary-bg); border-bottom: 1px solid var(--bs-border-color); }
+.abertura__titulo { @include font-size(3rem); max-width: 18ch; margin-bottom: 1rem; letter-spacing: -.025em; }
+.abertura__texto { max-width: 60ch; font-size: 1.15rem; color: var(--bs-secondary-color); text-align: left !important;
+  hyphens: manual !important; }
+.abertura__acoes { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
+
+.cabeca-pagina { padding: 2rem 0 1.5rem; }
+.cabeca-pagina .lead { max-width: 70ch; color: var(--bs-secondary-color); }
+.breadcrumb { font-size: .92rem; --bs-breadcrumb-divider-color: var(--bs-secondary-color);
+  --bs-breadcrumb-item-active-color: var(--bs-secondary-color); }
+
+.cabeca-secao { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+  gap: .25rem 1rem; margin: 2.75rem 0 1rem;
+  h2 { margin: 0; }
+}
+.nota { font-size: .9rem; color: var(--bs-secondary-color); }
+.vazio { padding: 1.5rem; border: 1px dashed var(--bs-border-color); border-radius: var(--bs-border-radius-lg);
+  color: var(--bs-secondary-color); }
+
+// Cartão de concurso com canhoto de data -------------------------------------------------------------------------
+.card { --bs-card-border-color: var(--bs-border-color); --bs-card-bg: var(--bs-body-bg); }
+.cartao { --canhoto: 5.75rem; flex-direction: row; overflow: hidden; background: var(--bs-body-bg);
+  transition: border-color .15s, box-shadow .15s;
+  &:hover { border-color: color-mix(in srgb, var(--bs-primary-text-emphasis) 50%, var(--bs-border-color));
+    box-shadow: var(--nt-sombra); }
+}
+.cartao__canhoto { position: relative; flex: 0 0 var(--canhoto); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: .1rem; padding: 1rem .4rem; text-align: center;
+  background: var(--bs-tertiary-bg); color: var(--bs-secondary-color);
+  border-right: 2px dashed var(--bs-border-color);
+  // Recortes do picote, em cima e embaixo, na cor do fundo da página.
+  &::before, &::after { content: ""; position: absolute; right: -.6rem; width: 1.1rem; height: 1.1rem;
+    border-radius: 50%; background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); }
+  &::before { top: -.62rem; }
+  &::after { bottom: -.62rem; }
+}
+.cartao--aberto .cartao__canhoto { background: var(--nt-verde-fundo); color: var(--bs-primary-text-emphasis); }
+.cartao__rotulo { font-size: .72rem; font-weight: 600; line-height: 1.2; }
+.cartao__dia { font-size: 2rem; font-weight: 800; line-height: 1; letter-spacing: -.03em; }
+.cartao__mes { font-size: .95rem; font-weight: 700; line-height: 1.1; }
+.cartao__corpo { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; padding: var(--bs-card-spacer-y) var(--bs-card-spacer-x); }
+.cartao__titulo { margin: .55rem 0 .8rem; font-size: 1.05rem; line-height: 1.35;
+  a { color: var(--bs-body-color); text-decoration: none; }
+  a:hover { color: var(--bs-link-color); text-decoration: underline; }
+}
+.cartao__dados { display: flex; flex-wrap: wrap; gap: .4rem 1.25rem; margin: auto 0 0; padding-top: .7rem;
+  border-top: 1px solid var(--bs-border-color); font-size: .9rem;
+  dt { font-weight: 400; color: var(--bs-secondary-color); font-size: .78rem; }
+  dd { margin: 0; font-weight: 700; }
+}
+
+// Selos (badges do Bootstrap com cores do site)
+.selos { display: flex; flex-wrap: wrap; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+.selo { @extend .badge; border-radius: var(--bs-border-radius-sm); background: var(--bs-tertiary-bg);
+  color: var(--bs-secondary-color); border: 1px solid var(--bs-border-color); white-space: normal; text-align: left; }
+.selo--aberto { background: var(--nt-verde-fundo); color: var(--bs-primary-text-emphasis); border-color: transparent;
+  &::before { content: ""; display: inline-block; width: .45rem; height: .45rem; margin-right: .4rem;
+    border-radius: 50%; background: currentColor; vertical-align: .05rem; }
+}
+.selo--isencao { background: var(--nt-ambar-fundo); color: var(--nt-ambar); border-color: transparent; }
+.selo--cnu { background: var(--bs-body-color); color: var(--bs-body-bg); border-color: transparent; }
+
+// Painel de prazos de isenção (âmbar = prazo correndo)
+.painel-prazo { margin: 2.5rem 0; padding: 1.5rem; border: 1px solid var(--bs-border-color);
+  border-left: .35rem solid var(--nt-ambar); border-radius: var(--bs-border-radius-lg); background: var(--bs-body-bg);
+  h2 { margin-top: 0; }
+  @include media-breakpoint-down(sm) { padding: 1.1rem; }
+}
+.lista-prazos { margin: 1rem 0 0; padding: 0; list-style: none;
+  li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .35rem 1rem;
+    padding: .8rem 0; border-top: 1px solid var(--bs-border-color); }
+  a { font-weight: 600; }
+}
+.prazo { display: inline-block; padding: .2rem .6rem; border-radius: var(--bs-border-radius-sm);
+  background: var(--nt-ambar-fundo); color: var(--nt-ambar); font-size: .85rem; font-weight: 700; }
+
+// Atalhos (regiões, estados, refinamentos)
+.atalhos { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0 1.5rem; padding: 0; list-style: none;
+  a { display: inline-flex; align-items: center; gap: .4rem; min-height: 2.75rem; padding: .4rem .95rem;
+    border: 1px solid var(--bs-border-color); border-radius: 2rem; color: var(--bs-body-color);
+    text-decoration: none; font-weight: 600; font-size: .95rem; }
+  a:hover { border-color: var(--bs-primary-text-emphasis); color: var(--bs-primary-text-emphasis); }
+}
+.contador { display: inline-block; min-width: 1.6rem; padding: .05rem .45rem; border-radius: 1rem;
+  background: var(--bs-tertiary-bg); color: var(--bs-secondary-color); font-size: .8rem; text-align: center; }
+.regiao { padding: 1.5rem 0; border-top: 1px solid var(--bs-border-color);
+  h2 { margin: 0; }
+}
+
+// Página do concurso ---------------------------------------------------------------------------------------------
+.ficha { position: sticky; top: 5.5rem; }
+.ficha__dados { margin: 0;
+  > div { display: flex; justify-content: space-between; gap: 1rem; padding: .7rem 0;
+    border-bottom: 1px solid var(--bs-border-color); }
+  > div:last-child { border-bottom: 0; }
+  dt { font-weight: 400; color: var(--bs-secondary-color); }
+  dd { margin: 0; font-weight: 700; text-align: right; }
+}
+.ficha .btn { width: 100%; }
+@media (max-width: 991.98px) { .ficha { position: static; } }
+
+.secao { margin-top: 2.5rem; }
+.resumo-texto { font-size: 1.1rem; }
+
+.tabela-rolagem { border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius-lg); overflow-x: auto;
+  .table { margin: 0; min-width: 36rem; vertical-align: top; }
+  thead th { background: var(--bs-tertiary-bg); color: var(--bs-secondary-color); font-size: .85rem; font-weight: 600; }
+  tbody tr:last-child > * { border-bottom: 0; }
+  td { white-space: nowrap; }
+  .sub { display: block; font-weight: 400; color: var(--bs-secondary-color); font-size: .88rem; }
+}
+
+.disciplinas { margin-top: 1rem; border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius-lg);
+  padding: 0 1.15rem;
+  summary { cursor: pointer; font-weight: 700; padding: .9rem 0; }
+  h3 { font-size: 1rem; margin-top: .5rem; }
+}
+
+// Calendário: os eventos do edital são uma sequência, por isso a linha do tempo.
+.calendario { margin: 1rem 0; padding: 0; list-style: none;
+  li { position: relative; display: flex; flex-wrap: wrap; justify-content: space-between; gap: .1rem 1rem;
+    padding: .7rem 0 .7rem 1.75rem; }
+  li::before { content: ""; position: absolute; left: .3rem; top: 1.1rem; width: .7rem; height: .7rem;
+    border-radius: 50%; background: var(--bs-body-bg); border: 2px solid var(--bs-primary-text-emphasis); }
+  li:not(:last-child)::after { content: ""; position: absolute; left: .6rem; top: 1.9rem; bottom: -.4rem;
+    border-left: 2px solid var(--bs-border-color); }
+}
+.calendario__data { font-weight: 700; }
+
+// Isenções
+.tipo { height: 100%; padding: 1.25rem; border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius-lg);
+  h3 { margin-bottom: .5rem; }
+  p { margin: 0; color: var(--bs-secondary-color); }
+}
+.aviso { padding: .9rem 1.1rem; border-radius: var(--bs-border-radius); background: var(--nt-ambar-fundo);
+  color: var(--bs-body-color); }
+
+.texto { max-width: 75rem; }
+
+// Rodapé ---------------------------------------------------------------------------------------------------------
+.rodape { margin-top: 4.5rem; padding: 2.5rem 0 2rem; background: var(--bs-tertiary-bg);
+  border-top: 1px solid var(--bs-border-color); font-size: .92rem; color: var(--bs-secondary-color);
+  a { color: var(--bs-body-color); }
+}
+.rodape__aviso { color: var(--bs-body-color); font-size: 1rem; }
+.rodape__links { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; margin: 0 0 1rem; padding: 0; list-style: none; }
+
+// Anúncios automáticos do AdSense: não deixam o layout "pular" nem invadem o rodapé.
+ins.adsbygoogle { display: block; max-width: 100%; overflow: hidden; }
+ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
+.google-auto-placed { margin: 1.5rem auto; max-width: 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; scroll-behavior: auto !important; }
+}
+
+// Prazo de isenção nos últimos 3 dias (marcado pelo site.js).
+.prazo--urgente { color: var(--nt-urgente) !important; }

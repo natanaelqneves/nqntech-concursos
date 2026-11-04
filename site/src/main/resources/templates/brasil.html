@@ -3,16 +3,21 @@
 <head th:replace="~{base :: head(${meta})}"></head>
 <body>
 <header th:replace="~{base :: cabecalho}"></header>
-<main id="conteudo" class="largura">
-    <nav class="trilha" aria-label="Você está em"><a href="/">Início</a> › <span>Por estado</span></nav>
-    <h1>Concursos por região e estado</h1>
-    <p>Os <span th:text="${nacionais}">0</span> concursos nacionais (como o CNU e os de órgãos federais com vagas no
-        país todo) aparecem em todas as regiões e estados.</p>
+<main id="conteudo" class="container">
+    <div class="cabeca-pagina">
+        <nav aria-label="Você está em"><ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Início</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Por região</li>
+        </ol></nav>
+        <h1>Concursos por região e estado</h1>
+        <p class="lead">Os <span th:text="${nacionais}">0</span> concursos nacionais (como o CNU e os de órgãos federais
+            com vagas no país todo) aparecem em todas as regiões e estados.</p>
+    </div>
     <section th:each="r : ${regioes}" class="regiao" th:attr="aria-labelledby=${'regiao-' + r.slug()}">
         <h2 th:id="${'regiao-' + r.slug()}"><a th:href="${'/regiao/' + r.slug() + '/'}" th:text="${r.nome()}">Região</a></h2>
-        <ul class="estados">
-            <li th:each="e : ${estados.get(r.codigo())}"><a th:href="${e.url()}" th:text="${e.nome()}">Estado</a>
-                <span class="contador" th:if="${e.quantidade() > 0}" th:text="${'(' + e.quantidade() + ')'}">(0)</span></li>
+        <ul class="atalhos mb-0">
+            <li th:each="e : ${estados.get(r.codigo())}"><a th:href="${e.url()}"><span th:text="${e.nome()}">Estado</span>
+                <span class="contador" th:if="${e.quantidade() > 0}" th:text="${e.quantidade()}">0</span></a></li>
         </ul>
     </section>
 </main>

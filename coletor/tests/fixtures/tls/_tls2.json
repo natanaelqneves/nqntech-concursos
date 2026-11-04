@@ -1,0 +1,128 @@
+{
+ "conteudo_concursos_php": {
+  "url": "https://www.comperve.ufrn.br/conteudo/concursos.php",
+  "permitido": true,
+  "status": 200,
+  "tipo": "text/html; charset=UTF-8",
+  "bytes": 51598
+ },
+ "conteudo_concursos_cref_202601_informacoes_php": {
+  "url": "https://www.comperve.ufrn.br/conteudo/concursos/cref_202601/informacoes.php",
+  "permitido": true,
+  "status": 200,
+  "tipo": "text/html; charset=UTF-8",
+  "bytes": 11609
+ },
+ "30182_concursos_web_part_a63cd5f36174102910a8ad528ad46729_js": {
+  "url": "https://www.fumarc.com.br/sites/app/ClientSideAssets/1e6dd93b-1f99-440b-a6c4-5c6af3330182/concursos-web-part_a63cd5f36174102910a8ad528ad46729.js",
+  "permitido": true,
+  "status": 200,
+  "tipo": "application/javascript",
+  "bytes": 415877,
+  "rotas": [
+   "/_api/$batch",
+   "/_api/GroupSiteManager/CreateGroupEx",
+   "/_api/SP.MoveCopyUtil.CopyFileByPath(overwrite=@a1)?@a1=",
+   "/_api/SP.MoveCopyUtil.CopyFolder()",
+   "/_api/SP.MoveCopyUtil.CopyFolderByPath()",
+   "/_api/SP.MoveCopyUtil.MoveFileByPath(overwrite=@a1)?@a1=",
+   "/_api/SP.MoveCopyUtil.MoveFolder()",
+   "/_api/SP.MoveCopyUtil.MoveFolderByPath()",
+   "/_api/SP.Site.Exists",
+   "/_api/SP.Web.ShareObject",
+   "/_api/SPSiteManager/Create",
+   "/_api/contextinfo",
+   "/_api/lists/EnsureClientRenderedSitePagesLibrary",
+   "/_api/web/UploadImage",
+   "/_api/web/siteusers",
+   "/_api/web/url"
+  ],
+  "trechos": [
+   "Template:c})}),[4,Object(p.d)(this.clone(h,\"add\"),d)];case 1:return f=r.sent(),[2,{data:f,web:y(Object(s.a)(f).replace(/_api\\/web\\/?/i,\"\")).configureFrom(this)}]}})})},Object(r.c)([Object(b.a)(\"ws.add\")],t.prototype,\"add\",null),t=Object(r.c)([Object(a.a)(\"webs\")],t)}(c.e),h=Object(c.i)(m),g=function(e){function t(){var t=n",
+   ",Object(r.c)([Object(b.a)(\"w.removeStorageEntity\")],t.prototype,\"removeStorageEntity\",null),t=Object(r.c)([Object(a.a)(\"_api/web\")],t)}(c.f),y=Object(c.i)(g)},function(e,t,n){\"use strict\";function r(e){return{__metadata:{type:e}}}t.a=r},function(e,t,n){\"use strict\";function r(e){if(Object(o.u)(e))return\"\";var t=e.indexOf(\"",
+   "_api/\");return t<0&&(t=e.indexOf(\"_vti_bin/\")),t>-1?e.substr(0,t):e}t.a=r;var o=n(2)},function(e,t,n){\"use strict\";n.d(t,\"b\",function(){return h}),n.d(t,\"c\",function(){return g}),n.d(t,\"a\",function(){retu",
+   ")&&t.push(e.__metadata.uri);else if(Object(c.k)(e,n[3])&&Object(c.k)(e,n[1])){var r=Object(c.n)(e[n[1]])?e[n[1]].split(\"_api\")[1]:e[n[1]];t.push(Object(u.a)(e[n[3]]),\"_api\",r)}else Object(c.k)(e,n[1])?t.push(\"_api\",e[n[1]]):Object(c.k)(e,n[2])&&t.push(e.__metadata.uri);return t.length<1?(a.a.write(\"No uri information found",
+   "(r.label){case 0:return[4,this.getParentInfos()];case 1:return i=r.sent(),c=Object(f.a)(this.toUrl()),a=Object(o.a)(c,\"/_api/web/UploadImage\"),a.concat(\"(listTitle=@a1,imageName=@a2,listId=@a3,itemId=@a4)\"),a.query.set(\"@a1\",\"'\"+Object(b.a)(i.ParentList.Title)+\"'\"),a.query.set(\"@a2\",\"'\"+Object(b.a)(t)+\"'\"),a.query.set(\"@a3",
+   "edUrl='\"+Object(d.a)(e)+\"',overwrite=\"+t+\")\"))];case 1:return n=r.sent(),[2,{data:n,folder:y(Object(p.a)(this.toUrl()),\"_api/web/getFolderByServerRelativePath(decodedUrl='\"+Object(d.a)(e)+\"')\")}]}})})},Object(r.c)([Object(f.a)(\"fs.add\")],t.prototype,\"add\",null),Object(r.c)([Object(f.a)(\"fs.addUsingPath\")],t.prototype,\"addU",
+   ":return[4,this.getParentInfos()];case 1:return t=r.sent(),n=new URL(t.ParentWeb.Url),[4,Object(l.d)(y(t.ParentWeb.Url,\"/_api/SP.MoveCopyUtil.MoveFolder()\").configureFrom(this),Object(s.k)({destUrl:Object(o.n)(e)?e:Object(o.f)(n.origin,e),srcUrl:Object(o.f)(n.origin,t.Folder.ServerRelativeUrl)}))];case 2:return r.sent(),[2]",
+   "{case 0:return[4,this.getParentInfos()];case 1:return n=r.sent(),i=new URL(n.ParentWeb.Url),[4,Object(l.d)(y(i.origin,\"/_api/SP.MoveCopyUtil.MoveFolderByPath()\").configureFrom(this),Object(s.k)({destPath:Object(b.a)(Object(o.n)(e)?e:Object(o.f)(i.origin,e)),options:{KeepBoth:t,ResetAuthorAndCreatedOnCopy:!0,ShouldBypassSha",
+   ":return[4,this.getParentInfos()];case 1:return t=r.sent(),n=new URL(t.ParentWeb.Url),[4,Object(l.d)(y(t.ParentWeb.Url,\"/_api/SP.MoveCopyUtil.CopyFolder()\").configureFrom(this),Object(s.k)({destUrl:Object(o.n)(e)?e:Object(o.f)(n.origin,e),srcUrl:Object(o.f)(n.origin,t.Folder.ServerRelativeUrl)}))];case 2:return r.sent(),[2]",
+   "{case 0:return[4,this.getParentInfos()];case 1:return n=r.sent(),i=new URL(n.ParentWeb.Url),[4,Object(l.d)(y(i.origin,\"/_api/SP.MoveCopyUtil.CopyFolderByPath()\").configureFrom(this),Object(s.k)({destPath:Object(b.a)(Object(o.n)(e)?e:Object(o.f)(i.origin,e)),options:{KeepBoth:t,ResetAuthorAndCreatedOnCopy:!0,ShouldBypassSha",
+   "veUrl,s=r[\"odata.id\"],u=Object(f.a)(s),l=u.replace(\"://\",\"___\").split(\"/\")[0].replace(\"___\",\"://\"),[4,Object(d.d)(v(u,\"/_api/SP.MoveCopyUtil.CopyFileByPath(overwrite=@a1)?@a1=\"+t),Object(c.k)({destPath:Object(m.a)(Object(a.n)(e)?e:\"\"+l+e),options:{KeepBoth:n,ResetAuthorAndCreatedOnCopy:!0,ShouldBypassSharedLocks:!0,__metad",
+   "veUrl,s=r[\"odata.id\"],u=Object(f.a)(s),l=u.replace(\"://\",\"___\").split(\"/\")[0].replace(\"___\",\"://\"),[4,Object(d.d)(v(u,\"/_api/SP.MoveCopyUtil.MoveFileByPath(overwrite=@a1)?@a1=\"+t),Object(c.k)({destPath:Object(m.a)(Object(a.n)(e)?e:\"\"+l+e),options:{KeepBoth:n,ResetAuthorAndCreatedOnCopy:!1,ShouldBypassSharedLocks:!0,__metad",
+   "d 0,void 0,function(){var e,t,n,o;return Object(r.e)(this,function(r){switch(r.label){case 0:return e=y(this.parentUrl,\"_api/contextinfo\").configureFrom(this),t=f.a.configure(e,\"si.getContextInfo\"),[4,Object(l.d)(t)];case 1:return n=r.sent(),Object(a.k)(n,\"GetContextWebInformation\")?(o=n.GetContextWebInformation,o.Supporte",
+   "ch(n.label){case 0:return[4,this.clone(y,\"\").select(\"Id\")()];case 1:return e=n.sent(),t=f.a.configure(y(this.parentUrl,\"_api/SPSiteManager/Delete\"),\"si.delete\"),[4,Object(l.d)(t,Object(s.k)({siteId:e.Id}))];case 2:return n.sent(),[2]}})})},t.prototype.getDocumentLibraries=function(e){return Object(r.b)(this,void 0,void 0,f",
+   "unction(){var t,n;return Object(r.e)(this,function(r){switch(r.label){case 0:return t=f.a.configure(Object(o.a)(\"\",\"_api/sp.web.getdocumentlibraries(@v)\"),\"si.getDocumentLibraries\"),t.query.set(\"@v\",\"'\"+Object(p.a)(e)+\"'\"),[4,t()];case 1:return n=r.sent(),[2,Object(a.k)(n,\"GetDocumentLibraries\")?n.GetDocumentLibraries:"
+  ]
+ },
+ "fumarc_api_https_www_fumarc_com_br_api_batch": {
+  "url": "https://www.fumarc.com.br/_api/$batch",
+  "permitido": true,
+  "status": 404,
+  "tipo": "application/json;odata=nometadata;streaming=true;charset=utf-8",
+  "bytes": 208
+ },
+ "fumarc_api_w_fumarc_com_br_api_groupsitemanager_creategroupex": {
+  "url": "https://www.fumarc.com.br/_api/GroupSiteManager/CreateGroupEx",
+  "permitido": true,
+  "status": 405,
+  "tipo": "application/json;odata=nometadata;streaming=true;charset=utf-8",
+  "bytes": 338
+ },
+ "fumarc_api_pi_sp_movecopyutil_copyfilebypath_overwrite_a1_a1_": {
+  "url": "https://www.fumarc.com.br/_api/SP.MoveCopyUtil.CopyFileByPath(overwrite=@a1)?@a1=",
+  "permitido": true,
+  "status": 400,
+  "tipo": "application/json;odata=nometadata;streaming=true;charset=utf-8",
+  "bytes": 186
+ },
+ "fumarc_api__www_fumarc_com_br_api_sp_movecopyutil_copyfolder_": {
+  "url": "https://www.fumarc.com.br/_api/SP.MoveCopyUtil.CopyFolder()",
+  "permitido": true,
+  "status": 405,
+  "tipo": "application/json;odata=nometadata;streaming=true;charset=utf-8",
+  "bytes": 335
+ },
+ "fumarc_api_umarc_com_br_api_sp_movecopyutil_copyfolderbypath_": {
+  "url": "https://www.fumarc.com.br/_api/SP.MoveCopyUtil.CopyFolderByPath()",
+  "permitido": true,
+  "status": 405,
+  "tipo": "application/json;odata=nometadata;streaming=true;charset=utf-8",
+  "bytes": 341
+ },
+ "fumarc_api_pi_sp_movecopyutil_movefilebypath_overwrite_a1_a1_": {
+  "url": "https://www.fumarc.com.br/_api/SP.MoveCopyUtil.MoveFileByPath(overwrite=@a1)?@a1=",
+  "permitido": true,
+  "status": 400,
+  "tipo": "application/json;odata=nometadata;streaming=true;charset=utf-8",
+  "bytes": 186
+ },
+ "fumarc_api__www_fumarc_com_br_api_sp_movecopyutil_movefolder_": {
+  "url": "https://www.fumarc.com.br/_api/SP.MoveCopyUtil.MoveFolder()",
+  "permitido": true,
+  "status": 405,
+  "tipo": "application/json;odata=nometadata;streaming=true;charset=utf-8",
+  "bytes": 335
+ },
+ "fumarc_api_umarc_com_br_api_sp_movecopyutil_movefolderbypath_": {
+  "url": "https://www.fumarc.com.br/_api/SP.MoveCopyUtil.MoveFolderByPath()",
+  "permitido": true,
+  "status": 405,
+  "tipo": "application/json;odata=nometadata;streaming=true;charset=utf-8",
+  "bytes": 341
+ },
+ "fumarc_api_https_www_fumarc_com_br_api_sp_site_exists": {
+  "url": "https://www.fumarc.com.br/_api/SP.Site.Exists",
+  "permitido": true,
+  "status": 400,
+  "tipo": "application/json;odata=nometadata;streaming=true;charset=utf-8",
+  "bytes": 156
+ },
+ "fumarc_api_https_www_fumarc_com_br_api_sp_web_shareobject": {
+  "url": "https://www.fumarc.com.br/_api/SP.Web.ShareObject",
+  "permitido": true,
+  "status": 405,
+  "tipo": "application/json;odata=nometadata;streaming=true;charset=utf-8",
+  "bytes": 336
+ }
+}

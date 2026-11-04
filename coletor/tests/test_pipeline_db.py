@@ -140,6 +140,7 @@ def test_pipeline_completo_idempotente_e_detecta_retificacao(parametros_coletor,
     assert {r.etapa: r.status for r in resumos} == {
         "DESCOBERTA": "SUCESSO",
         "VINCULACAO": "SUCESSO",
+        "LOCALIZACAO": "SUCESSO",
         "DOCUMENTOS": "SUCESSO",
         "ESTRUTURACAO": "SUCESSO",
         "CLASSIFICACAO": "SUCESSO",

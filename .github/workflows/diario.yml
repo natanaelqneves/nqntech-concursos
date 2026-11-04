@@ -1,12 +1,14 @@
-# Execução diária do serviço: coleta (Python) → site estático (Java, publicado na Cloudflare). Os alertas por
-# e-mail (fase 7) entram depois do site.
+# Fluxo único, 4 vezes por dia: Drive → busca na web (cada alvo no máximo a cada 11 h, ou seja, 2x/dia) e sites das
+# bancas → pré-cadastro → edital (achado e baixado, ou enviado pelo Drive) → leitura do edital → classificação →
+# resumo → site (só publica se o que o site mostra mudou). Os alertas por e-mail (fase 7) entram depois do site.
 # Também pode ser disparado à mão: aba Actions → diario → Run workflow.
 name: diario
 
 on:
   schedule:
-    # 09:17 UTC = 06:17 em Brasília (UTC-3). O GitHub pode atrasar alguns minutos em horário cheio.
-    - cron: "17 9 * * *"
+    # Horário de Brasília (UTC-3): 06:17, 11:17, 16:17 e 21:17. O GitHub pode atrasar alguns minutos.
+    - cron: "17 9,14,19 * * *"
+    - cron: "17 0 * * *"
   workflow_dispatch:
     inputs:
       limite:
@@ -38,7 +40,9 @@ jobs:
   coletar:
     needs: config
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 90
+    outputs:
+      impressao: ${{ steps.impressao.outputs.impressao }}
     env:
       DB_HOST: ${{ needs.config.outputs.db_host }}
       DB_NAME: ${{ needs.config.outputs.db_name }}
@@ -51,6 +55,8 @@ jobs:
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       COLETOR_IA_MAX_CHAMADAS: ${{ vars.COLETOR_IA_MAX_CHAMADAS || '60' }}
+      COLETOR_BUSCA_MODELOS: ${{ vars.COLETOR_BUSCA_MODELOS }}
+      COLETOR_BUSCA_INTERVALO_H: ${{ vars.COLETOR_BUSCA_INTERVALO_H || '11' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
@@ -60,22 +66,40 @@ jobs:
           cache-dependency-path: coletor/pyproject.toml
       - name: Instalar coletor
         run: pip install ./coletor
-      # PDFs que o administrador pôs na pasta do Drive (uma subpasta por banca). Sem os secrets, não faz nada;
-      # uma falha aqui não impede a coleta.
+      # PDFs que o administrador pôs na pasta do Drive: com o código NQ-<n> no nome viram o edital daquele concurso;
+      # nas subpastas por banca, concursos novos. Sem os secrets, não faz nada; uma falha aqui não impede a coleta.
       - name: Importar PDFs do Drive
         continue-on-error: true
         env:
           GOOGLE_SA_JSON: ${{ secrets.GOOGLE_SA_JSON }}
           DRIVE_PASTA_ENTRADA: ${{ secrets.DRIVE_PASTA_ENTRADA }}
         run: python -m coletor importar-drive
-      - name: Coletar (descobrir → vincular → documentos → estruturar → classificar → resumir)
+      - name: Fluxo (buscar/descobrir → vincular → localizar edital → documentos → estruturar → classificar → resumir)
         env:
           LIMITE: ${{ inputs.limite }}
         run: python -m coletor executar ${LIMITE:+--limite "$LIMITE"}
+      # Concursos abertos que aguardam o edital (o coletor não conseguiu baixar): e-mail com o código de cada um,
+      # no máximo uma vez por dia. Sem os secrets de SMTP, a lista vai só para o log.
+      - name: Pendências (e-mail ao administrador)
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        env:
+          SMTP_USUARIO: ${{ secrets.SMTP_USUARIO }}
+          SMTP_SENHA: ${{ secrets.SMTP_SENHA }}
+          BUSCA_EMAIL_DESTINO: ${{ secrets.BUSCA_EMAIL_DESTINO }}
+        run: python -m coletor pendencias --email
+      # Resumo do que o site mostra: o job do site só publica se mudou desde a última publicação.
+      - name: Impressão do conteúdo do site
+        id: impressao
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: echo "impressao=$(python -m coletor impressao-site | tail -n 1)" >> "$GITHUB_OUTPUT"
 
   # O site é regerado mesmo se a coleta falhar em parte: publica o que já está no banco.
   site:
     needs: [config, coletar]
     if: ${{ !cancelled() && needs.config.result == 'success' }}
     uses: ./.github/workflows/site.yml
+    with:
+      impressao: ${{ needs.coletar.outputs.impressao }}
     secrets: inherit

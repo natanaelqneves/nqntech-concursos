@@ -34,6 +34,8 @@ INSCRICAO_VENCIDA = """c.situacao = 'EM_ANDAMENTO' AND c.inscricao_fim < %(limit
 # Para PDFs, encerrado também não interessa. Para páginas, sim: encerrado que volta à lista "em andamento" da
 # banca precisa ser relido para ser reaberto.
 SEM_OPORTUNIDADE = f"""(c.situacao = 'ENCERRADO' OR ({INSCRICAO_VENCIDA}))"""
+# Pré-cadastro (busca na web) sem edital que a busca não encontra mais há este tempo sai de cena (ENCERRADO).
+DIAS_PRE_CADASTRO_SEM_NOVIDADE = 30
 
 
 def conectar(config: ConfigBanco, tentativas: int = 3) -> psycopg.Connection[Linha]:
@@ -191,7 +193,8 @@ class Repositorio:
     # --- vinculação ------------------------------------------------------------------------------
     def sinais_para_vincular(self, desde: datetime) -> list[Linha]:
         return self.conn.execute(
-            """SELECT s.id, s.titulo, s.url, s.data_publicacao, s.payload, s.concurso_id, f.banca_id
+            """SELECT s.id, s.titulo, s.url, s.data_publicacao, s.payload, s.concurso_id, f.banca_id,
+                      f.nome AS fonte, f.tipo AS fonte_tipo
                FROM sinal_descoberta s JOIN fonte f ON f.id = s.fonte_id
                WHERE s.status = 'NOVO' OR (s.status = 'VINCULADO' AND s.visto_em >= %s)
                ORDER BY s.id""",
@@ -251,16 +254,169 @@ class Repositorio:
         return int(linha["id"])
 
     def garantir_documento(
-        self, concurso_id: int, tipo: str, titulo: str, url: str, data_publicacao: date | None
+        self,
+        concurso_id: int,
+        tipo: str,
+        titulo: str,
+        url: str,
+        data_publicacao: date | None,
+        oficial: bool = True,
     ) -> bool:
         linha = self.conn.execute(
-            """INSERT INTO documento (concurso_id, tipo, titulo, url_origem, data_publicacao)
-               VALUES (%s, %s, %s, %s, %s)
+            """INSERT INTO documento (concurso_id, tipo, titulo, url_origem, data_publicacao, oficial)
+               VALUES (%s, %s, %s, %s, %s, %s)
                ON CONFLICT (url_origem) DO NOTHING
                RETURNING id""",
-            (concurso_id, tipo, titulo[:500], url, data_publicacao),
+            (concurso_id, tipo, titulo[:500], url, data_publicacao, oficial),
         ).fetchone()
         return linha is not None
+
+    def tem_edital(self, concurso_id: int) -> bool:
+        """Já há edital lido ou na fila para baixar (falhas e recusas não contam: outra URL pode dar certo)."""
+        linha = self.conn.execute(
+            """SELECT 1 FROM documento WHERE concurso_id = %s AND tipo = 'EDITAL'
+                 AND status_extracao IN ('PENDENTE', 'OK', 'SEM_TEXTO') LIMIT 1""",
+            (concurso_id,),
+        ).fetchone()
+        return linha is not None
+
+    # --- fluxo único: busca na web, deduplicação e pré-cadastro ---------------------------------------
+    def alvos_vencidos(self, codigos: Sequence[str], intervalo_h: float) -> list[str]:
+        """Alvos nunca buscados primeiro, depois os buscados há mais tempo; só os com a última busca vencida."""
+        linhas = self.conn.execute(
+            """SELECT a.codigo FROM unnest(%s::text[]) WITH ORDINALITY AS a(codigo, ordem)
+                        LEFT JOIN busca_alvo b ON b.alvo = a.codigo
+               WHERE b.buscado_em IS NULL OR b.buscado_em < now() - make_interval(secs => %s)
+               ORDER BY b.buscado_em NULLS FIRST, a.ordem""",
+            (list(codigos), intervalo_h * 3600),
+        ).fetchall()
+        self.conn.commit()
+        return [linha["codigo"] for linha in linhas]
+
+    def registrar_busca_alvo(self, alvo: str, sugestoes: int, erro: str | None) -> None:
+        with self.transacao():
+            self.conn.execute(
+                """INSERT INTO busca_alvo (alvo, buscado_em, sugestoes, erro) VALUES (%s, now(), %s, %s)
+                   ON CONFLICT (alvo) DO UPDATE
+                      SET buscado_em = now(), sugestoes = EXCLUDED.sugestoes, erro = EXCLUDED.erro""",
+                (alvo, sugestoes, erro and erro[:500]),
+            )
+
+    def banca_por_sigla(self, sigla: str | None) -> int | None:
+        if not sigla:
+            return None
+        linha = self.conn.execute("SELECT id FROM banca WHERE sigla = %s", (sigla.upper(),)).fetchone()
+        return int(linha["id"]) if linha else None
+
+    def concurso_por_link(self, link: str) -> int | None:
+        linha = self.conn.execute("SELECT id FROM concurso WHERE link_oficial = %s", (link,)).fetchone()
+        return int(linha["id"]) if linha else None
+
+    def candidatos_deduplicacao(self) -> list[Linha]:
+        """Concursos ainda ativos, com o que a deduplicação compara. `so_busca` = só a busca na web os trouxe."""
+        return self.conn.execute(
+            """SELECT c.id, o.nome AS orgao, coalesce(c.uf, o.uf) AS uf, c.banca_id, c.ano, c.link_oficial,
+                      EXISTS (SELECT 1 FROM concurso_busca cb WHERE cb.concurso_id = c.id)
+                      AND NOT EXISTS (SELECT 1 FROM sinal_descoberta s JOIN fonte f ON f.id = s.fonte_id
+                                      WHERE s.concurso_id = c.id AND f.tipo <> 'BUSCA_IA') AS so_busca
+               FROM concurso c JOIN orgao o ON o.id = c.orgao_id
+               WHERE c.situacao <> 'ENCERRADO' AND c.criado_em >= now() - interval '400 days'"""
+        ).fetchall()
+
+    def adotar_link_oficial(self, concurso_id: int, link: str, banca_id: int | None) -> None:
+        """Concurso que só a busca tinha e que uma fonte da banca encontrou: passa a usar a página dela."""
+        self.conn.execute(
+            """UPDATE concurso SET link_oficial = %s, banca_id = coalesce(%s, banca_id)
+               WHERE id = %s AND NOT EXISTS (SELECT 1 FROM concurso WHERE link_oficial = %s)""",
+            (link, banca_id, concurso_id, link),
+        )
+
+    def marcar_possivel_duplicado(self, concurso_id: int) -> None:
+        self.conn.execute(
+            "UPDATE concurso SET possivel_duplicado = true WHERE id = %s AND NOT possivel_duplicado", (concurso_id,)
+        )
+
+    def gravar_dados_busca(self, concurso_id: int, dados: dict[str, Any]) -> None:
+        self.conn.execute(
+            """INSERT INTO concurso_busca (concurso_id, dados) VALUES (%s, %s)
+               ON CONFLICT (concurso_id) DO UPDATE SET dados = EXCLUDED.dados, atualizado_em = now()
+               WHERE concurso_busca.dados IS DISTINCT FROM EXCLUDED.dados""",
+            (concurso_id, Jsonb(dados)),
+        )
+
+    def concursos_sem_edital(self, limite: int, intervalo_h: float) -> list[Linha]:
+        """Pré-cadastros abertos sem edital (nem na fila) cuja última procura venceu."""
+        return self.conn.execute(
+            """SELECT c.id, c.link_oficial, cb.dados, b.sigla AS banca
+               FROM concurso c JOIN concurso_busca cb ON cb.concurso_id = c.id
+                               LEFT JOIN banca b ON b.id = c.banca_id
+               WHERE c.situacao IN ('INSCRICOES_ABERTAS', 'EM_ANDAMENTO')
+                 AND (cb.edital_procurado_em IS NULL
+                      OR cb.edital_procurado_em < now() - make_interval(secs => %s))
+                 AND NOT EXISTS (SELECT 1 FROM documento d WHERE d.concurso_id = c.id AND d.tipo = 'EDITAL'
+                                   AND d.status_extracao IN ('PENDENTE', 'OK', 'SEM_TEXTO'))
+               ORDER BY cb.edital_procurado_em NULLS FIRST, c.id
+               LIMIT %s""",
+            (intervalo_h * 3600, limite),
+        ).fetchall()
+
+    def urls_de_documentos(self, concurso_id: int) -> set[str]:
+        return {
+            linha["url_origem"]
+            for linha in self.conn.execute("SELECT url_origem FROM documento WHERE concurso_id = %s", (concurso_id,))
+        }
+
+    def marcar_edital_procurado(self, concurso_id: int, falha: str | None) -> None:
+        self.conn.execute(
+            "UPDATE concurso_busca SET edital_procurado_em = now(), edital_falha = %s WHERE concurso_id = %s",
+            (falha and falha[:300], concurso_id),
+        )
+
+    def aguardando_edital(self) -> list[Linha]:
+        """Pendências para o administrador: concursos abertos achados só pela busca, sem edital lido e que o
+        coletor já tentou baixar (ou não tinha de onde)."""
+        return self.conn.execute(
+            """SELECT c.id, coalesce(o.nome, c.titulo) AS orgao, b.sigla AS banca, c.inscricao_fim, c.link_oficial,
+                      cb.dados ->> 'link_edital' AS link_edital, cb.edital_falha
+               FROM concurso c JOIN concurso_busca cb ON cb.concurso_id = c.id
+                               LEFT JOIN orgao o ON o.id = c.orgao_id
+                               LEFT JOIN banca b ON b.id = c.banca_id
+               WHERE c.situacao = 'INSCRICOES_ABERTAS' AND cb.edital_procurado_em IS NOT NULL
+                 AND NOT EXISTS (SELECT 1 FROM documento d WHERE d.concurso_id = c.id AND d.tipo = 'EDITAL'
+                                   AND d.status_extracao IN ('PENDENTE', 'OK', 'SEM_TEXTO'))
+               ORDER BY c.inscricao_fim NULLS LAST, c.id"""
+        ).fetchall()
+
+    def ja_executou_hoje(self, etapa: str, desde: datetime) -> bool:
+        linha = self.conn.execute(
+            "SELECT 1 FROM execucao_coleta WHERE etapa = %s AND status = 'SUCESSO' AND inicio >= %s LIMIT 1",
+            (etapa, desde),
+        ).fetchone()
+        self.conn.commit()
+        return linha is not None
+
+    def concurso_existe(self, concurso_id: int) -> bool:
+        return self.conn.execute("SELECT 1 FROM concurso WHERE id = %s", (concurso_id,)).fetchone() is not None
+
+    def impressao_site(self) -> str:
+        """Resumo (MD5) de tudo o que o site mostra: igual ao da última publicação = nada a publicar."""
+        linha = self.conn.execute(
+            """SELECT md5(coalesce(string_agg(x, '|' ORDER BY x), '')) AS impressao FROM (
+                   SELECT c::text AS x FROM concurso c WHERE c.publicado
+                   UNION ALL SELECT g::text FROM cargo g JOIN concurso c ON c.id = g.concurso_id WHERE c.publicado
+                   UNION ALL SELECT i::text FROM concurso_isencao i JOIN concurso c ON c.id = i.concurso_id
+                             WHERE c.publicado
+                   UNION ALL SELECT e::text FROM concurso_evento e JOIN concurso c ON c.id = e.concurso_id
+                             WHERE c.publicado
+                   UNION ALL SELECT concat_ws(',', d.id, d.tipo, d.url_origem, d.oficial) FROM documento d
+                             JOIN concurso c ON c.id = d.concurso_id WHERE c.publicado AND d.tipo = 'EDITAL'
+                   UNION ALL SELECT o::text FROM orgao o
+                             WHERE EXISTS (SELECT 1 FROM concurso c WHERE c.orgao_id = o.id AND c.publicado)
+               ) t"""
+        ).fetchone()
+        self.conn.commit()
+        assert linha is not None
+        return str(linha["impressao"])
 
     def gravar_texto_se_pendente(self, url: str, texto: str) -> None:
         """Documento cuja fonte já entrega o texto (diário oficial): grava como se tivesse baixado e extraído."""
@@ -405,7 +561,8 @@ class Repositorio:
         # depois os com inscrições abertas; por fim os mais recentes. O limite por execução drena o acúmulo
         # em poucos dias.
         return self.conn.execute(
-            """SELECT d.id, d.url_origem, d.tipo, d.concurso_id
+            """SELECT d.id, d.url_origem, d.tipo, d.concurso_id,
+                      EXISTS (SELECT 1 FROM concurso_busca cb WHERE cb.concurso_id = d.concurso_id) AS dominio_livre
                FROM documento d
                         JOIN concurso c ON c.id = d.concurso_id
                WHERE d.status_extracao = 'PENDENTE'
@@ -437,9 +594,10 @@ class Repositorio:
     def concursos_para_estruturar(self) -> list[Linha]:
         return self.conn.execute(
             """SELECT c.id, c.orgao_id, o.uf AS orgao_uf, b.sigla AS banca, e.id AS documento_id, e.texto_extraido,
-                      e.hash_sha256
+                      e.hash_sha256, cb.dados AS dados_busca
                FROM concurso c
                         LEFT JOIN orgao o ON o.id = c.orgao_id
+                        LEFT JOIN concurso_busca cb ON cb.concurso_id = c.id
                         -- Diário oficial não tem banca: só a IA lê (extrator por banca não se aplica).
                         LEFT JOIN banca b ON b.id = c.banca_id
                         JOIN LATERAL (SELECT d.id, d.texto_extraido, d.hash_sha256 FROM documento d
@@ -560,16 +718,32 @@ class Repositorio:
                    WHERE situacao = 'INSCRICOES_ABERTAS' AND inscricao_fim < %s""",
                 (hoje,),
             ).rowcount
-            # Saiu da lista "em andamento" da banca há dias: tratamos como encerrado.
+            # Saiu da lista "em andamento" da banca há dias: tratamos como encerrado. Só vale para quem tem lista
+            # (site de banca); diário oficial, importação manual e busca na web não "repetem" o concurso.
             encerradas = self.conn.execute(
                 """UPDATE concurso c SET situacao = 'ENCERRADO'
                    WHERE c.situacao <> 'ENCERRADO'
-                     AND EXISTS (SELECT 1 FROM sinal_descoberta s WHERE s.concurso_id = c.id)
-                     AND NOT EXISTS (SELECT 1 FROM sinal_descoberta s
-                                     WHERE s.concurso_id = c.id AND s.visto_em >= now() - make_interval(days => %s))""",
+                     AND EXISTS (SELECT 1 FROM sinal_descoberta s JOIN fonte f ON f.id = s.fonte_id
+                                 WHERE s.concurso_id = c.id AND f.tipo = 'BANCA_SITE')
+                     AND NOT EXISTS (SELECT 1 FROM sinal_descoberta s JOIN fonte f ON f.id = s.fonte_id
+                                     WHERE s.concurso_id = c.id AND f.tipo = 'BANCA_SITE'
+                                       AND s.visto_em >= now() - make_interval(days => %s))""",
                 (dias_sem_ver,),
             ).rowcount
-        return fechadas + encerradas
+            # Pré-cadastro que a busca deixou de encontrar e cujo edital nunca apareceu: some depois de um mês.
+            esquecidas = self.conn.execute(
+                """UPDATE concurso c SET situacao = 'ENCERRADO'
+                   WHERE c.situacao <> 'ENCERRADO'
+                     AND EXISTS (SELECT 1 FROM concurso_busca cb WHERE cb.concurso_id = c.id
+                                   AND cb.atualizado_em < now() - make_interval(days => %s))
+                     AND NOT EXISTS (SELECT 1 FROM sinal_descoberta s JOIN fonte f ON f.id = s.fonte_id
+                                     WHERE s.concurso_id = c.id
+                                       AND (f.tipo <> 'BUSCA_IA' OR s.visto_em >= now() - make_interval(days => %s)))
+                     AND NOT EXISTS (SELECT 1 FROM documento d WHERE d.concurso_id = c.id AND d.tipo = 'EDITAL'
+                                       AND d.status_extracao IN ('OK', 'SEM_TEXTO'))""",
+                (DIAS_PRE_CADASTRO_SEM_NOVIDADE, DIAS_PRE_CADASTRO_SEM_NOVIDADE),
+            ).rowcount
+        return fechadas + encerradas + esquecidas
 
     # --- classificação ---------------------------------------------------------------------------
     def codigos_area(self) -> frozenset[str]:
@@ -619,7 +793,9 @@ class Repositorio:
                       g.vagas AS cargos_vagas, coalesce(g.reserva, false) AS cargos_reserva,
                       g.salario_min AS cargos_salario_min, g.salario_max AS cargos_salario_max,
                       coalesce(g.escolaridades, '{}') AS cargos_escolaridades, coalesce(g.areas, '{}') AS cargos_areas,
-                      coalesce(i.tipos, '{}') AS isencoes
+                      coalesce(i.tipos, '{}') AS isencoes,
+                      EXISTS (SELECT 1 FROM documento d WHERE d.concurso_id = c.id AND d.tipo = 'EDITAL'
+                                AND d.status_extracao IN ('OK', 'SEM_TEXTO')) AS tem_edital
                FROM concurso c
                         LEFT JOIN orgao o ON o.id = c.orgao_id
                         LEFT JOIN banca b ON b.id = c.banca_id

@@ -24,7 +24,8 @@ Site **público e gratuito** de concursos públicos do Brasil, com informação 
 - **Informação sempre gratuita.** Monetização prevista (doações, afiliados, anúncios) apenas para cobrir custos
   e manter o projeto; regras na seção 10.
 
-O site é **alimentado pelos motores de coleta** (coletores automáticos). Não há cadastro manual de concursos.
+O site é **alimentado pelo fluxo único** (seção 6): busca na web com IA e sites das bancas descobrem; o edital
+(baixado sozinho ou enviado pelo administrador no Drive) confirma. Não há cadastro manual de dados de concursos.
 
 ### Fora do escopo (por enquanto)
 Login com senha, comentários, conteúdo de cursinho, venda de produtos próprios, cobrança pela informação,
@@ -35,10 +36,12 @@ aplicativo móvel.
 ## 2. Arquitetura
 
 ```
-                         GitHub Actions (repositório PÚBLICO, agendado 1x/dia)
+                         GitHub Actions (repositório PÚBLICO, agendado 4x/dia)
  Fontes ──► COLETOR (Python) ──► PostgreSQL (Neon) ──► GERADOR DO SITE (Java/Thymeleaf) ──► HTML estático
- (bancas,    descobrir, vincular,      ▲   │              páginas + sitemap.xml + busca.json       │
-  diários)   baixar (temporário),      │   │                                                        ▼
+ (busca IA,  descobrir, vincular,      ▲   │              páginas + sitemap.xml + busca.json       │
+  bancas,    localizar edital,         │   │              (só publica se o conteúdo mudou)          ▼
+  diários,   baixar (temporário),      │   │
+  Drive)                               │   │
              extrair, classificar,     │   └──► ALERTAS (Java) ──► serviço de e-mail ──► assinantes  site público
              estruturar, resumir       │                                                          (Cloudflare)
                                        │
@@ -46,8 +49,8 @@ aplicativo móvel.
 ```
 
 **Decisões centrais**
-- **Site estático gerado após cada coleta**: os dados mudam no máximo uma vez por dia; só as páginas que
-  mudaram são regeradas. HTML pronto dá velocidade, custo baixo, nenhuma superfície de ataque e **ótima
+- **Site estático gerado após cada coleta** (4x/dia), publicado só quando o conteúdo mudou (impressão MD5 do que
+  o site mostra + código do site + data); só os arquivos alterados sobem. HTML pronto dá velocidade, custo baixo, nenhuma superfície de ataque e **ótima
   indexação no Google** (SEO). (Decisão de 29/10/2026: avaliado e descartado site renderizado a cada acesso.)
 - **Hospedagem na Cloudflare (Workers com assets estáticos, plano grátis)**: requisições a assets estáticos são
   grátis e ilimitadas, uso comercial permitido (anúncios/afiliados), CDN, domínio próprio e deploy pelo GitHub
@@ -217,6 +220,11 @@ documento        (id, concurso_id, tipo, titulo, url_origem UNIQUE, hash_sha256,
 ★ concurso_evento  (id, concurso_id, ordem, evento, inicio?, fim?)  UNIQUE (concurso_id, ordem); nulo = "a definir"
 execucao_coleta  (id, fonte_id?, etapa, inicio, fim, status, itens_novos, mensagem_erro)
 
+-- fluxo único (V19): só o coletor enxerga
+★ busca_alvo     (alvo PK, buscado_em, sugestoes, erro)        -- última busca na web por alvo de config/busca.yml
+★ concurso_busca (concurso_id PK, dados JSONB, atualizado_em, edital_procurado_em, edital_falha)  -- pré-cadastro
+★ documento.oficial  -- false = PDF de site não oficial ou enviado à mão: lido, mas sem link no site
+
 -- fase 7 (alertas)
 ★ assinante      (id, nome, email UNIQUE (minúsculo), status[PENDENTE|ATIVO|DESCADASTRADO], criado_em,
                   confirmado_em?, consentimento_em, versao_politica, ultimo_envio_em?)
@@ -237,20 +245,25 @@ Descadastro **apaga** o assinante e o filtro (não só marca).
 
 ---
 
-## 6. Pipeline diário
+## 6. Fluxo único (4x/dia, decisão de 04/11/2026)
+
+Todas as bancas passam pelo mesmo caminho. Busca na web e coletores das bancas são só **fontes de descoberta**;
+nenhum concurso aberto vai ao site sem o edital lido.
 
 | Etapa | Quem | O que faz |
 |---|---|---|
-| 1. Descoberta | Coletor | Fontes ativas → `sinal_descoberta` (só a lista "em andamento"; páginas de concursos sem oportunidade não são relidas) |
-| 2. Vinculação/deduplicação | Coletor | Sinal → concurso (chaves do Radar TI: URL → hash → órgão+edital+ano → similaridade) |
-| 3. Documentos | Coletor | PDF em pasta temporária → hash + texto → apagado |
-| 4. Estruturação | Coletor | Cargos, datas, taxas, **seção de isenções**, calendário, disciplinas e redação por cargo, avisos |
-| 5. Classificação | Coletor | Área de cada cargo (`areas.yml`), escolaridade, abrangência/local, CNU (`destaques.yml`), situação por data |
-| 6. Resumo | Coletor | Resumo por regras + campos desnormalizados + `slug` |
-| 7. Site | Gerador (Java) | Páginas HTML, `busca.json`, `sitemap.xml`, `robots.txt` (só o que mudou) → Cloudflare |
-| 8. Alertas | Alertas (Java) | Para cada assinante ativo: concursos novos que batem com o filtro → e-mail |
+| 0. Drive | `importar-drive` | PDF com o código `NQ-<id>` no nome vira o edital daquele concurso (`oficial = false`); subpastas por banca continuam para concursos novos |
+| 1. Descoberta | Fontes | **busca-ia** (Gemini com Busca Google; OpenRouter de reserva) pesquisa os alvos de `config/busca.yml` (bancas sem coletor + federais + 5 regiões), cada um no máximo a cada `COLETOR_BUSCA_INTERVALO_H` (11 h ⇒ 2x/dia) e até `COLETOR_BUSCA_MAX_ALVOS` por execução; cada sugestão **confirmada** (página nas fontes da busca) e **oficial** (domínio da banca ou de órgão público) vira sinal com o pré-cadastro. Sites das bancas e DOE-SP como antes |
+| 2. Vinculação | Coletor | Sinal → concurso. Deduplicação: mesma página; senão mesmo órgão (nome normalizado) com UF, banca e ano compatíveis; na dúvida, `possivel_duplicado`. Se outra fonte já tem o concurso, a busca só guarda o pré-cadastro (`concurso_busca`); se a fonte da banca acha depois um concurso que só a busca tinha, a página da banca vira a oficial |
+| 3. Localizar edital | Coletor | Pré-cadastros abertos sem edital: o PDF indicado pela busca; senão o PDF "edital … abertura" da página oficial. Tentativa a cada 20 h |
+| 4. Documentos | Coletor | Download temporário + texto. Edital de pré-cadastro pode vir de **qualquer site público** (HTTPS, robots.txt, nunca IP/rede interna); se não for oficial, nunca vira link no site |
+| 5. Estruturação | Coletor | Regras + IA (camada 2) leem o edital; depois o pré-cadastro **só preenche lacunas** ("informado pela busca na web… confira o edital"); divergências ficam no log e vale o edital |
+| 6. Classificação e resumo | Coletor | Como antes. **Publicado** = local definido + oportunidade + (previsto **ou** edital lido) |
+| 7. Pendências | `pendencias --email` | 1x/dia: concursos abertos que aguardam edital, com código, página, PDF sugerido e motivo da falha |
+| 8. Site | Gerador (Java) | Só publica se a impressão mudou (cache do Actions guarda a última publicada do dia) |
 
-A coleta inicial é limitada por execução (ex.: 60 editais/dia) e drena o acúmulo em poucos dias.
+Pré-cadastro que a busca deixa de achar por 30 dias sem nunca ter edital vira `ENCERRADO`. O "saiu da lista da
+banca há 10 dias" vale só para fontes de site de banca (diário, Drive e busca não "repetem" o concurso).
 
 **Foco em oportunidades no coletor** (`SEM_OPORTUNIDADE` em `db.py`, constantes em `pipeline/comum.py`):
 - a FGV não separa "inscrições abertas" na listagem, então cada concurso novo tem a página lida uma vez;
@@ -608,3 +621,10 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       `ntconcursos.com.br` (antes apontavam para o `*.workers.dev`); `workers.dev` desligado; fichas de concurso
       sem nenhum dado útil (`Concurso.dadosInsuficientes`) com `noindex` e fora do sitemap; página `/contato/`
       com e-mail e link no rodapé
+- [x] Fluxo único para todas as bancas (04/11/2026, seção 6): busca na web com IA grava pré-cadastros (fonte
+      `busca-ia`, alvos em `config/busca.yml`, 2x/dia por alvo); edital achado e baixado sozinho (de qualquer site
+      público permitido) ou enviado pelo Drive com o código `NQ-<id>`; o edital sempre vence e o pré-cadastro só
+      completa lacunas; aberto só vai ao site com edital lido (previsto vai sem); deduplicação entre busca e sites
+      das bancas; e-mail diário de pendências; `diario` 4x/dia e site publicado só quando o conteúdo muda. V19
+      (`busca_alvo`, `concurso_busca`, `documento.oficial`). O relatório da busca assistida e o workflow `buscar`
+      saíram (substituídos pelo pré-cadastro e pelo e-mail de pendências).

@@ -16,7 +16,7 @@ from pdfminer.pdfdocument import PDFPasswordIncorrect
 from pdfminer.pdfparser import PDFSyntaxError
 
 from coletor.db import Repositorio
-from coletor.http_cliente import AcessoNaoPermitido, ClienteHttp, ErroHttp
+from coletor.http_cliente import QUALQUER_DOMINIO_PUBLICO, AcessoNaoPermitido, ClienteHttp, ErroHttp
 from coletor.pipeline.comum import DIAS_FOLGA_INSCRICAO, ResumoEtapa, agora, hoje
 from coletor.texto import limitar
 
@@ -82,11 +82,20 @@ def executar_documentos(
 
     processados = 0
     falhas: list[str] = []
-    with criar_http(dominios) as http, tempfile.TemporaryDirectory(prefix="nqntech-pdf-") as pasta:
+    # Editais de pré-cadastros (busca na web) podem estar em qualquer site público; os demais, só nos domínios das
+    # fontes. Os dois clientes seguem as mesmas regras (HTTPS, robots.txt, intervalo, tamanho).
+    with (
+        criar_http(dominios) as http,
+        criar_http(QUALQUER_DOMINIO_PUBLICO) as livre,
+        tempfile.TemporaryDirectory(prefix="nqntech-pdf-") as pasta,
+    ):
         for documento in pendentes:
             url = documento["url_origem"]
+            if url.startswith("manual:"):
+                continue  # importado à mão: o texto chega junto com o arquivo, não há o que baixar
+            cliente = livre if documento.get("dominio_livre") else http
             try:
-                download = http.baixar_pdf(url, Path(pasta), max_bytes)
+                download = cliente.baixar_pdf(url, Path(pasta), max_bytes)
             except ErroHttp as erro:
                 repo.retomar_conexao()
                 log.warning("download recusado/falhou: %s", erro)

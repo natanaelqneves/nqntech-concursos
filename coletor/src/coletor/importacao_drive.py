@@ -3,7 +3,9 @@
 Estrutura esperada (a pasta é compartilhada como Editor com a conta de serviço):
 
     <pasta de entrada>/
-        FCC/            ← uma subpasta por banca, com a sigla como nome (ou OUTRA)
+        NQ-123 edital.pdf   ← edital de um concurso aguardando edital: o código (do e-mail de pendências) no nome
+                              liga o PDF ao concurso; pode ficar aqui ou em qualquer subpasta
+        FCC/            ← uma subpasta por banca, com a sigla como nome (ou OUTRA), para concursos novos
             edital-trt4.pdf   (link oficial na "descrição" do arquivo no Drive; opcional)
             processados/      ← criada pelo coletor: PDFs importados vão para cá
             recusados/        ← PDFs que falharam nas regras (protegido, corrompido, grande demais...)
@@ -26,7 +28,14 @@ from typing import Any
 import httpx
 
 from coletor.db import Repositorio
-from coletor.importacao_manual import ImportacaoInvalida, importar_arquivos, validar_link
+from coletor.importacao_manual import (
+    ImportacaoInvalida,
+    anexar_ao_concurso,
+    codigo_no_nome,
+    importar_arquivos,
+    ler_pdf,
+    validar_link,
+)
 from coletor.pipeline.comum import ResumoEtapa
 
 log = logging.getLogger(__name__)
@@ -116,11 +125,52 @@ class Drive:
             raise ErroDrive(f"Drive: não moveu o arquivo: HTTP {resposta.status_code}")
 
 
+def _anexar_com_codigo(
+    repo: Repositorio, drive: Drive, pasta_id: str, pdfs: list[ArquivoDrive], max_bytes: int
+) -> ResumoEtapa | None:
+    """PDFs com o código do concurso no nome: viram o edital daquele concurso."""
+    if not pdfs:
+        return None
+    falhas: list[str] = []
+    anexados = 0
+    with tempfile.TemporaryDirectory(prefix="nqntech-drive-") as tmp:
+        for numero, pdf in enumerate(pdfs):
+            codigo = codigo_no_nome(pdf.nome)
+            assert codigo is not None
+            caminho = Path(tmp) / f"{numero:03d}-{Path(pdf.nome).name}"
+            drive.baixar(pdf.id, caminho, max_bytes)
+            lido = anexar_ao_concurso(repo, codigo, ler_pdf(caminho, max_bytes, None))
+            caminho.unlink(missing_ok=True)
+            if lido.status == "FALHA":
+                falhas.append(f"{pdf.nome}: {lido.motivo}")
+                drive.mover(pdf.id, pasta_id, drive.subpasta(pasta_id, RECUSADOS))
+            else:
+                anexados += 1
+                drive.mover(pdf.id, pasta_id, drive.subpasta(pasta_id, PROCESSADOS))
+    status = "SUCESSO" if not falhas else ("FALHA" if not anexados else "PARCIAL")
+    log.info("Drive: %d editais anexados pelo código, %d recusados", anexados, len(falhas))
+    return ResumoEtapa("IMPORTACAO_DRIVE", status, anexados, "; ".join(falhas) or None)
+
+
 def importar_do_drive(repo: Repositorio, drive: Drive, pasta_entrada: str, max_bytes: int) -> list[ResumoEtapa]:
     resumos: list[ResumoEtapa] = []
+    na_raiz = [ArquivoDrive(i["id"], i["name"], i.get("description")) for i in drive.listar(pasta_entrada, False)]
+    resumo_codigo = _anexar_com_codigo(
+        repo, drive, pasta_entrada, [p for p in na_raiz if codigo_no_nome(p.nome) is not None], max_bytes
+    )
+    resumos += [resumo_codigo] if resumo_codigo else []
+    for pdf in na_raiz:
+        if codigo_no_nome(pdf.nome) is None:
+            log.warning("Drive: %s está na raiz sem código NQ-<número> no nome; ficou na pasta", pdf.nome)
     for pasta_banca in drive.listar(pasta_entrada, so_pastas=True):
         banca = str(pasta_banca["name"]).strip().upper()
-        pdfs = [ArquivoDrive(i["id"], i["name"], i.get("description")) for i in drive.listar(pasta_banca["id"], False)]
+        if banca in (PROCESSADOS.upper(), RECUSADOS.upper()):
+            continue
+        todos = [ArquivoDrive(i["id"], i["name"], i.get("description")) for i in drive.listar(pasta_banca["id"], False)]
+        com_codigo = [p for p in todos if codigo_no_nome(p.nome) is not None]
+        resumo_codigo = _anexar_com_codigo(repo, drive, pasta_banca["id"], com_codigo, max_bytes)
+        resumos += [resumo_codigo] if resumo_codigo else []
+        pdfs = [p for p in todos if codigo_no_nome(p.nome) is None]
         if not pdfs:
             continue
         if repo.fonte_manual(banca) is None:

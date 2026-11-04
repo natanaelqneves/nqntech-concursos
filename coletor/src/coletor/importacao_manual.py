@@ -210,3 +210,48 @@ def importar_arquivos(
     falhas = [f"{p.arquivo.name}: {p.motivo}" for p in lidos if p.status == "FALHA"]
     status = "SUCESSO" if not falhas else ("FALHA" if not validos else "PARCIAL")
     return ResumoEtapa("IMPORTACAO_MANUAL", status, len(validos), "; ".join(falhas) or None, fonte.nome), lidos
+
+
+# Código que o e-mail de pendências mostra para cada concurso aguardando edital ("NQ-123"). No nome do arquivo, liga
+# o PDF ao concurso certo sem depender de banca, link ou título.
+_CODIGO = re.compile(r"(?<![A-Za-z0-9])NQ[-_ ]?(\d{1,9})(?!\d)", re.IGNORECASE)
+
+
+def codigo_do_concurso(concurso_id: int) -> str:
+    return f"NQ-{concurso_id}"
+
+
+def codigo_no_nome(nome: str) -> int | None:
+    achado = _CODIGO.search(nome)
+    return int(achado.group(1)) if achado else None
+
+
+def anexar_ao_concurso(repo: Repositorio, concurso_id: int, pdf: PdfLido) -> PdfLido:
+    """PDF enviado para um concurso já cadastrado (pelo código no nome). Entra como edital do concurso; não vira
+    link no site (oficial = false: o administrador pode ter baixado de qualquer lugar). Devolve o PdfLido com o
+    status final (FALHA se o código não existe)."""
+    if pdf.status == "FALHA":
+        return pdf
+    if not repo.concurso_existe(concurso_id):
+        repo.conn.rollback()
+        return PdfLido(pdf.arquivo, pdf.sha256, None, "FALHA", pdf.link, f"código {codigo_do_concurso(concurso_id)} "
+                       "não existe")  # fmt: skip
+    tipo = classificar_tipo_documento(titulo_do_arquivo(pdf.arquivo))
+    # Identificador por concurso: o mesmo PDF pode ter sido importado antes para outro concurso (url_origem é única).
+    url = f"{pdf.url_documento}#{codigo_do_concurso(concurso_id)}"
+    with repo.transacao():
+        repo.garantir_documento(
+            concurso_id,
+            "EDITAL" if tipo == "OUTRO" else tipo,
+            titulo_do_arquivo(pdf.arquivo),
+            url,
+            None,
+            oficial=False,
+        )
+    documento_id = repo.documento_por_url(url)
+    repo.conn.commit()
+    if documento_id is None:
+        return PdfLido(pdf.arquivo, pdf.sha256, None, "FALHA", pdf.link, "documento não gravado")
+    repo.salvar_extracao(documento_id, pdf.sha256, pdf.texto, pdf.status)
+    log.info("%s anexado ao concurso %s (%s)", pdf.arquivo.name, codigo_do_concurso(concurso_id), pdf.status)
+    return pdf

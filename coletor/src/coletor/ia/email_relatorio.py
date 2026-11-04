@@ -1,4 +1,4 @@
-"""Envio do relatório da busca assistida por e-mail (SMTP com STARTTLS; ex.: Gmail com senha de app)."""
+"""E-mail para o administrador (pendências do fluxo): SMTP com STARTTLS, ex.: Gmail com senha de app."""
 
 from __future__ import annotations
 
@@ -8,7 +8,6 @@ import ssl
 from collections.abc import Mapping
 from dataclasses import dataclass
 from email.message import EmailMessage
-from pathlib import Path
 
 log = logging.getLogger(__name__)
 
@@ -37,13 +36,12 @@ class ConfigEmail:
         return f"ConfigEmail(host={self.host!r}, porta={self.porta}, usuario={self.usuario!r})"
 
 
-def montar_mensagem(config: ConfigEmail, assunto: str, markdown: Path, csv: Path) -> EmailMessage:
+def montar_mensagem(config: ConfigEmail, assunto: str, corpo: str) -> EmailMessage:
     mensagem = EmailMessage()
     mensagem["Subject"] = assunto
     mensagem["From"] = config.usuario
     mensagem["To"] = config.destino
-    mensagem.set_content(markdown.read_text(encoding="utf-8"))
-    mensagem.add_attachment(csv.read_bytes(), maintype="text", subtype="csv", filename=csv.name)
+    mensagem.set_content(corpo)
     return mensagem
 
 
@@ -52,4 +50,4 @@ def enviar(config: ConfigEmail, mensagem: EmailMessage) -> None:
         smtp.starttls(context=ssl.create_default_context())
         smtp.login(config.usuario, config.senha)
         smtp.send_message(mensagem)
-    log.info("relatório enviado por e-mail")
+    log.info("e-mail enviado ao administrador")

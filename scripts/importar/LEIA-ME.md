@@ -24,19 +24,9 @@ abertas, previsto ou isenção em prazo). O PDF não é copiado: só o texto vai
 Rodar de novo com os mesmos arquivos não duplica nada. O site é atualizado na próxima execução do `diario`
 (ou rode o workflow `site` no GitHub Actions).
 
-# Descobrir concursos abertos (antes de importar)
+# Concurso aguardando edital (mais simples: pelo Drive)
 
-`scripts\importar\buscar_concursos.bat` (ou `.sh`; aceita siglas: `buscar_concursos.bat FCC VUNESP`) pede ao Gemini,
-com a Busca Google, os concursos abertos de cada banca sem coleta automática. O script **não acessa** o site das
-bancas e **não grava nada** no banco: gera `buscas/concursos-sugeridos-AAAA-MM-DD.md` e `.csv` para você conferir.
-
-- ✅ = link no domínio da banca ou de órgão público; ⚠️ = outro site (blog, notícia): confira com cuidado.
-- 🔎 = o domínio apareceu nas fontes que a busca devolveu. **Sem 🔎 o link pode ter sido inventado pela IA.**
-- Prazos vindos da IA são indicativos: vale sempre o edital.
-
-Basta `GEMINI_API_KEY` no `.env`. A busca do Google tem cota diária gratuita; acima dela o Google cobra (ver o
-painel do AI Studio). Depois de conferir, baixe os PDFs no navegador e use `importar_pdfs`.
-
-Para receber por e-mail ao rodar no PC: coloque `SMTP_USUARIO`, `SMTP_SENHA` (senha de app do Gmail) e
-`BUSCA_EMAIL_DESTINO` no `.env` e rode `python -m coletor buscar-concursos --email`. No GitHub, o workflow
-`buscar` faz isso todo dia (secrets em docs/PENDENCIAS.md).
+O fluxo diário já pesquisa os concursos na web, cria o pré-cadastro e tenta baixar o edital sozinho. Quando não
+consegue, manda um e-mail com o **código** de cada concurso (ex.: `NQ-123`). Baixe o PDF no navegador e ponha na
+pasta do Drive com o código no nome (`NQ-123 edital.pdf`), na raiz ou em qualquer subpasta: a execução seguinte do
+`diario` (4 vezes por dia) liga o arquivo ao concurso, lê o edital e atualiza o site.

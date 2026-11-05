@@ -137,37 +137,214 @@ def limitar(texto: str | None, maximo: int) -> str | None:
     return texto if len(texto) <= maximo else texto[:maximo]
 
 
-_PREPOSICOES = frozenset({"de", "da", "do", "das", "dos", "e", "em", "para", "a", "o", "com", "na", "no"})
+_PREPOSICOES = frozenset(
+    {
+        "de",
+        "da",
+        "do",
+        "das",
+        "dos",
+        "e",
+        "em",
+        "para",
+        "a",
+        "o",
+        "as",
+        "os",
+        "à",
+        "às",
+        "ao",
+        "aos",
+        "com",
+        "na",
+        "no",
+        "nas",
+        "nos",
+        "por",
+        "pela",
+        "pelo",
+        "ou",
+    }
+)
 _SIGLAS_MINUSCULAS = frozenset({"ti", "tic"})
+# Siglas com vogal que a regra "sem vogal = sigla" não pega. Nomes que viraram palavra (Petrobras, Embrapa, Detran
+# em textos corridos) ficam de fora de propósito: a forma usual deles é só a inicial maiúscula.
+_SIGLAS_COM_VOGAL = frozenset(
+    [
+        "ABIN",
+        "AGE",
+        "AGU",
+        "ALEAM",
+        "ALEAP",
+        "ALEMG",
+        "ALEPA",
+        "ALEPB",
+        "ALEPE",
+        "ALERJ",
+        "ALESP",
+        "ALECE",
+        "ALEGO",
+        "ALEMS",
+        "ALES",
+        "ALESC",
+        "ALETO",
+        "ANA",
+        "ANAC",
+        "ANATEL",
+        "ANEEL",
+        "ANM",
+        "ANP",
+        "ANS",
+        "ANTAQ",
+        "ANVISA",
+        "AOCP",
+        "BACEN",
+        "CAPES",
+        "CAPS",
+        "CEBRASPE",
+        "CESGRANRIO",
+        "CNU",
+        "COMPERVE",
+        "CONSULPLAN",
+        "CRAS",
+        "CREAS",
+        "DEPEN",
+        "DETRAN",
+        "DNIT",
+        "DPE",
+        "DPU",
+        "EBSERH",
+        "FEPESE",
+        "FUNAI",
+        "FUNDATEC",
+        "FUNRIO",
+        "IADES",
+        "IBADE",
+        "IBAM",
+        "IBAMA",
+        "IBFC",
+        "IBGE",
+        "ICMBIO",
+        "IDECAN",
+        "INCRA",
+        "INEP",
+        "INPI",
+        "INSS",
+        "IPEA",
+        "IPHAN",
+        "MPE",
+        "MPU",
+        "OAB",
+        "PGE",
+        "PGM",
+        "PRODAM",
+        "SAEB",
+        "SAMU",
+        "SEAD",
+        "SEAP",
+        "SEDUC",
+        "SEFAZ",
+        "SEJUS",
+        "SEJUSP",
+        "SELECON",
+        "SEMOB",
+        "SEPLAG",
+        "SESA",
+        "SESAU",
+        "SESP",
+        "SUS",
+        "TCE",
+        "TCM",
+        "TCU",
+        "UEPB",
+        "UERJ",
+        "UESPI",
+        "UNEB",
+        "UNEMAT",
+        "UPA",
+        "VUNESP",
+    ]
+)
+# "XXXIX Concurso", "II Processo Seletivo"; a forma válida evita confundir com palavras como "CIVIL".
+_ROMANO = re.compile(r"^M{0,3}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})$")
+# Instituto/universidade federal: IFPB, IFRN, UFPB, UFCG, UFRGS.
+_SIGLA_FEDERAL = re.compile(r"^(?:IF|UF)[A-Z]{2,4}$")
+_ABREVIACAO = re.compile(r"^(?:[A-Z]\.)+[A-Z]\.?$")  # "S.A.", "E.E."
 
 
 def titulo_portugues(texto: str) -> str:
-    """'TRIBUNAL DE JUSTIÇA DA PARAÍBA' → 'Tribunal de Justiça da Paraíba'. Só mexe em texto todo maiúsculo.
-    Preserva siglas sem vogal ("PMSP"), UFs após barra ("Lages/SC"), códigos com dígitos ("CREF22") e TI/TIC."""
+    """'TRIBUNAL DE JUSTIÇA DA PARAÍBA' → 'Tribunal de Justiça da Paraíba': inicial maiúscula, preposições em
+    minúsculas e siglas em caixa alta. Em texto todo maiúsculo trata todas as palavras; em texto misto, só os
+    trechos com duas ou mais palavras seguidas em caixa alta ("Concurso PREFEITURA DE SAPÉ"), porque uma palavra
+    maiúscula isolada no meio de texto normal costuma ser sigla de propósito. Idempotente."""
     texto = colapsar_espacos(texto)
-    if texto != texto.upper() or not any(c.isalpha() for c in texto):
+    palavras = texto.split()
+    if not palavras:
         return texto
-    return " ".join(_palavra_titulo(p, i) for i, p in enumerate(texto.split()))
+    maiusculas = [_em_caixa_alta(p) for p in palavras]
+    if all(maiusculas):
+        return " ".join(_palavra_titulo(p, i) for i, p in enumerate(palavras))
+    resultado = list(palavras)
+    i = 0
+    while i < len(palavras):
+        if not maiusculas[i]:
+            i += 1
+            continue
+        fim = i
+        while fim < len(palavras) and maiusculas[fim]:
+            fim += 1
+        trecho = range(i, fim)
+        if sum(1 for j in trecho if _tem_letras(palavras[j])) >= 2:
+            for j in trecho:
+                resultado[j] = _palavra_titulo(palavras[j], j)
+        i = fim
+    return " ".join(resultado)
+
+
+def _tem_letras(palavra: str) -> bool:
+    return any(c.isalpha() for c in palavra)
+
+
+def _em_caixa_alta(palavra: str) -> bool:
+    # Sem letras ("2026", "–") não quebra o trecho: "PREFEITURA – SAPÉ" é um trecho só.
+    return palavra == palavra.upper()
+
+
+def _eh_sigla(palavra: str) -> bool:
+    if _ABREVIACAO.match(palavra.strip(",;:()")):
+        return True
+    base = palavra.strip(".,;:()")
+    if not base or not base.isalpha() or base != base.upper():
+        return False
+    return (
+        not set(normalizar(base)) & set("aeiou")
+        or base in _SIGLAS_COM_VOGAL
+        or base in _SIGLAS_UF
+        or _SIGLA_FEDERAL.match(base) is not None
+        or _ROMANO.match(base) is not None
+    )
 
 
 def _palavra_titulo(palavra: str, posicao: int) -> str:
     if "/" in palavra or "-" in palavra.strip("-"):
-        # "Lages/SC", "Mun.-TI": cada parte é tratada sozinha; UF só é reconhecida depois da barra.
+        # "Lages/SC", "SEAD-AP", "Mun.-TI": cada parte é tratada sozinha; UF depois de barra ou hífen fica maiúscula.
         partes = re.split(r"([/-])", palavra)
         return "".join(
-            p if p in "/-" or (i > 1 and partes[i - 1] == "/" and p in _SIGLAS_UF) else _palavra_titulo(p, posicao + i)
+            p if p in "/-" or (i > 1 and partes[i - 1] in "/-" and p in _SIGLAS_UF) else _palavra_titulo(p, posicao + i)
             for i, p in enumerate(partes)
         )
     minuscula = palavra.lower()
-    if (
-        any(c.isdigit() for c in palavra)
-        or minuscula.strip(".") in _SIGLAS_MINUSCULAS
-        or (palavra.isalpha() and not set(normalizar(palavra)) & set("aeiou"))
-    ):
+    if any(c.isdigit() for c in palavra) or minuscula.strip(".") in _SIGLAS_MINUSCULAS:
+        return palavra.upper() if minuscula.strip(".") in _SIGLAS_MINUSCULAS else palavra
+    if _eh_sigla(palavra):
         return palavra
     if posicao > 0 and minuscula in _PREPOSICOES:
         return minuscula
-    return minuscula[:1].upper() + minuscula[1:]
+    # Primeira letra, não primeiro caractere: "(CORPO" → "(Corpo".
+    for i, c in enumerate(minuscula):
+        if c.isalpha():
+            return minuscula[:i] + c.upper() + minuscula[i + 1 :]
+    return minuscula
 
 
 _SIGLAS_UF = frozenset(UFS.values())

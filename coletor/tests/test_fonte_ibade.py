@@ -40,8 +40,8 @@ def test_lotacao_sai_do_nome_e_cargos_repetidos_viram_um(fixture_texto):
     dados = parse_edital(fixture_texto("ibade/edital_128.html"), "u", "INSCRICOES_ABERTAS").estruturado
     assert dados.uf == "RO"
     assert [c.nome for c in dados.cargos] == [
-        "Prestador Voluntário de Serviços Administrativos (CORPO DE BOMBEIROS MILITAR)",
-        "Prestador Voluntário de Serviços Administrativos (POLÍCIA MILITAR)",
+        "Prestador Voluntário de Serviços Administrativos (Corpo de Bombeiros Militar)",
+        "Prestador Voluntário de Serviços Administrativos (Polícia Militar)",
     ]
 
 

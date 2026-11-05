@@ -85,6 +85,7 @@ def test_limitar_remove_nul_e_corta():
         ("PREFEITURA DE SAPÉ PB", "Prefeitura de Sapé PB"),
         ("AGENTE DE TRÂNSITO DA SEMOB", "Agente de Trânsito da SEMOB"),
         ("COMPANHIA ESTADUAL S.A.", "Companhia Estadual S.A."),
+        ("Prestador Voluntário (CORPO DE BOMBEIROS MILITAR)", "Prestador Voluntário (Corpo de Bombeiros Militar)"),
         # Texto misto: só o trecho com duas ou mais palavras em caixa alta muda; sigla isolada fica.
         ("Concurso Público PREFEITURA MUNICIPAL DE SÃO JOSÉ", "Concurso Público Prefeitura Municipal de São José"),
         ("Concurso do DETRAN-PB 2026", "Concurso do DETRAN-PB 2026"),

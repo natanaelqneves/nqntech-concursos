@@ -340,7 +340,11 @@ def _palavra_titulo(palavra: str, posicao: int) -> str:
         return palavra
     if posicao > 0 and minuscula in _PREPOSICOES:
         return minuscula
-    return minuscula[:1].upper() + minuscula[1:]
+    # Primeira letra, não primeiro caractere: "(CORPO" → "(Corpo".
+    for i, c in enumerate(minuscula):
+        if c.isalpha():
+            return minuscula[:i] + c.upper() + minuscula[i + 1 :]
+    return minuscula
 
 
 _SIGLAS_UF = frozenset(UFS.values())

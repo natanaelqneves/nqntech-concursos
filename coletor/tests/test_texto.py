@@ -76,10 +76,26 @@ def test_limitar_remove_nul_e_corta():
         ("ANALISTA FISC. MUN.-TI", "Analista Fisc. Mun.-TI"),
         ("AUXILIAR - ADMINISTRATIVO", "Auxiliar - Administrativo"),
         ("Já Em Caixa Mista", "Já Em Caixa Mista"),
+        ("INSTITUTO NACIONAL DO SEGURO SOCIAL - INSS", "Instituto Nacional do Seguro Social - INSS"),
+        ("SECRETARIA DE ESTADO DA FAZENDA - SEFAZ/AL", "Secretaria de Estado da Fazenda - SEFAZ/AL"),
+        ("XXXIX CONCURSO PARA PROMOTOR DE JUSTIÇA", "XXXIX Concurso para Promotor de Justiça"),
+        ("POLÍCIA CIVIL DO ESTADO DO PIAUÍ", "Polícia Civil do Estado do Piauí"),
+        ("UNIVERSIDADE FEDERAL DA PARAÍBA (UFPB)", "Universidade Federal da Paraíba (UFPB)"),
+        ("SECRETARIA DE ADMINISTRAÇÃO SEAD-AP", "Secretaria de Administração SEAD-AP"),
+        ("PREFEITURA DE SAPÉ PB", "Prefeitura de Sapé PB"),
+        ("AGENTE DE TRÂNSITO DA SEMOB", "Agente de Trânsito da SEMOB"),
+        ("COMPANHIA ESTADUAL S.A.", "Companhia Estadual S.A."),
+        # Texto misto: só o trecho com duas ou mais palavras em caixa alta muda; sigla isolada fica.
+        ("Concurso Público PREFEITURA MUNICIPAL DE SÃO JOSÉ", "Concurso Público Prefeitura Municipal de São José"),
+        ("Concurso do DETRAN-PB 2026", "Concurso do DETRAN-PB 2026"),
+        ("Tribunal Regional do Trabalho da 5ª Região (TRT-5)", "Tribunal Regional do Trabalho da 5ª Região (TRT-5)"),
+        ("Concurso Nacional Unificado - CNU 2", "Concurso Nacional Unificado - CNU 2"),
+        ("", ""),
     ],
 )
 def test_titulo_portugues(texto, esperado):
     assert titulo_portugues(texto) == esperado
+    assert titulo_portugues(esperado) == esperado  # idempotente: aplicar na fonte e de novo ao gravar não muda nada
 
 
 @pytest.mark.parametrize(

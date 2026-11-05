@@ -21,6 +21,7 @@ from coletor.classificacao.orgao import OrgaoInferido
 from coletor.config import ConfigBanco
 from coletor.extratores.base import CargoExtraido, EditalExtraido
 from coletor.fontes.base import DadosEstruturados, SinalDescoberta
+from coletor.texto import titulo_portugues
 
 log = logging.getLogger(__name__)
 
@@ -206,7 +207,7 @@ class Repositorio:
             """INSERT INTO orgao (nome, esfera, uf, municipio) VALUES (%s, %s, %s, %s)
                ON CONFLICT ON CONSTRAINT orgao_uk DO UPDATE SET nome = EXCLUDED.nome
                RETURNING id""",
-            (orgao.nome[:300], orgao.esfera, orgao.uf, orgao.municipio),
+            (titulo_portugues(orgao.nome)[:300], orgao.esfera, orgao.uf, orgao.municipio),
         ).fetchone()
         assert linha is not None
         return int(linha["id"])
@@ -240,7 +241,7 @@ class Repositorio:
                                                THEN 'EM_ANDAMENTO' ELSE concurso.situacao END)
                RETURNING id""",
             {
-                "titulo": titulo[:1000],
+                "titulo": titulo_portugues(titulo)[:1000],
                 "link": link_oficial,
                 "banca": banca_id,
                 "orgao": orgao_id,
@@ -538,9 +539,10 @@ class Repositorio:
 
     def _substituir_cargos_se_mudaram(self, concurso_id: int, cargos: Sequence[CargoExtraido]) -> bool:
         def chave(c: Any) -> tuple:
+            # Mesma normalização da gravação: senão o nome da fonte em caixa alta parece mudança a cada coleta.
             return (
-                c.nome,
-                c.especialidade,
+                titulo_portugues(c.nome)[:300],
+                c.especialidade and titulo_portugues(c.especialidade)[:300],
                 c.escolaridade,
                 c.vagas,
                 c.cadastro_reserva,
@@ -568,8 +570,8 @@ class Repositorio:
                    ON CONFLICT ON CONSTRAINT cargo_uk DO NOTHING""",
                 (
                     concurso_id,
-                    cargo.nome[:300],
-                    cargo.especialidade and cargo.especialidade[:300],
+                    titulo_portugues(cargo.nome)[:300],
+                    cargo.especialidade and titulo_portugues(cargo.especialidade)[:300],
                     cargo.escolaridade,
                     cargo.vagas,
                     cargo.cadastro_reserva,
@@ -736,6 +738,7 @@ class Repositorio:
 
     def renomear_concurso(self, concurso_id: int, titulo: str) -> None:
         """Título novo; o slug (feito do nome do arquivo) é refeito na etapa de resumo."""
+        titulo = titulo_portugues(titulo)
         with self.transacao():
             self.conn.execute(
                 "UPDATE concurso SET titulo = %s, slug = NULL WHERE id = %s AND titulo IS DISTINCT FROM %s",

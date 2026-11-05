@@ -4,6 +4,7 @@ edital enviado pelo Drive com o código; fonte da banca adotando o pré-cadastro
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import date, timedelta
 from decimal import Decimal
 from pathlib import Path
@@ -179,6 +180,21 @@ def test_edital_pelo_drive_com_o_codigo_e_pendencias(ambiente, conn_admin, limpa
 
     orquestrador.executar(("estruturar", "classificar", "resumir"))
     assert concurso(conn_admin, SEM_EDITAL)["origem_estrutura"] == "EDITAL"
+
+    # Cronograma enviado depois: entra como complemento (não substitui o edital) e o concurso é relido.
+    cronograma = ler_pdf(PDFS / "retificacao_mini.pdf", 5 * 1024 * 1024, None)
+    cronograma = replace(cronograma, arquivo=Path(f"NQ-{pre['id']} cronograma.pdf"))
+    assert anexar_ao_concurso(repo, pre["id"], cronograma).status in ("OK", "SEM_TEXTO")
+    tipos = conn_admin.execute(
+        "SELECT tipo FROM concursos.documento WHERE concurso_id = %s ORDER BY id", (pre["id"],)
+    ).fetchall()
+    assert [t["tipo"] for t in tipos] == ["EDITAL", "OUTRO"]
+    assert concurso(conn_admin, SEM_EDITAL)["edital_documento_id"] is None  # vai ser relido
+    pendentes = [c for c in repo.concursos_para_estruturar() if c["id"] == pre["id"]]
+    repo.conn.commit()
+    assert len(pendentes) == 1 and pendentes[0]["texto_extraido"]  # o edital continua sendo a base
+    orquestrador.executar(("estruturar",))
+    assert concurso(conn_admin, SEM_EDITAL)["edital_documento_id"] is not None
 
 
 def test_fonte_da_banca_adota_o_pre_cadastro_sem_duplicar(ambiente, conn_admin, limpar):

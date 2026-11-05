@@ -396,6 +396,42 @@ class Repositorio:
         self.conn.commit()
         return linha is not None
 
+    def reestruturar(self, concurso_id: int) -> None:
+        """Arquivo novo para o concurso (cronograma, retificação): a próxima estruturação relê tudo."""
+        self.conn.execute("UPDATE concurso SET edital_documento_id = NULL WHERE id = %s", (concurso_id,))
+
+    def novos_da_busca(self, horas: int = 24) -> list[Linha]:
+        return self.conn.execute(
+            """SELECT c.id, coalesce(o.nome, c.titulo) AS orgao, b.sigla AS banca, c.situacao, c.inscricao_fim,
+                      c.link_oficial, c.publicado
+               FROM concurso c JOIN concurso_busca cb ON cb.concurso_id = c.id
+                               LEFT JOIN orgao o ON o.id = c.orgao_id
+                               LEFT JOIN banca b ON b.id = c.banca_id
+               WHERE c.criado_em >= now() - make_interval(hours => %s) AND c.situacao <> 'ENCERRADO'
+               ORDER BY c.id""",
+            (horas,),
+        ).fetchall()
+
+    def dados_faltando(self) -> list[Linha]:
+        """Concursos no site (exceto previstos, que não têm edital) sem algum dado que a ficha mostra."""
+        return self.conn.execute(
+            """SELECT c.id, coalesce(o.nome, c.titulo) AS orgao, b.sigla AS banca, c.inscricao_fim, c.link_oficial,
+                      array_remove(ARRAY[
+                          CASE WHEN c.inscricao_fim IS NULL THEN 'fim das inscrições' END,
+                          CASE WHEN c.data_prova IS NULL THEN 'data da prova' END,
+                          CASE WHEN c.total_vagas IS NULL THEN 'vagas' END,
+                          CASE WHEN c.salario_max IS NULL THEN 'salário' END,
+                          CASE WHEN c.taxa_max IS NULL THEN 'taxa' END,
+                          CASE WHEN c.tem_isencao AND c.isencao_fim IS NULL THEN 'prazo da isenção' END
+                      ], NULL) AS faltam
+               FROM concurso c LEFT JOIN orgao o ON o.id = c.orgao_id
+                               LEFT JOIN banca b ON b.id = c.banca_id
+               WHERE c.publicado AND c.situacao <> 'PREVISTO'
+                 AND (c.inscricao_fim IS NULL OR c.data_prova IS NULL OR c.total_vagas IS NULL
+                      OR c.salario_max IS NULL OR c.taxa_max IS NULL OR (c.tem_isencao AND c.isencao_fim IS NULL))
+               ORDER BY c.inscricao_fim NULLS LAST, c.id"""
+        ).fetchall()
+
     def concurso_existe(self, concurso_id: int) -> bool:
         return self.conn.execute("SELECT 1 FROM concurso WHERE id = %s", (concurso_id,)).fetchone() is not None
 
@@ -596,16 +632,24 @@ class Repositorio:
     def concursos_para_estruturar(self) -> list[Linha]:
         return self.conn.execute(
             """SELECT c.id, c.orgao_id, o.uf AS orgao_uf, b.sigla AS banca, e.id AS documento_id, e.texto_extraido,
-                      e.hash_sha256, cb.dados AS dados_busca
+                      e.hash_sha256, cb.dados AS dados_busca,
+                      -- Cronogramas, retificações e anexos enviados pelo Drive com o código do concurso: completam o
+                      -- edital (os coletados automaticamente não entram, para não gastar cota de IA à toa).
+                      (SELECT coalesce(jsonb_agg(jsonb_build_object('texto', d.texto_extraido, 'hash', d.hash_sha256,
+                                                                    'titulo', d.titulo) ORDER BY d.id), '[]'::jsonb)
+                       FROM documento d WHERE d.concurso_id = c.id AND d.tipo <> 'EDITAL' AND d.status_extracao = 'OK'
+                         AND d.url_origem LIKE 'manual:%%') AS complementos
                FROM concurso c
                         LEFT JOIN orgao o ON o.id = c.orgao_id
                         LEFT JOIN concurso_busca cb ON cb.concurso_id = c.id
                         -- Diário oficial não tem banca: só a IA lê (extrator por banca não se aplica).
                         LEFT JOIN banca b ON b.id = c.banca_id
-                        JOIN LATERAL (SELECT d.id, d.texto_extraido, d.hash_sha256 FROM documento d
+                        JOIN LATERAL (SELECT d.id, d.texto_extraido, d.hash_sha256, d.url_origem FROM documento d
                                       WHERE d.concurso_id = c.id AND d.tipo = 'EDITAL' AND d.status_extracao = 'OK'
                                       ORDER BY d.data_publicacao DESC NULLS LAST, d.id DESC LIMIT 1) e ON true
-               WHERE c.edital_documento_id IS DISTINCT FROM e.id"""
+               WHERE c.edital_documento_id IS DISTINCT FROM e.id
+               -- Cota de IA gratuita: primeiro o que o administrador enviou, depois inscrições abertas.
+               ORDER BY (e.url_origem LIKE 'manual:%%') DESC, (c.situacao = 'INSCRICOES_ABERTAS') DESC, c.id"""
         ).fetchall()
 
     def aplicar_edital(self, concurso_id: int, documento_id: int, edital: EditalExtraido, situacao: str) -> None:

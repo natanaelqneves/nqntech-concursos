@@ -44,7 +44,8 @@
                         <a th:if="${linkEdital != null}" class="btn"
                            th:classappend="${linkInscricao != null and c.inscricoesAbertas(fmt.hoje())} ? 'btn-outline-secondary' : 'btn-primary'"
                            th:href="${linkEdital}" rel="noopener">Abrir o edital (PDF)</a>
-                        <a th:if="${linkOficial != null}" class="btn btn-outline-secondary" th:href="${linkOficial}" rel="noopener">Página oficial</a>
+                        <a th:if="${linkOficial != null}" class="btn btn-outline-secondary" th:href="${linkOficial}" rel="noopener"
+                           th:text="${linkEdital == null} ? 'Ver o edital na página oficial' : 'Página oficial'">Página oficial</a>
                     </div>
                 </div>
             </div>

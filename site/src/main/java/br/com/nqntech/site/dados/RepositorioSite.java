@@ -43,7 +43,8 @@ public class RepositorioSite {
                                c.escolaridades, c.areas, c.tem_isencao, c.isencao_inicio, c.isencao_fim, c.resumo,
                                c.link_oficial, c.link_inscricao, c.atualizado_em,
                                (SELECT d.url_origem FROM documento d
-                                WHERE d.concurso_id = c.id AND d.tipo = 'EDITAL' AND d.oficial
+                                WHERE d.concurso_id = c.id AND d.tipo = 'EDITAL' AND d.oficial AND d.abre_pdf
+                                  AND d.status_extracao IN ('OK', 'SEM_TEXTO')
                                 ORDER BY d.data_publicacao DESC NULLS LAST, d.id DESC LIMIT 1) AS link_edital
                         FROM concurso c
                                  LEFT JOIN orgao o ON o.id = c.orgao_id

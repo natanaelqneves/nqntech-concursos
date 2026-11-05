@@ -98,6 +98,7 @@ SELECT pg_temp.deve_permitir('site_app',
 SELECT pg_temp.deve_permitir('site_app', 'SELECT b.sigla, o.nome, o.uf FROM concursos.banca b, concursos.orgao o');
 SELECT pg_temp.deve_permitir('site_app', 'SELECT id, tipo, titulo, url_origem FROM concursos.documento');
 SELECT pg_temp.deve_permitir('site_app', 'SELECT max(fim) FROM concursos.execucao_coleta');
+SELECT pg_temp.deve_permitir('site_app', 'SELECT oficial, abre_pdf, status_extracao FROM concursos.documento');
 SELECT pg_temp.deve_negar('site_app', 'SELECT texto_extraido FROM concursos.documento');
 SELECT pg_temp.deve_negar('site_app', 'SELECT * FROM concursos.documento');
 SELECT pg_temp.deve_negar('site_app', 'SELECT payload FROM concursos.sinal_descoberta');

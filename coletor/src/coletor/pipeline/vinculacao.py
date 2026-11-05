@@ -105,6 +105,7 @@ def _registrar_documentos(repo: Repositorio, concurso_id: int, arquivos_pdf: lis
             arquivo["url"],
             data,
             bool(arquivo.get("oficial", True)),
+            bool(arquivo.get("abre_pdf", True)),
         )
         if arquivo.get("texto"):  # diários oficiais: o texto vem da API, não há PDF para baixar
             repo.gravar_texto_se_pendente(arquivo["url"], arquivo["texto"])

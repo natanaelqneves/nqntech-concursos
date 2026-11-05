@@ -30,6 +30,7 @@ def test_publicacao_vira_sinal_com_texto(fixture_texto):
     assert sinal.url.startswith("https://doe.sp.gov.br/executivo/universidade-estadual-paulista/")
     [arquivo] = sinal.payload["arquivos"]
     assert arquivo["tipo"] == "EDITAL" and "Acham-se abertas" in arquivo["texto"] and "&ordm;" not in arquivo["texto"]
+    assert arquivo["abre_pdf"] is False  # endereço da API: nunca vira o botão "Abrir o edital (PDF)"
     assert sinal.data_publicacao == date(2026, 10, 28)
 
 
@@ -82,12 +83,12 @@ def test_texto_do_diario_vai_direto_ao_documento(parametros_coletor, conn_admin,
             repo.gravar_sinal(fonte, sinal)
         executar_vinculacao(repo)
         doc = conn_admin.execute(
-            """SELECT d.status_extracao, length(d.texto_extraido) > 500, c.banca_id IS NULL
+            """SELECT d.status_extracao, length(d.texto_extraido) > 500, c.banca_id IS NULL, d.abre_pdf
                FROM concursos.documento d JOIN concursos.concurso c ON c.id = d.concurso_id
                WHERE c.link_oficial = %s""",
             (sinal.url,),
         ).fetchone()
-        assert doc == ("OK", True, True)
+        assert doc == ("OK", True, True, False)
         payload = conn_admin.execute(
             "SELECT payload FROM concursos.sinal_descoberta WHERE url = %s", (sinal.url,)
         ).fetchone()[0]

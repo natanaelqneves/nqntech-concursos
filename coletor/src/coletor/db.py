@@ -261,13 +261,14 @@ class Repositorio:
         url: str,
         data_publicacao: date | None,
         oficial: bool = True,
+        abre_pdf: bool = True,
     ) -> bool:
         linha = self.conn.execute(
-            """INSERT INTO documento (concurso_id, tipo, titulo, url_origem, data_publicacao, oficial)
-               VALUES (%s, %s, %s, %s, %s, %s)
+            """INSERT INTO documento (concurso_id, tipo, titulo, url_origem, data_publicacao, oficial, abre_pdf)
+               VALUES (%s, %s, %s, %s, %s, %s, %s)
                ON CONFLICT (url_origem) DO NOTHING
                RETURNING id""",
-            (concurso_id, tipo, titulo[:500], url, data_publicacao, oficial),
+            (concurso_id, tipo, titulo[:500], url, data_publicacao, oficial, abre_pdf),
         ).fetchone()
         return linha is not None
 
@@ -408,7 +409,8 @@ class Repositorio:
                              WHERE c.publicado
                    UNION ALL SELECT e::text FROM concurso_evento e JOIN concurso c ON c.id = e.concurso_id
                              WHERE c.publicado
-                   UNION ALL SELECT concat_ws(',', d.id, d.tipo, d.url_origem, d.oficial) FROM documento d
+                   UNION ALL SELECT concat_ws(',', d.id, d.tipo, d.url_origem, d.oficial, d.abre_pdf,
+                                              d.status_extracao) FROM documento d
                              JOIN concurso c ON c.id = d.concurso_id WHERE c.publicado AND d.tipo = 'EDITAL'
                    UNION ALL SELECT o::text FROM orgao o
                              WHERE EXISTS (SELECT 1 FROM concurso c WHERE c.orgao_id = o.id AND c.publicado)

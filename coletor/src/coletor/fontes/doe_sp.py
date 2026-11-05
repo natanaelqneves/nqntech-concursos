@@ -89,6 +89,7 @@ def parse_publicacao(dados: dict[str, Any]) -> SinalDescoberta | None:
                 "url": f"{API}/publications/{quote(slug, safe='/')}",
                 "data": dia.isoformat() if dia else None,
                 "pdf": True,  # entra como documento; o texto já vem pronto
+                "abre_pdf": False,  # endereço da API (JSON): o site manda para a página da publicação
                 "tipo": "EDITAL",
                 "texto": texto[:MAX_TEXTO],
             }],

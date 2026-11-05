@@ -253,14 +253,14 @@ nenhum concurso aberto vai ao site sem o edital lido.
 
 | Etapa | Quem | O que faz |
 |---|---|---|
-| 0. Drive | `importar-drive` | PDF com o código `NQ-<id>` no nome vira o edital daquele concurso (`oficial = false`); subpastas por banca continuam para concursos novos |
+| 0. Drive | `importar-drive` | PDF com o código `NQ-<id>` no nome vai para aquele concurso (`oficial = false`): pelo nome, edital (o enviado passa à frente do coletado), retificação ou complemento (cronograma, anexo, quadro de vagas); o concurso é relido. Complementos só preenchem lacunas do edital (calendário e isenção pelas regras comuns; inscrição, prova, salário e prazo de isenção pela leitura dirigida da IA). Subpastas por banca continuam para concursos novos |
 | 1. Descoberta | Fontes | **busca-ia** (Gemini com Busca Google; OpenRouter de reserva) pesquisa os alvos de `config/busca.yml` (bancas sem coletor + federais + 5 regiões), cada um no máximo a cada `COLETOR_BUSCA_INTERVALO_H` (11 h ⇒ 2x/dia) e até `COLETOR_BUSCA_MAX_ALVOS` por execução; cada sugestão **confirmada** (página nas fontes da busca) e **oficial** (domínio da banca ou de órgão público) vira sinal com o pré-cadastro. Sites das bancas e DOE-SP como antes |
 | 2. Vinculação | Coletor | Sinal → concurso. Deduplicação: mesma página; senão mesmo órgão (nome normalizado) com UF, banca e ano compatíveis; na dúvida, `possivel_duplicado`. Se outra fonte já tem o concurso, a busca só guarda o pré-cadastro (`concurso_busca`); se a fonte da banca acha depois um concurso que só a busca tinha, a página da banca vira a oficial |
 | 3. Localizar edital | Coletor | Pré-cadastros abertos sem edital: o PDF indicado pela busca; senão o PDF "edital … abertura" da página oficial. Tentativa a cada 20 h |
 | 4. Documentos | Coletor | Download temporário + texto. Edital de pré-cadastro pode vir de **qualquer site público** (HTTPS, robots.txt, nunca IP/rede interna); se não for oficial, nunca vira link no site |
-| 5. Estruturação | Coletor | Regras + IA (camada 2) leem o edital; depois o pré-cadastro **só preenche lacunas** ("informado pela busca na web… confira o edital"); divergências ficam no log e vale o edital |
+| 5. Estruturação | Coletor | Cota gratuita de IA (decisão de 05/11/2026): editais enviados pelo Drive primeiro, depois inscrições abertas. Regras + IA (camada 2) leem o edital; depois o pré-cadastro **só preenche lacunas** ("informado pela busca na web… confira o edital"); divergências ficam no log e vale o edital |
 | 6. Classificação e resumo | Coletor | Como antes. **Publicado** = local definido + oportunidade + (previsto **ou** edital lido) |
-| 7. Pendências | `pendencias --email` | 1x/dia: concursos abertos que aguardam edital, com código, página, PDF sugerido e motivo da falha |
+| 7. E-mail diário | `pendencias --email` | 1x/dia, com o código de cada concurso: novos da busca (24 h), aguardando edital (página, PDF sugerido, motivo) e concursos no site com dados faltando (quais campos) |
 | 8. Site | Gerador (Java) | Só publica se a impressão mudou (cache do Actions guarda a última publicada do dia) |
 
 Pré-cadastro que a busca deixa de achar por 30 dias sem nunca ter edital vira `ENCERRADO`. O "saiu da lista da

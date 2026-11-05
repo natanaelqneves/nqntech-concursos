@@ -27,6 +27,7 @@ Rodar de novo com os mesmos arquivos não duplica nada. O site é atualizado na 
 # Concurso aguardando edital (mais simples: pelo Drive)
 
 O fluxo diário já pesquisa os concursos na web, cria o pré-cadastro e tenta baixar o edital sozinho. Quando não
-consegue, manda um e-mail com o **código** de cada concurso (ex.: `NQ-123`). Baixe o PDF no navegador e ponha na
-pasta do Drive com o código no nome (`NQ-123 edital.pdf`), na raiz ou em qualquer subpasta: a execução seguinte do
-`diario` (4 vezes por dia) liga o arquivo ao concurso, lê o edital e atualiza o site.
+consegue, ou quando faltam dados no site, manda um e-mail com o **código** de cada concurso (ex.: `NQ-123`). Baixe no
+navegador o edital e o que mais houver e ponha na pasta do Drive com o código no nome (`NQ-123 edital.pdf`,
+`NQ-123 cronograma.pdf`, `NQ-123 retificacao.pdf`), na raiz ou em qualquer subpasta: a execução seguinte do `diario`
+(4 vezes por dia) liga os arquivos ao concurso, relê e atualiza o site.

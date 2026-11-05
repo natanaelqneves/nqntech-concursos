@@ -7,12 +7,17 @@ um extrator melhorado reprocessa tudo zerando concurso.edital_documento_id.
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping
+from dataclasses import replace
 from datetime import date
+from typing import Any
 
 from coletor.classificacao.orgao import OrgaoInferido, inferir_orgao
 from coletor.db import Repositorio
 from coletor.extratores import extrator_para_banca
 from coletor.extratores.base import EditalExtraido
+from coletor.extratores.secoes import Isencoes, calendario
+from coletor.extratores.secoes import extrair_isencoes as isencoes_por_regras
 from coletor.ia.extrator import ExtratorIA, combinar, precisa_de_ia
 from coletor.ia.lacunas import faltando
 from coletor.pipeline.comum import ResumoEtapa, agora, hoje
@@ -39,6 +44,29 @@ def orgao_do_edital(edital: EditalExtraido) -> OrgaoInferido | None:
         uf=(inferido.uf if inferido else None) or (None if edital.esfera == "FEDERAL" else edital.uf),
         municipio=(inferido.municipio if inferido else None) or edital.municipio,
     )
+
+
+def completar_com_complemento(
+    edital: EditalExtraido, complemento: Mapping[str, Any], ia: ExtratorIA | None, dia: date
+) -> EditalExtraido:
+    """Cronograma, retificação ou anexo enviado pelo Drive: só preenche o que o edital não trouxe (calendário e
+    isenção pelas regras comuns; inscrição, prova, salário e prazo de isenção pela leitura dirigida da IA)."""
+    texto = str(complemento.get("texto") or "")
+    if not texto:
+        return edital
+    if not edital.isencoes:
+        isencoes = isencoes_por_regras(texto)
+        if isencoes.tipos:
+            edital = replace(edital, isencoes=isencoes.tipos, isencao_inicio=isencoes.inicio,
+                             isencao_fim=isencoes.fim)  # fmt: skip
+    if ia is not None and faltando(edital):
+        edital = ia.completar(edital, texto, complemento.get("hash"), dia)
+    if not any(e.inicio for e in edital.eventos):
+        periodo = Isencoes(edital.isencoes, edital.isencao_inicio, edital.isencao_fim)
+        eventos = calendario(texto, periodo, (edital.inscricao_inicio, edital.inscricao_fim), edital.data_prova)
+        if any(e.inicio for e in eventos):
+            edital = replace(edital, eventos=eventos)
+    return edital
 
 
 def situacao_por_datas(edital: EditalExtraido, referencia: date) -> str:
@@ -75,6 +103,9 @@ def executar_estruturacao(repo: Repositorio, ia: ExtratorIA | None = None) -> Re
                 continue
             if ia is not None and concurso["banca"] not in BANCAS_SEM_IA and faltando(edital):
                 edital = ia.completar(edital, texto, concurso["hash_sha256"], dia)
+            sem_ia = ia is None or concurso["banca"] in BANCAS_SEM_IA
+            for complemento in concurso.get("complementos") or ():
+                edital = completar_com_complemento(edital, complemento, None if sem_ia else ia, dia)
             edital = completar_com_busca(edital, concurso.get("dados_busca"), concurso["id"])
             repo.aplicar_edital(concurso["id"], concurso["documento_id"], edital, situacao_por_datas(edital, dia))
             orgao = orgao_do_edital(edital)

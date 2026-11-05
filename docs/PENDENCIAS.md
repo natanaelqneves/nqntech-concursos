@@ -179,8 +179,10 @@ Passo a passo em `scripts/importar/LEIA-ME.md`: `.env` na raiz com host do Neon 
 - [ ] Depois do merge: **Actions → migrar** roda sozinho (V19). Confira verde.
 - [ ] **Actions → diario → Run workflow** para a primeira busca. No resumo da execução: `DESCOBERTA` da fonte
       `busca-ia`, `LOCALIZACAO` e `PENDENCIAS`. Depois roda sozinho 4x/dia (06:17, 11:17, 16:17 e 21:17).
-- Rotina diária: abra o e-mail "aguardando edital", baixe cada PDF no navegador e solte na pasta do Drive com o
-  código no nome (`NQ-123 edital.pdf`), na raiz da pasta ou em qualquer subpasta.
+- Rotina diária: o e-mail do NqnTech traz novos concursos, os que aguardam edital e os que estão no site com dados
+  faltando. Baixe no navegador o edital e o que mais houver (cronograma, retificação, quadro de vagas) e solte na
+  pasta do Drive com o código no nome: `NQ-123 edital.pdf`, `NQ-123 cronograma.pdf`, `NQ-123 retificacao.pdf` (na
+  raiz da pasta ou em qualquer subpasta).
 - Opcional (variáveis do repositório): `COLETOR_BUSCA_INTERVALO_H` (padrão 11 h por alvo) e `COLETOR_BUSCA_MODELOS`.
 
 ## PDFs pelo Google Drive (o GitHub faz o resto) — ~10 min, uma vez

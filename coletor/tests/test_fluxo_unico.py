@@ -12,8 +12,8 @@ from coletor.extratores.base import CargoExtraido, EditalExtraido, IsencaoPrevis
 from coletor.fontes.busca_ia import AVISO_BUSCA, AgendaBusca, FonteBuscaIA, aceitar, sinal_da_sugestao
 from coletor.http_cliente import QUALQUER_DOMINIO_PUBLICO, AcessoNaoPermitido, ClienteHttp, host_publico
 from coletor.ia.busca_web import AlvoBusca, RespostaBusca, Sugestao
-from coletor.importacao_manual import codigo_do_concurso, codigo_no_nome
-from coletor.pendencias import montar_pendencias
+from coletor.importacao_manual import codigo_do_concurso, codigo_no_nome, tipo_do_anexo
+from coletor.pendencias import montar_email
 from coletor.pipeline.deduplicacao import Candidato, chave_orgao, procurar_equivalente
 from coletor.pipeline.localizacao import escolher_edital, links_de_pdf
 from coletor.precadastro import completar_com_busca
@@ -244,16 +244,34 @@ def test_codigo_no_nome_do_arquivo():
     assert codigo_no_nome("edital-2026.pdf") is None
 
 
-def test_email_de_pendencias():
-    linhas = [
+def test_tipo_do_anexo_pelo_nome():
+    assert tipo_do_anexo("NQ-12 edital.pdf") == "EDITAL"
+    assert tipo_do_anexo("NQ-12.pdf") == "EDITAL"
+    assert tipo_do_anexo("NQ-12 Edital de Abertura - Anexo I.pdf") == "EDITAL"
+    assert tipo_do_anexo("NQ-12 cronograma.pdf") == "OUTRO"
+    assert tipo_do_anexo("NQ-12 quadro de vagas.pdf") == "OUTRO"
+    assert tipo_do_anexo("NQ-12 Retificação 1.pdf") == "RETIFICACAO"
+
+
+def test_email_diario_com_as_tres_listas():
+    novos = [{"id": 11, "orgao": "IBFC - MGS", "banca": "IBFC", "inscricao_fim": None, "situacao": "PREVISTO",
+              "link_oficial": "https://ibfc.org.br/x", "publicado": True}]  # fmt: skip
+    aguardando = [
         {"id": 12, "orgao": "Prefeitura de Sapé", "banca": "CPCON", "inscricao_fim": date(2026, 11, 30),
          "link_oficial": "https://cpcon.uepb.edu.br/x", "link_edital": None,
          "edital_falha": "robots.txt não permite"},
         {"id": 13, "orgao": "Câmara de Patos", "banca": None, "inscricao_fim": None,
          "link_oficial": "https://patos.pb.leg.br/c", "link_edital": "https://blog.com/e.pdf", "edital_falha": None},
     ]  # fmt: skip
-    assunto, corpo = montar_pendencias(linhas, HOJE)
-    assert "2 concurso(s)" in assunto and "04/11/2026" in assunto
+    faltando = [{"id": 14, "orgao": "TJPB", "banca": "FGV", "inscricao_fim": None, "link_oficial": "https://fgv.br/t",
+                 "faltam": ["data da prova", "salário"]}]  # fmt: skip
+    assunto, corpo = montar_email(novos, aguardando, faltando, HOJE)
+    assert assunto == "NqnTech 04/11/2026: 1 novo(s), 2 aguardando edital, 1 com dados faltando"
+    assert "NQ-11 — IBFC - MGS (IBFC) [previsto, no site]" in corpo
     assert "NQ-12 — Prefeitura de Sapé (CPCON) — inscrições até 30/11/2026" in corpo
     assert "Por que não baixou: robots.txt não permite" in corpo
     assert "NQ-13 — Câmara de Patos\n" in corpo and "PDF indicado pela busca: https://blog.com/e.pdf" in corpo
+    assert "NQ-14 — TJPB (FGV)\n  Falta: data da prova, salário" in corpo
+    assert "== 1." in corpo and "== 3." in corpo
+    _, so_faltando = montar_email([], [], faltando, HOJE)
+    assert "== 1." not in so_faltando and "== 2." not in so_faltando

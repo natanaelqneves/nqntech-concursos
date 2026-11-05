@@ -17,6 +17,7 @@ import logging
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 
 from coletor.classificacao.orgao import OrgaoInferido, inferir_orgao
@@ -25,7 +26,7 @@ from coletor.fontes.base import SinalDescoberta
 from coletor.pipeline.comum import ResumoEtapa
 from coletor.pipeline.documentos import MAX_CARACTERES_TEXTO, MIN_CARACTERES_UTEIS, ExtracaoFalhou, extrair_texto_pdf
 from coletor.pipeline.vinculacao import classificar_tipo_documento, executar_vinculacao
-from coletor.texto import colapsar_espacos, limitar, titulo_portugues
+from coletor.texto import colapsar_espacos, limitar, normalizar, titulo_portugues
 
 log = logging.getLogger(__name__)
 
@@ -226,32 +227,43 @@ def codigo_no_nome(nome: str) -> int | None:
     return int(achado.group(1)) if achado else None
 
 
+_COMPLEMENTO = re.compile(r"cronograma|calendario|anexo|quadro|vagas|comunicado|aviso|errata")
+
+
+def tipo_do_anexo(nome_arquivo: str) -> str:
+    """Pelo nome do arquivo enviado com o código: retificação e complementos (cronograma, anexo, quadro de vagas) não
+    substituem o edital, só o completam; o resto é o edital."""
+    titulo = normalizar(titulo_do_arquivo(Path(nome_arquivo)))
+    if "retifica" in titulo or "errata" in titulo:
+        return "RETIFICACAO"
+    if _COMPLEMENTO.search(titulo) and "abertura" not in titulo:
+        return "OUTRO"
+    return "EDITAL"
+
+
 def anexar_ao_concurso(repo: Repositorio, concurso_id: int, pdf: PdfLido) -> PdfLido:
-    """PDF enviado para um concurso já cadastrado (pelo código no nome). Entra como edital do concurso; não vira
-    link no site (oficial = false: o administrador pode ter baixado de qualquer lugar). Devolve o PdfLido com o
-    status final (FALHA se o código não existe)."""
+    """PDF enviado para um concurso já cadastrado (pelo código no nome): edital, retificação ou complemento
+    (`tipo_do_anexo`). Não vira link no site (oficial = false: o administrador pode ter baixado de qualquer lugar).
+    O concurso é relido na próxima estruturação. Devolve o PdfLido com o status final (FALHA se o código não existe)."""
     if pdf.status == "FALHA":
         return pdf
     if not repo.concurso_existe(concurso_id):
         repo.conn.rollback()
         return PdfLido(pdf.arquivo, pdf.sha256, None, "FALHA", pdf.link, f"código {codigo_do_concurso(concurso_id)} "
                        "não existe")  # fmt: skip
-    tipo = classificar_tipo_documento(titulo_do_arquivo(pdf.arquivo))
+    tipo = tipo_do_anexo(pdf.arquivo.name)
     # Identificador por concurso: o mesmo PDF pode ter sido importado antes para outro concurso (url_origem é única).
     url = f"{pdf.url_documento}#{codigo_do_concurso(concurso_id)}"
     with repo.transacao():
-        repo.garantir_documento(
-            concurso_id,
-            "EDITAL" if tipo == "OUTRO" else tipo,
-            titulo_do_arquivo(pdf.arquivo),
-            url,
-            None,
-            oficial=False,
-        )
+        # Data de hoje: o edital enviado pelo administrador passa à frente do que foi coletado antes.
+        repo.garantir_documento(concurso_id, tipo, titulo_do_arquivo(pdf.arquivo), url, date.today(), oficial=False)
     documento_id = repo.documento_por_url(url)
     repo.conn.commit()
     if documento_id is None:
         return PdfLido(pdf.arquivo, pdf.sha256, None, "FALHA", pdf.link, "documento não gravado")
     repo.salvar_extracao(documento_id, pdf.sha256, pdf.texto, pdf.status)
-    log.info("%s anexado ao concurso %s (%s)", pdf.arquivo.name, codigo_do_concurso(concurso_id), pdf.status)
+    with repo.transacao():
+        repo.reestruturar(concurso_id)
+    log.info("%s anexado ao concurso %s como %s (%s)", pdf.arquivo.name, codigo_do_concurso(concurso_id), tipo,
+             pdf.status)  # fmt: skip
     return pdf

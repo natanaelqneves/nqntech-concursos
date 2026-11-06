@@ -57,6 +57,7 @@ class GeradorSiteIT {
         assertThat(saida.resolve("regiao/nordeste/index.html")).exists();
         assertThat(saida.resolve("inscricoes-abertas/index.html")).exists();
         assertThat(saida.resolve("isencao-em-prazo/index.html")).exists();
+        assertThat(saida.resolve("previstos/index.html")).exists();
         assertThat(saida.resolve("concursos/index.html")).as("página de filtros removida").doesNotExist();
         assertThat(Files.readString(saida.resolve("_redirects"))).contains("/concursos/ /inscricoes-abertas/ 301");
         assertThat(saida.resolve("isencoes/cadunico/index.html")).exists();

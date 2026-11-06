@@ -194,6 +194,9 @@ def test_aberto_so_vai_ao_site_com_edital_e_previsto_vai_sem():
     assert not pode_publicar(None, "PREVISTO", None, False, HOJE)
     assert not pode_publicar("NACIONAL", "ENCERRADO", None, True, HOJE)
     assert pode_publicar("NACIONAL", "EM_ANDAMENTO", date(2026, 11, 5), True, HOJE)  # isenção em curso
+    # Fora do nicho do site (config/nicho.yml em modo exclusivo) não vai, nem previsto.
+    assert not pode_publicar("ESTADUAL", "INSCRICOES_ABERTAS", None, True, HOJE, no_nicho=False)
+    assert not pode_publicar("MUNICIPAL", "PREVISTO", None, False, HOJE, no_nicho=False)
 
 
 # --- cliente HTTP em qualquer domínio público --------------------------------------------------------------------

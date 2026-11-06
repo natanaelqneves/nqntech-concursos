@@ -11,8 +11,17 @@
 
 Site **público e gratuito** de concursos públicos do Brasil, com informação **direta e simples**:
 
-- **Só oportunidades disponíveis** (decisão de 29/10/2026), de **todas as áreas**, **todos os níveis** e **todos os
-  estados**: concursos com **inscrições abertas** (ou com edital publicado e inscrições ainda por abrir),
+- **Nicho dos grandes concursos** (decisão de 06/11/2026, substitui "todas as áreas"): tribunais (superiores,
+  TRFs, TRTs, TREs, TJs, TJMs, CNJ), Ministério Público (MPU, MPs estaduais, CNMP), defensorias, advocacia pública
+  (AGU, PGFN, PGEs, procuradorias das capitais), tribunais de contas e MPs de contas, controladorias (CGU, CGEs,
+  CGMs), fiscos (Receita Federal, auditor-fiscal do trabalho, SEFAZ, fiscos municipais), Legislativo (Câmara,
+  Senado, assembleias, câmaras das capitais), conselhos profissionais e OAB, regulação (Banco Central, CVM, Susep,
+  Previc, Cade, agências reguladoras), segurança pública (PF, PRF, polícias civis, militares, penais e científicas,
+  bombeiros, guardas municipais, Detrans, socioeducativo), Forças Armadas (Exército, Marinha, Aeronáutica e suas
+  escolas) e o CNU. A categoria do órgão é dada por regras em `config/nicho.yml` (gravada em
+  `concurso.orgao_categoria`, V21); em modo `exclusivo` só concurso do nicho vai ao site (os demais ficam no banco),
+  em modo `destaque` todos vão. Todos os níveis e estados continuam.
+- **Só oportunidades disponíveis** (decisão de 29/10/2026), de **todos os níveis** e **todos os estados**: concursos com **inscrições abertas** (ou com edital publicado e inscrições ainda por abrir),
   **previstos** (autorizados, sem edital) e, com destaque, os que estão **dentro do prazo para pedir isenção** de
   taxa (qualquer tipo). Concurso que sai dessas condições sai do site; o que já passou não é mostrado.
 - **Resumo próprio de cada concurso**, gerado automaticamente a partir dos dados do edital (cargos, vagas,
@@ -254,7 +263,7 @@ nenhum concurso aberto vai ao site sem o edital lido.
 | Etapa | Quem | O que faz |
 |---|---|---|
 | 0. Drive | `importar-drive` | PDF com o código `NQ-<id>` no nome vai para aquele concurso (`oficial = false`): pelo nome, edital (o enviado passa à frente do coletado), retificação ou complemento (cronograma, anexo, quadro de vagas); o concurso é relido. Complementos só preenchem lacunas do edital (calendário e isenção pelas regras comuns; inscrição, prova, salário e prazo de isenção pela leitura dirigida da IA). Subpastas por banca continuam para concursos novos |
-| 1. Descoberta | Fontes | **busca-ia** (Gemini com Busca Google; OpenRouter de reserva) pesquisa os alvos de `config/busca.yml` (bancas sem coletor + federais + 5 regiões), cada um no máximo a cada `COLETOR_BUSCA_INTERVALO_H` (11 h ⇒ 2x/dia) e até `COLETOR_BUSCA_MAX_ALVOS` por execução; cada sugestão **confirmada** (página nas fontes da busca) e **oficial** (domínio da banca ou de órgão público) vira sinal com o pré-cadastro. Sites das bancas e DOE-SP como antes |
+| 1. Descoberta | Fontes | **busca-ia** (Gemini com Busca Google; OpenRouter de reserva) pesquisa os alvos de `config/busca.yml` (bancas sem coletor + uma pesquisa por categoria do nicho + três só de previstos, decisão de 06/11/2026), cada um no máximo a cada `COLETOR_BUSCA_INTERVALO_H` (11 h ⇒ 2x/dia) e até `COLETOR_BUSCA_MAX_ALVOS` por execução; cada sugestão **confirmada** (página nas fontes da busca) e **oficial** (domínio da banca ou de órgão público) vira sinal com o pré-cadastro. Sites das bancas e DOE-SP como antes |
 | 2. Vinculação | Coletor | Sinal → concurso. Deduplicação: mesma página; senão mesmo órgão (nome normalizado) com UF, banca e ano compatíveis; na dúvida, `possivel_duplicado`. Se outra fonte já tem o concurso, a busca só guarda o pré-cadastro (`concurso_busca`); se a fonte da banca acha depois um concurso que só a busca tinha, a página da banca vira a oficial |
 | 3. Localizar edital | Coletor | Pré-cadastros abertos sem edital: o PDF indicado pela busca; senão o PDF "edital … abertura" da página oficial. Tentativa a cada 20 h |
 | 4. Documentos | Coletor | Download temporário + texto. Edital de pré-cadastro pode vir de **qualquer site público** (HTTPS, robots.txt, nunca IP/rede interna); se não for oficial, nunca vira link no site |
@@ -634,3 +643,11 @@ testes para toda lógica relevante **sem internet**, ruff no Python. Nomes de do
       das bancas; e-mail diário de pendências; `diario` 4x/dia e site publicado só quando o conteúdo muda. V19
       (`busca_alvo`, `concurso_busca`, `documento.oficial`). O relatório da busca assistida e o workflow `buscar`
       saíram (substituídos pelo pré-cadastro e pelo e-mail de pendências).
+- [x] Nicho dos grandes concursos (06/11/2026): `config/nicho.yml` com 13 categorias de órgão (regex sobre órgão +
+      título, `{uf}` vira as 27 siglas) e modo `exclusivo`; etapa `classificar` grava `concurso.orgao_categoria`
+      (V21); só concurso do nicho é publicado (`pode_publicar(..., no_nicho)`); estruturação gasta a cota de IA
+      primeiro com o nicho. `config/busca.yml`: os 6 alvos regionais/federais (prefeituras e câmaras) deram lugar a
+      10 alvos por categoria e 3 só de previstos (autorizados sem edital); pesquisas das bancas restritas ao nicho
+      (26 alvos, cabe nos 20 por execução × 4 execuções). Site: página `/previstos/`; o item "Início" saiu do menu
+      (a marca é o link da página inicial e recebe `aria-current` nela) e "Previstos" entrou; textos da abertura e de
+      `/sobre/` descrevem o nicho. Pendente: alertas (fase 7) e filtros por categoria do órgão no site.

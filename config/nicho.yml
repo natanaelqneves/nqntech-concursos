@@ -1,0 +1,115 @@
+# Nicho do site (decisão de 06/11/2026): grandes concursos de controle, justiça, fisco, legislativo, conselhos,
+# regulação, segurança pública e carreiras militares, com os previstos de cada um.
+#
+# modo:
+#   exclusivo: só concurso com categoria vai ao site (os demais continuam no banco, sem página);
+#   destaque:  todos vão ao site, como antes do nicho (a categoria só é gravada).
+#
+# categorias: em ordem; a primeira que casar vence ("Ministério Público de Contas" é tribunal_contas, não
+# ministerio_publico; "Polícia Militar" é policial, não militar). Cada padrão é uma expressão regular sobre o nome do
+# órgão + título do concurso em minúsculas e sem acento. {uf} vira a lista das 27 siglas de UF ("tjpb", "tre-sp").
+# O CNU (config/destaques.yml) é sempre da categoria "unificado".
+#
+# Regra para mexer aqui: termo curto ambíguo ("essa", "ana", "ita") nunca entra sozinho; prefira o nome por
+# extenso ou a sigla com a UF.
+
+modo: exclusivo
+
+categorias:
+  tribunal_contas:
+    - 'tribunal de contas'
+    - '\btc[eu]\b'
+    - '\btce-?{uf}\b'
+    - '\btcdf\b'
+    - '\btcm(-?(sp|rj|ba|go|pa))?\b'
+    - 'ministerio publico (de|junto ao) (tribunal de )?contas'
+    - '\bmpc-?({uf})?\b'
+
+  controladoria:
+    - 'controladoria'
+    - '\bcg[uem](-?{uf})?\b'
+    - 'auditoria[- ]geral do (estado|municipio)'
+
+  ministerio_publico:
+    - 'ministerio publico'
+    - '\bmp(u|f|t|m|dft)\b'
+    - '\bmp-?{uf}\b'
+    - '\bcnmp\b'
+    - 'procuradoria[- ]geral de justica'
+    - 'promotor de justica'
+
+  tribunal:
+    - 'tribunal (de justica|regional|superior|de justica militar)'
+    - 'supremo tribunal'
+    - 'justica (federal|do trabalho|eleitoral|militar)'
+    - '\b(stf|stj|tst|tse|stm|cnj|cjf|csjt|tjdft)\b'
+    - '\b(trf|trt|tre)\s*-?\s*\d{0,2}\b'
+    - '\b(tj|tre|tjm)-?{uf}\b'
+    - 'conselho (nacional de justica|da justica federal|superior da justica do trabalho)'
+    - 'juiz (substituto|de direito|federal|do trabalho)'
+    - 'analista judiciario|tecnico judiciario|oficial de justica'
+
+  defensoria:
+    - 'defensoria publica'
+    - '\bdpu\b'
+    - '\bdpe-?{uf}\b'
+    - 'defensor publico'
+
+  advocacia_publica:
+    - 'advocacia[- ]geral d[ao] (uniao|estado)'
+    - '\bagu\b'
+    - '\bpgfn\b'
+    - 'procuradoria[- ]geral (do estado|do municipio|da fazenda nacional|federal)'
+    - 'procuradoria (geral )?do municipio'
+    - '\bpge-?{uf}\b'
+    - '\bpgm\b'
+    - 'procurador (do estado|do municipio|municipal|federal|da fazenda nacional)'
+
+  fisco:
+    - 'receita federal'
+    - 'secretaria (de estado )?(da|de) (fazenda|economia|financas|tributacao|receita)'
+    - '\bsefaz(-?{uf})?\b'
+    - '\b(sef|sefa|sefin|semef)-?({uf})?\b'
+    - 'auditor(a)?[- ]fiscal'
+    - 'fiscal (de tributos|tributario|de rendas|da receita)'
+    - 'agente fiscal|fiscal de renda|auditor de tributos|analista tributario'
+
+  legislativo:
+    - 'camara dos deputados'
+    - 'senado federal'
+    - 'assembleia legislativa'
+    - 'camara legislativa do distrito federal|\bcldf\b'
+    - '\b(alesp|alerj|almg|alepe|alba|alece|alepa|alego|alems|alesc|alrs|aleam|aleac|alap|alepi|alern|alese|aleto|alero|alerr|alema|alepb|ales|almt|alal)\b'
+    # Câmaras municipais só das capitais; "Vitória da Conquista" não é Vitória.
+    - 'camara municipal d[eoa] (rio branco|maceio|macapa|manaus|salvador|fortaleza|vitoria|goiania|sao luis|cuiaba|campo grande|belo horizonte|belem|joao pessoa|curitiba|recife|teresina|rio de janeiro|natal|porto alegre|porto velho|boa vista|florianopolis|sao paulo|aracaju|palmas)\b(?!\s+d[aeo]s?\s)'
+
+  conselho:
+    - 'conselho (regional|federal) d[aeo]'
+    - 'ordem dos advogados|\boab\b'
+    - '\b(crm|crea|crc|cro|crp|crf|crefito|crmv|cra|creci|cress|crn|cref|crbm|crq|crbio|crtr|crfa|crb|corecon|core|coren|cau)\s*-?\s*({uf}|\d{1,2})\b'
+    - '\b(cfm|confea|cfc|cofen|cfo|cfp|cff|coffito|cfmv|cfa|cofeci|cfess|cfn|confef|cfq|cfbio|conter|cofecon)\b'
+
+  regulacao:
+    - 'banco central|\bbacen\b|\bbcb\b'
+    - 'comissao de valores mobiliarios|\bcvm\b'
+    - '\b(susep|previc|cade)\b'
+    - 'agencia nacional d[aeo]'
+    - '\b(anatel|aneel|anp|anvisa|anac|antt|antaq|ancine|anm)\b'
+
+  policial:
+    - 'policia (federal|rodoviaria federal|civil|militar|penal|cientifica|legislativa|judicial|tecnico-cientifica)'
+    - 'corpo de bombeiros'
+    - '\b(pf|prf|pcdf|pmdf|cbmdf|depen|senappen|igp)\b'
+    - '\b(pc|pm|cbm|pp)-?{uf}\b'
+    - 'guarda (civil )?(municipal|metropolitana)'
+    - 'pericia (oficial|criminal|forense)|instituto geral de pericias|perito criminal|medico legista|papiloscopista'
+    - 'agente penitenciario|policial penal|socioeducativ|fundacao casa|\bdegase\b'
+    - '\bdetran\b|agente (de|da autoridade de) transito|departamento (estadual )?de transito'
+    - 'delegado de policia|escrivao de policia|investigador de policia|agente de policia|inspetor de policia'
+
+  militar:
+    - '\bexercito\b|\bmarinha\b|aeronautica|forca aerea|forcas armadas|ministerio da defesa'
+    - '\b(espcex|aman|esfcex|essex|eear|epcar|eaoear|eags|ime)\b'
+    - 'escola (naval|de sargentos|preparatoria de cadetes|de especialistas)|colegio (naval|militar)'
+    - 'academia (militar|da forca aerea)|fuzileiros navais|aprendizes[- ]marinheiros'
+    - 'oficial temporario|sargento temporario|servico militar'

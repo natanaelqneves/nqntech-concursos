@@ -182,6 +182,7 @@ def test_pipeline_completo_idempotente_e_detecta_retificacao(parametros_coletor,
         None,
         False,
     )
+    assert tjpb["orgao_categoria"] == "tribunal"  # nicho do site (config/nicho.yml)
     # Fase 4: slug estável, campos desnormalizados, resumo e publicação só se for oportunidade.
     assert tjpb["slug"] == "tribunal-de-justica-do-estado-da-paraiba-2026"
     assert (tjpb["total_vagas"], tjpb["salario_max"], tjpb["escolaridades"]) == (50, Decimal("7526.14"), ["SUPERIOR"])

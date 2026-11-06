@@ -10,27 +10,37 @@
 #             para todos). O link da página do concurso precisa ser oficial; o PDF do edital pode vir de qualquer
 #             site que permita a leitura (robots.txt), mas nunca aparece como link no site se não for oficial.
 #
+# Nicho do site (config/nicho.yml, 06/11/2026): os alvos pedem só concursos do nicho, abertos e previstos; o que
+# vier de fora dele fica no banco sem ir ao site.
+#
 # Bancas com coletor automático (FGV, Cebraspe, COMPERVE, IBAM, IBADE) e o DOE-SP já entram pelas próprias fontes e
 # ficam fora daqui para não gastar cota com o que já é coletado.
 
 alvos:
-  - {codigo: fcc, banca: FCC, pesquisa: "concursos da Fundação Carlos Chagas (FCC)", dominios: [concursosfcc.com.br, fcc.org.br]}
-  - {codigo: cesgranrio, banca: CESGRANRIO, pesquisa: "concursos da Fundação Cesgranrio", dominios: [cesgranrio.org.br]}
-  - {codigo: vunesp, banca: VUNESP, pesquisa: "concursos da Fundação Vunesp", dominios: [vunesp.com.br]}
-  - {codigo: ibfc, banca: IBFC, pesquisa: "concursos do IBFC", dominios: [ibfc.org.br]}
-  - {codigo: consulplan, banca: CONSULPLAN, pesquisa: "concursos do Instituto Consulplan", dominios: [institutoconsulplan.org.br, consulplan.net]}
-  - {codigo: quadrix, banca: QUADRIX, pesquisa: "concursos do Instituto Quadrix", dominios: [quadrix.org.br]}
-  - {codigo: idecan, banca: IDECAN, pesquisa: "concursos do IDECAN", dominios: [idecan.org.br]}
-  - {codigo: aocp, banca: AOCP, pesquisa: "concursos do Instituto AOCP", dominios: [institutoaocp.org.br]}
-  - {codigo: fundep, banca: FUNDEP, pesquisa: "concursos da Fundep (Gestão de Concursos)", dominios: [gestaodeconcursos.com.br, fundep.ufmg.br, fundep.selecao.net.br]}
-  - {codigo: fumarc, banca: FUMARC, pesquisa: "concursos da Fumarc", dominios: [fumarc.com.br]}
-  - {codigo: cpcon, banca: CPCON, pesquisa: "concursos da CPCON (UEPB)", dominios: [cpcon.uepb.edu.br, uepb.edu.br]}
-  - {codigo: selecon, banca: SELECON, pesquisa: "concursos do Instituto Selecon", dominios: [selecon.org.br]}
-  - {codigo: fundatec, banca: FUNDATEC, pesquisa: "concursos da Fundatec", dominios: [fundatec.org.br]}
-  # Sem banca fixa: pega bancas pequenas e editais publicados só no site do órgão.
-  - {codigo: federais, pesquisa: "concursos de órgãos federais (ministérios, autarquias, agências, universidades e institutos federais, forças armadas)"}
-  - {codigo: norte, pesquisa: "concursos de prefeituras, câmaras e órgãos estaduais da região Norte (AC, AP, AM, PA, RO, RR, TO)"}
-  - {codigo: nordeste, pesquisa: "concursos de prefeituras, câmaras e órgãos estaduais da região Nordeste (AL, BA, CE, MA, PB, PE, PI, RN, SE)"}
-  - {codigo: centro-oeste, pesquisa: "concursos de prefeituras, câmaras e órgãos estaduais e do DF da região Centro-Oeste (DF, GO, MT, MS)"}
-  - {codigo: sudeste, pesquisa: "concursos de prefeituras, câmaras e órgãos estaduais da região Sudeste (ES, MG, RJ, SP)"}
-  - {codigo: sul, pesquisa: "concursos de prefeituras, câmaras e órgãos estaduais da região Sul (PR, RS, SC)"}
+  - {codigo: fcc, banca: FCC, pesquisa: "concursos da Fundação Carlos Chagas (FCC) de tribunais, ministérios públicos, defensorias, procuradorias, tribunais de contas, controladorias, fiscos, assembleias, conselhos profissionais, polícias, bombeiros e carreiras militares", dominios: [concursosfcc.com.br, fcc.org.br]}
+  - {codigo: cesgranrio, banca: CESGRANRIO, pesquisa: "concursos da Fundação Cesgranrio de tribunais, ministérios públicos, defensorias, procuradorias, tribunais de contas, controladorias, fiscos, assembleias, conselhos profissionais, polícias, bombeiros e carreiras militares", dominios: [cesgranrio.org.br]}
+  - {codigo: vunesp, banca: VUNESP, pesquisa: "concursos da Fundação Vunesp de tribunais, ministérios públicos, defensorias, procuradorias, tribunais de contas, controladorias, fiscos, assembleias, conselhos profissionais, polícias, bombeiros e carreiras militares", dominios: [vunesp.com.br]}
+  - {codigo: ibfc, banca: IBFC, pesquisa: "concursos do IBFC de tribunais, ministérios públicos, defensorias, procuradorias, tribunais de contas, controladorias, fiscos, assembleias, conselhos profissionais, polícias, bombeiros e carreiras militares", dominios: [ibfc.org.br]}
+  - {codigo: consulplan, banca: CONSULPLAN, pesquisa: "concursos do Instituto Consulplan de tribunais, ministérios públicos, defensorias, procuradorias, tribunais de contas, controladorias, fiscos, assembleias, conselhos profissionais, polícias, bombeiros e carreiras militares", dominios: [institutoconsulplan.org.br, consulplan.net]}
+  - {codigo: quadrix, banca: QUADRIX, pesquisa: "concursos do Instituto Quadrix de tribunais, ministérios públicos, defensorias, procuradorias, tribunais de contas, controladorias, fiscos, assembleias, conselhos profissionais, polícias, bombeiros e carreiras militares", dominios: [quadrix.org.br]}
+  - {codigo: idecan, banca: IDECAN, pesquisa: "concursos do IDECAN de tribunais, ministérios públicos, defensorias, procuradorias, tribunais de contas, controladorias, fiscos, assembleias, conselhos profissionais, polícias, bombeiros e carreiras militares", dominios: [idecan.org.br]}
+  - {codigo: aocp, banca: AOCP, pesquisa: "concursos do Instituto AOCP de tribunais, ministérios públicos, defensorias, procuradorias, tribunais de contas, controladorias, fiscos, assembleias, conselhos profissionais, polícias, bombeiros e carreiras militares", dominios: [institutoaocp.org.br]}
+  - {codigo: fundep, banca: FUNDEP, pesquisa: "concursos da Fundep (Gestão de Concursos) de tribunais, ministérios públicos, defensorias, procuradorias, tribunais de contas, controladorias, fiscos, assembleias, conselhos profissionais, polícias, bombeiros e carreiras militares", dominios: [gestaodeconcursos.com.br, fundep.ufmg.br, fundep.selecao.net.br]}
+  - {codigo: fumarc, banca: FUMARC, pesquisa: "concursos da Fumarc de tribunais, ministérios públicos, defensorias, procuradorias, tribunais de contas, controladorias, fiscos, assembleias, conselhos profissionais, polícias, bombeiros e carreiras militares", dominios: [fumarc.com.br]}
+  - {codigo: cpcon, banca: CPCON, pesquisa: "concursos da CPCON (UEPB) de tribunais, ministérios públicos, defensorias, procuradorias, tribunais de contas, controladorias, fiscos, assembleias, conselhos profissionais, polícias, bombeiros e carreiras militares", dominios: [cpcon.uepb.edu.br, uepb.edu.br]}
+  - {codigo: selecon, banca: SELECON, pesquisa: "concursos do Instituto Selecon de tribunais, ministérios públicos, defensorias, procuradorias, tribunais de contas, controladorias, fiscos, assembleias, conselhos profissionais, polícias, bombeiros e carreiras militares", dominios: [selecon.org.br]}
+  - {codigo: fundatec, banca: FUNDATEC, pesquisa: "concursos da Fundatec de tribunais, ministérios públicos, defensorias, procuradorias, tribunais de contas, controladorias, fiscos, assembleias, conselhos profissionais, polícias, bombeiros e carreiras militares", dominios: [fundatec.org.br]}
+  # Sem banca fixa, por categoria do nicho: pega bancas sem coletor e editais só no site do órgão.
+  - {codigo: judiciario, pesquisa: "concursos de tribunais (STF, tribunais superiores, TRFs, TRTs, TREs, tribunais de justiça e militares estaduais) e do CNJ"}
+  - {codigo: mp-defensoria, pesquisa: "concursos dos Ministérios Públicos (MPU, MPF, MPT, MPs estaduais), das Defensorias Públicas e da advocacia pública (AGU, PGFN, procuradorias dos estados e das capitais)"}
+  - {codigo: controle, pesquisa: "concursos de tribunais de contas (TCU, TCEs, TCMs), ministérios públicos de contas e controladorias (CGU, controladorias dos estados e das capitais)"}
+  - {codigo: fisco, pesquisa: "concursos de fiscos: Receita Federal, auditor-fiscal do trabalho, secretarias de Fazenda dos estados e do DF e auditores fiscais de capitais e grandes cidades"}
+  - {codigo: legislativo-conselhos, pesquisa: "concursos do Legislativo (Câmara dos Deputados, Senado, assembleias legislativas, câmaras das capitais) e de conselhos profissionais federais e regionais (CRM, CREA, CRC, Coren, OAB e outros)"}
+  - {codigo: regulacao, pesquisa: "concursos do Banco Central, CVM, Susep, Previc, Cade e das agências reguladoras federais (Anatel, Aneel, ANP, Anvisa, ANS, Anac, ANTT, Antaq, ANA, Ancine, ANM)"}
+  - {codigo: policias-federais, pesquisa: "concursos da Polícia Federal, Polícia Rodoviária Federal, Polícia Penal Federal e polícias legislativas e judiciais"}
+  - {codigo: policias-estaduais, pesquisa: "concursos de Polícia Civil, Polícia Militar, Corpo de Bombeiros Militar, Polícia Penal e perícia oficial dos estados e do DF"}
+  - {codigo: guardas-transito, pesquisa: "concursos de guardas municipais, Detrans, agentes de trânsito e sistemas socioeducativos dos estados e capitais"}
+  - {codigo: militares, pesquisa: "concursos e seleções das Forças Armadas: Exército (EsPCEx, EsSA, IME, EsFCEx), Marinha (Escola Naval, Colégio Naval, aprendizes-marinheiros, fuzileiros, quadros técnico e complementar) e Aeronáutica (EPCAR, AFA, EEAR, EAOEAR, saúde)"}
+  - {codigo: previstos-justica-controle, pesquisa: "concursos AUTORIZADOS e ainda sem edital (previstos) de tribunais, ministérios públicos, defensorias, procuradorias, tribunais de contas, controladorias e fiscos federais, estaduais e das capitais"}
+  - {codigo: previstos-seguranca, pesquisa: "concursos AUTORIZADOS e ainda sem edital (previstos) de polícias federais e estaduais, bombeiros, polícia penal, guardas municipais e Forças Armadas"}
+  - {codigo: previstos-legislativo-regulacao, pesquisa: "concursos AUTORIZADOS e ainda sem edital (previstos) do Legislativo, conselhos profissionais, Banco Central e agências reguladoras"}

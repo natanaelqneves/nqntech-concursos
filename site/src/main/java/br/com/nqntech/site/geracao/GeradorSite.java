@@ -96,6 +96,10 @@ public class GeradorSite {
         PaginaGerada.adicionar(arquivos, urls, paginas.lista("/inscricoes-abertas/",
                 "Concursos com inscrições abertas", "Concursos públicos com inscrições abertas hoje em todo o Brasil, com resumo de cada edital.",
                 Ordenacao.lista(filtrar(concursos, c -> c.inscricoesAbertas(hoje)), hoje), false, List.of()));
+        PaginaGerada.adicionar(arquivos, urls, paginas.lista("/previstos/", "Concursos previstos",
+                "Concursos autorizados e ainda sem edital em tribunais, órgãos de controle, fiscos, polícias e "
+                        + "carreiras militares, para começar a estudar antes da abertura.",
+                Ordenacao.lista(filtrar(concursos, c -> "PREVISTO".equals(c.situacao())), hoje), false, List.of()));
         PaginaGerada.adicionar(arquivos, urls, paginas.lista("/isencao-em-prazo/", "Isenção da taxa em prazo",
                 "Concursos com o prazo para pedir isenção da taxa de inscrição em andamento.",
                 Ordenacao.isencaoEmPrazo(concursos, hoje), false, List.of()));

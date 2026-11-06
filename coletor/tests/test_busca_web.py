@@ -94,7 +94,7 @@ def test_resposta_sem_array_e_erro():
 def test_alvos_do_arquivo_do_repositorio():
     alvos = carregar_alvos(Path(__file__).parents[2] / "config" / "busca.yml")
     codigos = {a.codigo for a in alvos}
-    assert {"fcc", "vunesp", "nordeste", "federais"} <= codigos
+    assert {"fcc", "vunesp", "judiciario", "fisco", "militares", "previstos-seguranca"} <= codigos
     assert "fgv" not in codigos  # banca com coletor próprio não gasta cota da busca
     fcc = next(a for a in alvos if a.codigo == "fcc")
     assert fcc.banca == "FCC" and "concursosfcc.com.br" in fcc.dominios

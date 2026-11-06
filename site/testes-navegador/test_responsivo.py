@@ -28,7 +28,7 @@ TELAS = {
 PAGINAS_FIXAS = ["/", "/inscricoes-abertas/", "/isencao-em-prazo/", "/isencoes/", "/brasil/", "/sobre/",
                  "/privacidade/", "/404.html"]
 
-MENU = ["Início", "Inscrições abertas", "Isenção em prazo", "Tipos de isenção", "Por região", "Sobre"]
+MENU = ["Inscrições abertas", "Previstos", "Isenção em prazo", "Tipos de isenção", "Por região", "Sobre"]
 
 
 @pytest.fixture(scope="session")
@@ -122,13 +122,14 @@ def test_menu_completo_visivel_com_alvos_de_toque(pagina: Page) -> None:
         assert caixa is not None
         assert caixa["x"] >= 0 and caixa["x"] + caixa["width"] <= largura, f"'{nome}' sai da tela"
         assert caixa["height"] >= 44, f"'{nome}' com alvo de {caixa['height']}px (mínimo 44)"
-    atual = pagina.locator("#menu-principal a[aria-current='page']")
-    assert atual.count() == 1 and atual.inner_text() == "Início"
+    # Na página inicial nenhum item do menu fica marcado: o link para ela é a marca.
+    assert pagina.locator("#menu-principal a[aria-current='page']").count() == 0
+    assert pagina.locator("a.marca[aria-current='page']").count() == 1
 
 
 def test_menu_leva_as_paginas(pagina: Page) -> None:
     _abrir(pagina, "/")
-    for nome in MENU[1:]:
+    for nome in MENU:
         pagina.locator("#menu-principal").get_by_role("link", name=nome, exact=True).click()
         pagina.wait_for_load_state("networkidle")
         assert pagina.locator("h1").first.is_visible(), f"'{nome}' abriu página sem título"

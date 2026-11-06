@@ -1,9 +1,10 @@
 # NqnTech Concursos
 
-Site **público e gratuito** de concursos públicos do Brasil: previstos, abertos e encerrados, de todas as áreas,
-níveis e estados, com resumo próprio de cada concurso, destaque para as **isenções de taxa** e alertas por
-e-mail. Objetivo: democratizar o acesso a concursos com informação direta, simples e sempre com link para o
-edital oficial.
+Site **público e gratuito** dos grandes concursos públicos do Brasil (tribunais, Ministério Público, defensorias,
+advocacia pública, tribunais de contas, controladorias, fiscos, Legislativo, conselhos profissionais, regulação,
+polícias, bombeiros, guardas e carreiras militares), previstos e abertos, de todos os níveis e estados, com resumo
+próprio de cada concurso, destaque para as **isenções de taxa** e alertas por e-mail. Objetivo: democratizar o
+acesso a concursos com informação direta, simples e sempre com link para o edital oficial.
 
 > Projeto em construção. Acompanhe o andamento em [`docs/CONTEXTO_PROJETO.md`](docs/CONTEXTO_PROJETO.md)
 > (seção "Estado atual").

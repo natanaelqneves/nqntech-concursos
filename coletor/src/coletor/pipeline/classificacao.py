@@ -1,4 +1,4 @@
-"""Etapa 5: área e escolaridade de cada cargo, recorte geográfico do concurso e destaque do CNU.
+"""Etapa 5: área e escolaridade de cada cargo, recorte geográfico, categoria do nicho e destaque do CNU.
 
 Recalcula tudo a cada execução (são poucos milhares de linhas) e grava só o que mudou, então uma regra nova em
 config/*.yml vale para os concursos antigos já na execução seguinte, sem reprocessar editais.
@@ -14,6 +14,7 @@ from coletor.classificacao.areas import AREA_PADRAO, ClassificadorArea
 from coletor.classificacao.destaques import DetectorCNU
 from coletor.classificacao.escolaridade import InferidorEscolaridade
 from coletor.classificacao.local import IndiceMunicipios, Local, ResolvedorLocal
+from coletor.classificacao.nicho import ClassificadorNicho
 from coletor.classificacao.orgao import OrgaoInferido, inferir_orgao
 from coletor.classificacao.regras import carregar_yaml
 from coletor.db import Linha, Repositorio
@@ -29,6 +30,7 @@ class Classificadores:
     escolaridade: InferidorEscolaridade
     cnu: DetectorCNU
     local: ResolvedorLocal
+    nicho: ClassificadorNicho
 
     @classmethod
     def padrao(cls, repo: Repositorio) -> Classificadores:
@@ -37,6 +39,7 @@ class Classificadores:
             escolaridade=InferidorEscolaridade.padrao(),
             cnu=DetectorCNU.padrao(),
             local=ResolvedorLocal(IndiceMunicipios(repo.municipios())),
+            nicho=ClassificadorNicho.padrao(),
         )
 
 
@@ -107,6 +110,8 @@ def _classificar(
         local = Local(concurso["abrangencia"], concurso["uf"], concurso["municipio_ibge"])
 
     alterado = repo.aplicar_local(concurso["id"], local, unificado)
+    categoria = classificadores.nicho.categoria(orgao.nome if orgao else None, concurso["titulo"], unificado=unificado)
+    alterado |= repo.aplicar_categoria(concurso["id"], categoria)
     if concurso["orgao_id"] and local.municipio_ibge and local.uf:
         repo.completar_municipio_do_orgao(concurso["orgao_id"], local.uf, local.municipio_ibge)
 

@@ -650,8 +650,10 @@ class Repositorio:
                                       WHERE d.concurso_id = c.id AND d.tipo = 'EDITAL' AND d.status_extracao = 'OK'
                                       ORDER BY d.data_publicacao DESC NULLS LAST, d.id DESC LIMIT 1) e ON true
                WHERE c.edital_documento_id IS DISTINCT FROM e.id
-               -- Cota de IA gratuita: primeiro o que o administrador enviou, depois inscrições abertas.
-               ORDER BY (e.url_origem LIKE 'manual:%%') DESC, (c.situacao = 'INSCRICOES_ABERTAS') DESC, c.id"""
+               -- Cota de IA gratuita: primeiro o que o administrador enviou, depois o nicho do site (categoria
+               -- gravada pela classificação, que já roda pelo título antes do edital ser lido), depois abertos.
+               ORDER BY (e.url_origem LIKE 'manual:%%') DESC, (c.orgao_categoria IS NOT NULL) DESC,
+                        (c.situacao = 'INSCRICOES_ABERTAS') DESC, c.id"""
         ).fetchall()
 
     def aplicar_edital(self, concurso_id: int, documento_id: int, edital: EditalExtraido, situacao: str) -> None:
@@ -834,7 +836,7 @@ class Repositorio:
         """Concursos ainda ativos (e os publicados, para poderem sair do site), com o que o resumo usa."""
         return self.conn.execute(
             """SELECT c.id, c.titulo, c.situacao, c.ano, c.abrangencia, c.uf, c.unificado, c.slug, c.resumo,
-                      c.publicado, c.total_vagas, c.salario_max, c.escolaridades, c.areas,
+                      c.publicado, c.orgao_categoria, c.total_vagas, c.salario_max, c.escolaridades, c.areas,
                       c.inscricao_inicio, c.inscricao_fim, c.data_prova, c.taxa_min, c.taxa_max, c.isencao_fim,
                       jsonb_array_length(coalesce(c.avisos_extracao, '[]'::jsonb)) > 0 AS tem_avisos,
                       extract(year FROM c.criado_em)::int AS ano_criacao,
@@ -895,6 +897,14 @@ class Repositorio:
                 "municipio": local.municipio_ibge,
                 "unificado": unificado,
             },
+        )
+        return cursor.rowcount > 0
+
+    def aplicar_categoria(self, concurso_id: int, categoria: str | None) -> bool:
+        cursor = self.conn.execute(
+            """UPDATE concurso SET orgao_categoria = %(categoria)s
+               WHERE id = %(id)s AND orgao_categoria IS DISTINCT FROM %(categoria)s""",
+            {"id": concurso_id, "categoria": categoria},
         )
         return cursor.rowcount > 0
 

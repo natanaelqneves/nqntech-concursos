@@ -1,8 +1,8 @@
 """Etapa 6: resumo por regras, campos desnormalizados para o site, slug estável e publicação.
 
-Publicado = tem o mínimo para a página (slug, abrangência, resumo), é oportunidade (seção 4.3) e, se não for
-previsto, já teve o edital lido. Concurso que deixa de ser oportunidade sai do site na mesma execução; o slug fica,
-para voltar à mesma URL se reabrir.
+Publicado = tem o mínimo para a página (slug, abrangência, resumo), é oportunidade (seção 4.3), é do nicho do site
+(config/nicho.yml) e, se não for previsto, já teve o edital lido. Concurso que deixa de ser oportunidade sai do site
+na mesma execução; o slug fica, para voltar à mesma URL se reabrir.
 """
 
 from __future__ import annotations
@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 from decimal import Decimal
 
+from coletor.classificacao.nicho import ClassificadorNicho
 from coletor.db import Linha, Repositorio
 from coletor.pipeline.comum import ResumoEtapa, agora, hoje
 from coletor.resumo import DadosConcurso, gerar_resumo, gerar_slug
@@ -47,9 +48,10 @@ def dados_do_concurso(linha: Linha) -> DadosConcurso:
     )
 
 
-def executar_resumo(repo: Repositorio) -> ResumoEtapa:
+def executar_resumo(repo: Repositorio, nicho: ClassificadorNicho | None = None) -> ResumoEtapa:
     inicio = agora()
     dia = hoje()
+    nicho = nicho or ClassificadorNicho.padrao()
     concursos = repo.concursos_para_resumir()
     ocupados = repo.slugs_ocupados()
     repo.conn.commit()
@@ -66,7 +68,12 @@ def executar_resumo(repo: Repositorio) -> ResumoEtapa:
                 ocupados.add(slug)
             resumo = gerar_resumo(dados, dia)
             publicado = pode_publicar(
-                linha["abrangencia"], linha["situacao"], linha["isencao_fim"], bool(linha["tem_edital"]), dia
+                linha["abrangencia"],
+                linha["situacao"],
+                linha["isencao_fim"],
+                bool(linha["tem_edital"]),
+                dia,
+                no_nicho=not nicho.exclusivo or linha["orgao_categoria"] is not None,
             )
             campos = {
                 "slug": slug,

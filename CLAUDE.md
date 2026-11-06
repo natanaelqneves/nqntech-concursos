@@ -14,8 +14,10 @@ Desenvolvedor Java/Spring Boot e PostgreSQL, com conhecimento de Python. Domina 
 variáveis de ambiente e configuração: não explique o básico.
 
 ## Projeto
-Site público e gratuito de concursos públicos do Brasil (todas as áreas, níveis e estados; previstos, abertos e
-encerrados), com resumo próprio de cada concurso, informações sobre isenções de taxa e alertas por e-mail com
+Site público e gratuito dos grandes concursos públicos do Brasil (nicho de 06/11/2026: tribunais, Ministério
+Público, defensorias, advocacia pública, tribunais de contas, controladorias, fiscos, Legislativo, conselhos
+profissionais, regulação, polícias, bombeiros, guardas e carreiras militares; todos os níveis e estados; previstos
+e abertos), com resumo próprio de cada concurso, informações sobre isenções de taxa e alertas por e-mail com
 cadastro só de nome, e-mail e filtro. Coleta em Python e geração do site estático em Java/Thymeleaf no GitHub
 Actions; PostgreSQL no Neon; site na Cloudflare (Workers, assets estáticos, deploy só pelo GitHub Actions).
 Repositório público: https://github.com/natanaelqneves/nqntech-concursos

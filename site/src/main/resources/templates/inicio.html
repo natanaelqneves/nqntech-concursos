@@ -8,14 +8,16 @@
         <div class="container">
             <h1 class="abertura__titulo" th:text="${abertos.size() == 1} ? '1 concurso com inscrições abertas no Brasil agora.' : ${abertos.size() + ' concursos com inscrições abertas no Brasil agora.'}">
                 0 concursos com inscrições abertas no Brasil agora.</h1>
-            <p class="abertura__texto">Um resumo simples de cada edital, as datas que importam e os prazos para pedir
-                <a href="/isencoes/">isenção da taxa</a>, de graça e sem cadastro.</p>
+            <p class="abertura__texto">Tribunais, Ministério Público, tribunais de contas, controladorias, fiscos,
+                Legislativo, conselhos, polícias e carreiras militares: um resumo simples de cada edital, as datas que
+                importam e os prazos para pedir <a href="/isencoes/">isenção da taxa</a>, de graça e sem cadastro.</p>
             <div class="abertura__acoes">
                 <a class="btn btn-primary" href="/inscricoes-abertas/">Ver inscrições abertas</a>
                 <a class="btn btn-outline-secondary" href="/isencao-em-prazo/"
                    th:text="${isencao.size() == 1} ? '1 com isenção em prazo' : ${isencao.size() + ' com isenção em prazo'}">0 com isenção em prazo</a>
             </div>
-            <p class="nota mt-3 mb-0 text-start" th:text="${total + ' oportunidades no total, entre abertas, por abrir e previstas.'}">0 oportunidades</p>
+            <p class="nota mt-3 mb-0 text-start"><span th:text="${total + ' oportunidades no total, entre abertas, por abrir e previstas.'}">0 oportunidades</span>
+                <a href="/previstos/">Ver os previstos.</a></p>
         </div>
     </section>
 

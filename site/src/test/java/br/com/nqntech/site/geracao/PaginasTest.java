@@ -59,9 +59,11 @@ class PaginasTest {
                 .contains("data-prazo=\"2026-10-28\"")
                 .contains("Confira sempre o")
                 .contains("\"@type\":\"WebSite\"")
-                .contains("href=\"/inscricoes-abertas/\"", "href=\"/isencao-em-prazo/\"", "href=\"/brasil/\"",
-                        "href=\"/isencoes/\"", "href=\"/sobre/\"")
-                .contains("<a href=\"/\" aria-current=\"page\">Início</a>")
+                .contains("href=\"/inscricoes-abertas/\"", "href=\"/previstos/\"", "href=\"/isencao-em-prazo/\"",
+                        "href=\"/brasil/\"", "href=\"/isencoes/\"", "href=\"/sobre/\"")
+                // Início só pela marca: sem item repetido no menu.
+                .contains("aria-label=\"NqnTech Concursos, página inicial\" aria-current=\"page\"")
+                .doesNotContain(">Início</a></li>")
                 .containsPattern("href=\"/assets/site\\.css\\?v=[0-9a-f]{10}\"")
                 .containsPattern("src=\"/assets/site\\.js\\?v=[0-9a-f]{10}\"")
                 .doesNotContain("abrir-menu")
